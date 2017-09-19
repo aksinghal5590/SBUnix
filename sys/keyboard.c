@@ -15,7 +15,7 @@ void printKeyboardChar(uint8_t printChar)
 	char s[2] = {};
 	s[0] = (char)printChar;
 	s[1] ='\0';
-	kprintf("Input character: %s\n", s);
+	printkeyboard(s);
 }
 
 uint8_t special_char = 0;
@@ -24,8 +24,9 @@ void keyboardImpl() {
 	
 	uint8_t input = inIO(0x60);
 	uint8_t c = scancodes[input][0];
+	uint8_t c1 = scancodes[input][1];
 
-	if(scancodes[input][1]) {
+	if(c1) {
 		if(c > 127) {
 			special_char = 0;
 		}
@@ -33,15 +34,22 @@ void keyboardImpl() {
 	}
 	if(c <= 127) {
 		if(!special_char) {
-			char s[] = {(char)c, '\0'};
-			kprintf("Input character: %s\n", s);
-			return;
+			if(c >= 0 && c <= 26) {
+                                char s[] = {'^', (char)(c+64), '\0'};
+                                printkeyboard(s);
+                        }else if(c == 127) {
+                        	char s[] = {'^', (char)(63), '\0'};
+                                printkeyboard(s);
+                        } else {
+				char s[] = {(char)c, '\0'};
+				printkeyboard(s);
+			}
 		} else {
 			if(special_char == 128) {
 				if(c >= 97 && c <= 122) {
 					c -= 32;
 					char s[] = {(char)c, '\0'};
-					kprintf("Input character: %s\n", s);
+					printkeyboard(s);
 				}
 				else {
 					uint8_t printChar = 0;
@@ -140,16 +148,19 @@ void keyboardImpl() {
 			} else if(special_char == 129) {
 				if(c >= 97 && c <= 122) {
                                         char s[] = {'^', (char)(c-32), '\0'};
-                                        kprintf("Input character: %s\n", s);
+                                        printkeyboard(s);
                                 }
-				if(c >= 1 && c <= 26) {
-					char s[] = {'^', (char)(c+65), '\0'};
-					kprintf("Input character: %s\n", s);
+				if(c >= 0 && c <= 26) {
+					char s[] = {'^', (char)(c+64), '\0'};
+					printkeyboard(s);
+				}
+				if(c == 127) {
+					char s[] = {'^', (char)(63), '\0'};
+                                        printkeyboard(s);
 				}
 			}
 		}
-	}
-	if(scancodes[input][0] > 127) {
-		special_char = scancodes[input][0];
+	} else {
+		special_char = c;
 	}
 }

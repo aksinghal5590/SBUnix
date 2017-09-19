@@ -41,12 +41,30 @@ void memshift() {
 }
 
 void printtimer(uint64_t seconds) {
-    char intarr[MAXINTLEN];
+    char intarr [MAXINTLEN];
     register char *temp1,*temp2;
+    char *str = "Time Elaspsed since boot: "; 
     convert(seconds, intarr, 10);
-     //for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7;
     for(temp1 = (char*)0xb8001+160*24; temp1 < (char*)0xb8000+160*25; temp1 += 2) *temp1 = 7;
-    for(temp1 = (char*)0xb8000+160*24, temp2 = (char*)intarr; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+    for(temp1 = (char*)0xb8000+160*24, temp2 = (char*)str; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+         *(temp1) = *(temp2);
+    }
+    for(temp2 = (char*)intarr; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+         *(temp1) = *(temp2);
+    }
+}
+
+void printkeyboard(char *s) {
+    register char *temp1,*temp2;
+    char *str = "Input character: ";
+    for(temp1 = (char*)0xb8001+160*24; temp1 < (char*)0xb8000+160*25; temp1 += 2) *temp1 = 7;
+    for(temp1 = (char*)0xb8000+160*25-40; temp1 < (char*)0xb8000+160*25; temp1 += 2) {
+         *(temp1) = 0;
+    }//clear memory
+    for(temp1 = (char*)0xb8000+160*25-40, temp2 = (char*)str; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+         *(temp1) = *(temp2);
+    }
+    for(temp2 = s; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
          *(temp1) = *(temp2);
     }
 }
