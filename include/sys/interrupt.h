@@ -43,6 +43,7 @@ void irq1Handler(struct regs *r);
 void initKeyboard();
 void initScanCodeTable();
 void keyboardImpl();
+void printDefault(uint8_t c);
 
 
 void outIO(uint16_t port, uint8_t value);

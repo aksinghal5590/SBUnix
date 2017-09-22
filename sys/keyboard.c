@@ -20,6 +20,19 @@ void printKeyboardChar(uint8_t printChar)
 
 uint8_t special_char = 0;
 
+void printDefault(uint8_t c) {
+	if(c >= 0 && c <= 31) {
+		char s[] = {'^', (char)(c+64), '\0'};
+		printkeyboard(s);
+	} else if(c == 127) {
+		char s[] = {'^', (char)(63), '\0'};
+		printkeyboard(s);
+	} else {
+		char s[] = {(char)c, '\0'};
+		printkeyboard(s);
+	}
+}
+
 void keyboardImpl() {
 	
 	uint8_t input = inIO(0x60);
@@ -34,16 +47,7 @@ void keyboardImpl() {
 	}
 	if(c <= 127) {
 		if(!special_char) {
-			if(c >= 0 && c <= 26) {
-                                char s[] = {'^', (char)(c+64), '\0'};
-                                printkeyboard(s);
-                        }else if(c == 127) {
-                        	char s[] = {'^', (char)(63), '\0'};
-                                printkeyboard(s);
-                        } else {
-				char s[] = {(char)c, '\0'};
-				printkeyboard(s);
-			}
+			printDefault(c);
 		} else {
 			if(special_char == 128) {
 				if(c >= 97 && c <= 122) {
@@ -141,7 +145,7 @@ void keyboardImpl() {
 							break;
 						default:
 							printChar = c;
-							printKeyboardChar(printChar);
+							printDefault(printChar);
 							break;
 					}
 				}
@@ -150,14 +154,6 @@ void keyboardImpl() {
                                         char s[] = {'^', (char)(c-32), '\0'};
                                         printkeyboard(s);
                                 }
-				if(c >= 0 && c <= 26) {
-					char s[] = {'^', (char)(c+64), '\0'};
-					printkeyboard(s);
-				}
-				if(c == 127) {
-					char s[] = {'^', (char)(63), '\0'};
-                                        printkeyboard(s);
-				}
 			}
 		}
 	} else {
