@@ -126,16 +126,20 @@ void parsefmt(char print[], const char *fmt, va_list val)
 void convert(uint64_t a, char* ch, int base)
 {
 	int i = 0;
-	while(a > 0)
+	if(a == 0)
+	   ch[i++] = '0';
+	else
 	{
-		int rem = a%base;
-		if(rem > 9)
-			ch[i++] = (rem-10) + 'a';
-		else
-			ch[i++] = rem + '0';
-		a /= base;
+		while(a > 0)
+		{
+			int rem = a%base;
+			if(rem > 9)
+				ch[i++] = (rem-10) + 'a';
+			else
+				ch[i++] = rem + '0';
+			a /= base;
+		}
 	}
-
 	for(int j = 0; j <= (i-1)/2; j++)
 	{
 		if(j != (i-j-1))
