@@ -25,6 +25,14 @@
 #define ATA_STATUS_BSY  0x80 // Indicates the drive is preparing to send/receive data (wait for it to clear).
                              // In case of 'hang' (it never clears), do a software reset.
 
+/*********Defined by team*****************/
+#define SATA_SIG_ATA	0x00000101	// SATA drive
+#define	SATA_SIG_ATAPI	0xEB140101	// SATAPI drive
+#define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
+#define	SATA_SIG_PM	0x96690101	// Port multiplier
+/*********Defined by team*****************/
+
+
 #define CMD_FIS_DEV_LBA (1U << 6)
 
 #define MAX_CMD_SLOT_CNT 32
@@ -333,5 +341,14 @@ typedef volatile struct {
   // 0x100 - 0x10FF, Port control registers
   hba_port_t ports[MAX_PORT_CNT]; // 1 ~ 32
 }__attribute__((__packed__)) hba_mem_t;
+
+
+/*------Function Declaration---------*/
+
+void findAHCIDevice(uint8_t *bus, uint8_t *device);
+void findDeviceAttached(uint8_t bus, uint8_t device);
+void performAHCITask();
+void populateHBA_MEM(uint32_t bar5);
+
 
 #endif

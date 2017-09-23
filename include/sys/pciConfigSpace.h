@@ -3,8 +3,8 @@
 
 #include <sys/defs.h>
 
-void enumeratePCI();
-void checkAllBuses(void);
+void enumeratePCI(uint8_t* bus, uint8_t* device);
+void checkAllBuses(uint8_t *targetBus, uint8_t *targetDevice);
 void checkDevice(uint8_t bus, uint8_t device, uint8_t *deviceFound);
 void checkFunction(uint8_t bus, uint8_t device, uint8_t function, uint8_t *deviceFound);
 uint8_t getBaseClass(uint16_t classID);

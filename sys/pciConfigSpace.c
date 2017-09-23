@@ -3,12 +3,12 @@
 #include "sys/pciConfigSpace.h"
 
 
-void enumeratePCI()
+void enumeratePCI(uint8_t* bus, uint8_t* device)
 {
-     checkAllBuses();
+     checkAllBuses(bus, device);
 }
 
-void checkAllBuses(void)
+void checkAllBuses(uint8_t* targetBus, uint8_t* targetDevice)
 {
      uint8_t bus;
      uint8_t device;
@@ -19,8 +19,12 @@ void checkAllBuses(void)
          for(device = 0; device < 32; device++) {
              if(!deviceFound)
                   checkDevice(bus, device, &deviceFound);
-	     else
+	     if(deviceFound)
+	     {
+                  *targetBus = bus;
+		  *targetDevice = device;
 		  break;
+	     }
          }
          if(deviceFound)
             break;
@@ -31,7 +35,7 @@ void checkDevice(uint8_t bus, uint8_t device, uint8_t *deviceFound)
 {
      uint16_t vendorID = getVendorID(bus, device);
      if(vendorID == 0xFFFF) return;        // Device doesn't exist
-     for(uint8_t i = 0; i < 1; i++)
+     for(uint8_t i = 0; i < 8; i++)
      {
 	if(!(*deviceFound))
             checkFunction(bus, device, i, deviceFound);
