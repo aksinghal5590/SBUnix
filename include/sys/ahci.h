@@ -31,8 +31,11 @@
 #define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
 #define	SATA_SIG_PM	0x96690101	// Port multiplier
 #define HBA_PORT_DET_PRESENT 3
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
 #define HBA_PORT_IPM_ACTIVE 1
 #define AHCI_DEV_NULL 0
+#define ATA_CMD_READ_DMA_EX 0x25
 /*********Defined by team*****************/
 
 
@@ -353,5 +356,8 @@ void findDeviceAttached(uint8_t bus, uint8_t device);
 void performAHCITask();
 int32_t probe_port(hba_mem_t *abar);
 void populateHBA_MEM(uint32_t bar5);
+void readWriteAHCI(hba_port_t *port);
+int read(hba_port_t *port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t *buf);
+int find_cmdslot(hba_port_t *port);
 //static int check_type(hba_port_t *port);
 #endif
