@@ -30,6 +30,9 @@
 #define	SATA_SIG_ATAPI	0xEB140101	// SATAPI drive
 #define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
 #define	SATA_SIG_PM	0x96690101	// Port multiplier
+#define HBA_PORT_DET_PRESENT 3
+#define HBA_PORT_IPM_ACTIVE 1
+#define AHCI_DEV_NULL 0
 /*********Defined by team*****************/
 
 
@@ -348,7 +351,7 @@ typedef volatile struct {
 void findAHCIDevice(uint8_t *bus, uint8_t *device);
 void findDeviceAttached(uint8_t bus, uint8_t device);
 void performAHCITask();
+int32_t probe_port(hba_mem_t *abar);
 void populateHBA_MEM(uint32_t bar5);
-
-
+//static int check_type(hba_port_t *port);
 #endif
