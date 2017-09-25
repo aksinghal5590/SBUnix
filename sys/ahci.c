@@ -62,8 +62,7 @@ int32_t probe_port(hba_mem_t *abar)
 			if (dt == AHCI_DEV_SATA)
 			{
 				kprintf("SATA drive found at port %d\n", i);
-				sataPort = i;
-				break;				
+				sataPort = i;		
 			}
 			else if (dt == AHCI_DEV_SATAPI)
 			{
