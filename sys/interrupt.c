@@ -58,6 +58,10 @@ void initIdt() {
 	idtptr.limit = sizeof(struct idt_table) * 256 - 1;
 	idtptr.baseptr = (uint64_t)&idtTable;
 
+	for(int i = 0; i < 256; i++) {
+		setVector(i, (uint64_t)irqDefault, 0x08, 0x8E);
+	}
+
 	setVector(32, (uint64_t)irq0, 0x08, 0x8E);
 	setVector(33, (uint64_t)irq1, 0x08, 0x8E);
 

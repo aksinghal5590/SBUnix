@@ -2,16 +2,19 @@
 #include <sys/kprintf.h>
 #include "sys/pciConfigSpace.h"
 
+uint8_t functionFound;
 
-void enumeratePCI(uint8_t* bus, uint8_t* device)
+int enumeratePCI(uint8_t* bus, uint8_t* device)
 {
-     checkAllBuses(bus, device);
+   int res = checkAllBuses(bus, device);
+   kprintf("Value of Result in enumeratePCI is: %d\n", res);
+   return res;
 }
 
-void checkAllBuses(uint8_t* targetBus, uint8_t* targetDevice)
+int checkAllBuses(uint8_t* targetBus, uint8_t* targetDevice)
 {
-     uint8_t bus;
-     uint8_t device;
+     uint16_t bus;
+     uint16_t device;
 
      uint8_t deviceFound = 0; 
      for(bus = 0; bus < 256; bus++) {
@@ -21,6 +24,7 @@ void checkAllBuses(uint8_t* targetBus, uint8_t* targetDevice)
                   checkDevice(bus, device, &deviceFound);
 	     if(deviceFound)
 	     {
+		  kprintf("Found device at bus: %d and device at: %d\n", bus, device);
                   *targetBus = bus;
 		  *targetDevice = device;
 		  break;
@@ -29,6 +33,10 @@ void checkAllBuses(uint8_t* targetBus, uint8_t* targetDevice)
          if(deviceFound)
             break;
      }
+     if(!deviceFound)
+	return 0;
+     else
+	return 1;
 }
 
 void checkDevice(uint8_t bus, uint8_t device, uint8_t *deviceFound) 
@@ -39,8 +47,11 @@ void checkDevice(uint8_t bus, uint8_t device, uint8_t *deviceFound)
      {
 	if(!(*deviceFound))
             checkFunction(bus, device, i, deviceFound);
-        else
+        if(*deviceFound)
+	{
+	    functionFound = i; 
 	    break;
+	}
      }
 }
  
@@ -57,6 +68,7 @@ void checkFunction(uint8_t bus, uint8_t device, uint8_t function, uint8_t *devic
      if( (baseClass == 0x01) && (subClass == 0x06) )
      {
 	kprintf("Found AHCI device at device number: %d and bus is: %d\n", device, bus);
+	kprintf("Found AHCI device is baseclass: %x and subclass: %x\n", baseClass, subClass);
         *deviceFound = 1;
      }
 }
@@ -98,6 +110,44 @@ uint16_t pciConfigReadWord(uint8_t bus, uint8_t device, uint8_t function, uint8_
     tmp = (uint16_t)((sysInLong (0xCFC) >> ((offset & 2) * 8)) & 0xffff);
     return (tmp);
 }
+
+
+uint32_t pciConfigReadWord_32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
+{
+    uint32_t address;
+    uint32_t lbus  = (uint32_t)bus;
+    uint32_t ldevice = (uint32_t)device;
+    uint32_t lfunc = (uint32_t)function;
+    uint32_t tmp = 0;
+ 
+    address = (uint32_t)(1<<31) | (uint32_t)((lbus << 16) | (ldevice << 11) |
+              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
+ 
+    /* write out the address */
+    sysOutLong (0xCF8, address);
+    /* read in the data */
+    /* (offset & 2) * 8) = 0 will choose the first word of the 32 bits register */
+    tmp = (uint32_t)((sysInLong (0xCFC)));
+    return (tmp);
+}
+
+void pciConfigWriteWord_32(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset)
+{
+    uint32_t address;
+    uint32_t lbus  = (uint32_t)bus;
+    uint32_t ldevice = (uint32_t)device;
+    uint32_t lfunc = (uint32_t)function;
+     
+    address = (uint32_t)(1<<31) | (uint32_t)((lbus << 16) | (ldevice << 11) |
+              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
+ 
+    /* write out the address */
+    sysOutLong (0xCF8, address);
+    /* read in the data */
+    /* (offset & 2) * 8) = 0 will choose the first word of the 32 bits register */
+    sysOutLong (0xCFC, 0xB7000);
+}
+
 
 void sysOutLong(uint16_t port, uint32_t value)
 {	

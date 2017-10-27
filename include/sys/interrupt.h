@@ -34,6 +34,7 @@ void loadIdt(struct idt_ptr idtptr);
 void setVector(int pos, uint64_t baseptr, uint16_t sel, uint8_t flags);
 
 
+extern void irqDefault();
 extern void irq0();
 extern void irq1();
 

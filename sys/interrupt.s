@@ -1,8 +1,12 @@
+.global irqDefault
 .global irq0
 .global irq1
 
 .extern irq0Handler
 .extern irq1Handler
+
+irqDefault:
+	iretq
 
 irq0:
 	cli

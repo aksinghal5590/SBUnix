@@ -36,6 +36,9 @@
 #define HBA_PORT_IPM_ACTIVE 1
 #define AHCI_DEV_NULL 0
 #define ATA_CMD_READ_DMA_EX 0x25
+#define ATA_CMD_WRITE_DMA_EX 0x35
+#define	AHCI_BASE	0x400000	// 4M
+#define DET_TIMER_LIMIT 10000
 /*********Defined by team*****************/
 
 
@@ -351,13 +354,19 @@ typedef volatile struct {
 
 /*------Function Declaration---------*/
 
-void findAHCIDevice(uint8_t *bus, uint8_t *device);
+int findAHCIDevice(uint8_t *bus, uint8_t *device);
 void findDeviceAttached(uint8_t bus, uint8_t device);
 void performAHCITask();
 int32_t probe_port(hba_mem_t *abar);
 void populateHBA_MEM(uint32_t bar5);
 void readWriteAHCI(hba_port_t *port);
-int read(hba_port_t *port, uint32_t startl, uint32_t starth, uint32_t count, uint64_t *buf);
+int read(hba_port_t *port, uint32_t startl, uint32_t starth, uint32_t count, uint32_t *buf);
+int write(hba_port_t *port, uint32_t startl, uint32_t starth, uint32_t count, uint32_t *buf);
+void writeBlock(char *writeBuf, char c);
+void readBlock(char *readBuf);
 int find_cmdslot(hba_port_t *port);
+void port_rebase(hba_port_t *port, int portno);
+void start_cmd(hba_port_t *port);
+void stop_cmd(hba_port_t *port);
 //static int check_type(hba_port_t *port);
 #endif
