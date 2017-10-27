@@ -17,7 +17,7 @@ void kprintf(const char *fmt, ...)
      for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7;
      for(temp1 = kstring;*temp1;temp1 += 1, memlo+=2) 
      { 
-      if(memlo > (char*)0xb8000+160*24) {
+      if(memlo >= (char*)0xb8000+160*24) {
          memshift();
       }
       if(*temp1 == '\n' || *temp1 == '\r') {
@@ -89,7 +89,7 @@ void parsefmt(char print[], const char *fmt, va_list val)
          fmt++;
          switch(fmtch) {
             case 'c':
-                print[printcnt] = va_arg(val, int);
+                print[printcnt++] = va_arg(val, int);
                 break;
             case 'd':
                 convert(va_arg(val, int), intarr, 10);
