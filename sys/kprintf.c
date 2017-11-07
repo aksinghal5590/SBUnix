@@ -6,7 +6,7 @@
 #define MAXBUFLEN 2048
 #define MAXINTLEN 25
 
-static char *memlo = (char *)0xb8000;
+static char *memlo = (char *)VIDEO_MEM_VIRTUAL;
 void kprintf(const char *fmt, ...)
 {
      va_list val;
@@ -14,14 +14,14 @@ void kprintf(const char *fmt, ...)
      char kstring[MAXBUFLEN];
      parsefmt(kstring, fmt, val);
      register char *temp1, *temp2;
-     for(temp2 = (char*)0xb8001; temp2 < (char*)0xb8000+160*25; temp2 += 2) *temp2 = 7;
+     for(temp2 = (char*)VIDEO_COL_VIRTUAL; temp2 < (char*)(VIDEO_MEM_VIRTUAL+160*25); temp2 += 2) *temp2 = 7;
      for(temp1 = kstring;*temp1;temp1 += 1, memlo+=2) 
      { 
-      if(memlo >= (char*)0xb8000+160*24) {
+      if(memlo >= (char*)(VIDEO_MEM_VIRTUAL+160*24)) {
          memshift();
       }
       if(*temp1 == '\n' || *temp1 == '\r') {
-          memlo = (char *)0xb8000 + (((memlo - (char*)0xb8000)/160)+1)*160 - 2; 
+          memlo = (char *)(VIDEO_MEM_VIRTUAL) + (((memlo - (char*)(VIDEO_MEM_VIRTUAL))/160)+1)*160 - 2; 
           continue;
       }
       *memlo = *temp1;
@@ -31,13 +31,13 @@ void kprintf(const char *fmt, ...)
 
 void memshift() {
     register char *temp1, *temp2;
-    for(temp1 = (char*)0xb8000; temp1 < (char*)0xb8000+160*23; temp1 += 1) {
+    for(temp1 = (char*)(VIDEO_MEM_VIRTUAL); temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*23; temp1 += 1) {
          *(temp1) = *((char*)(temp1 + 160));
     }
-    for(temp2 = (char*)temp1; temp2 < (char*)0xb8000+160*24; temp2+=1) {
+    for(temp2 = (char*)temp1; temp2 < (char*)(VIDEO_MEM_VIRTUAL)+160*24; temp2+=1) {
          *(temp2) = 0;
     }
-    memlo = (char*)(0xb8000+160*23);
+    memlo = (char*)((VIDEO_MEM_VIRTUAL)+160*23);
 }
 
 void printtimer(uint64_t seconds) {
@@ -45,11 +45,11 @@ void printtimer(uint64_t seconds) {
     register char *temp1,*temp2;
     char *str = "Time Elaspsed since boot: "; 
     convert(seconds, intarr, 10);
-    for(temp1 = (char*)0xb8001+160*24; temp1 < (char*)0xb8000+160*25; temp1 += 2) *temp1 = 7;
-    for(temp1 = (char*)0xb8000+160*24, temp2 = (char*)str; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+    for(temp1 = (char*)(VIDEO_COL_VIRTUAL)+160*24; temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2) *temp1 = 7;
+    for(temp1 = (char*)(VIDEO_MEM_VIRTUAL)+160*24, temp2 = (char*)str; *temp2 && temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2,temp2 += 1) {
          *(temp1) = *(temp2);
     }
-    for(temp2 = (char*)intarr; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+    for(temp2 = (char*)intarr; *temp2 && temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2,temp2 += 1) {
          *(temp1) = *(temp2);
     }
 }
@@ -57,14 +57,14 @@ void printtimer(uint64_t seconds) {
 void printkeyboard(char *s) {
     register char *temp1,*temp2;
     char *str = "Input character: ";
-    for(temp1 = (char*)0xb8001+160*24; temp1 < (char*)0xb8000+160*25; temp1 += 2) *temp1 = 7;
-    for(temp1 = (char*)0xb8000+160*25-40; temp1 < (char*)0xb8000+160*25; temp1 += 2) {
+    for(temp1 = (char*)(VIDEO_COL_VIRTUAL)+160*24; temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2) *temp1 = 7;
+    for(temp1 = (char*)(VIDEO_MEM_VIRTUAL)+160*25-40; temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2) {
          *(temp1) = 0;
     }//clear memory
-    for(temp1 = (char*)0xb8000+160*25-40, temp2 = (char*)str; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+    for(temp1 = (char*)(VIDEO_MEM_VIRTUAL)+160*25-40, temp2 = (char*)str; *temp2 && temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2,temp2 += 1) {
          *(temp1) = *(temp2);
     }
-    for(temp2 = s; *temp2 && temp1 < (char*)0xb8000+160*25; temp1 += 2,temp2 += 1) {
+    for(temp2 = s; *temp2 && temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2,temp2 += 1) {
          *(temp1) = *(temp2);
     }
 }

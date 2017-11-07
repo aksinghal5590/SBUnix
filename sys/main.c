@@ -5,6 +5,7 @@
 #include <sys/ahci.h>
 #include <sys/interrupt.h>
 #include <sys/ahci.h>
+#include "sys/pagetable.h"
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -18,17 +19,37 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     uint32_t type;
   }__attribute__((packed)) *smap;
   while(modulep[0] != 0x9001) modulep += modulep[1]+2;
+  int pageCount = 0;
   for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
     if (smap->type == 1 /* memory */ && smap->length != 0) {
       kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
+
+      if((uint64_t)physbase > smap->base + smap->length) {
+	continue;
+      } else if((uint64_t)physfree < smap->base) {
+        pageCount += smap->length/4096;
+      } else if(((uint64_t)physbase) >= smap->base && ((uint64_t)physfree) <= smap->base + smap->length) {
+        if((physfree - physbase) % 4096) {
+          pageCount += (physfree - physbase)/4096 + 1;
+          pageCount += smap->base + smap->length - (uint64_t)physbase*((uint64_t)(physfree - physbase)/4096 + 1);
+        } else {
+          pageCount += (smap->base + smap->length - (uint64_t)physbase)/4096;
+        }
+      }
     }
   }
-  char input = 'A';
+  
+  kprintf("Page count %d\n", pageCount);
+  kprintf("physbase %p\n", (uint64_t)physbase);
   kprintf("physfree %p\n", (uint64_t)physfree);
+  kprintf("Kernmem %p\n", (uint64_t)&kernmem);
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
-  kprintf("Character is: %c\n", input);
-  initInterrupts();
-  performAHCITask();
+  
+  loadKernel((uint64_t)physbase, (uint64_t)physfree); 
+  kprintf("Loaded our own kernel!!!!Its working!!!!!\n"); 
+  //initInterrupts();
+
+//  performAHCITask();
 
   while(1);
 }

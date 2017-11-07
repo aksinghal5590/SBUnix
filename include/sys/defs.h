@@ -3,6 +3,14 @@
 
 #define NULL ((void*)0)
 
+#define VIRTUAL_BASE 0xffffffff80000000
+#define VIDEO_MEM_VIRTUAL  (VIRTUAL_BASE+0xb8000)
+#define VIDEO_MEM 0xb8000
+#define VIDEO_COL_VIRTUAL (VIRTUAL_BASE+0xb8001)
+
+#define ALL_ZERO 0x0
+#define GET_40_BITS 0xFFFFFFF000
+
 typedef unsigned long  uint64_t;
 typedef          long   int64_t;
 typedef unsigned int   uint32_t;
