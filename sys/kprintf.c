@@ -1,7 +1,7 @@
 #include <sys/kprintf.h>
-#include<sys/stdarg.h>
-#include<sys/string.h>
-#include<sys/defs.h>
+#include <sys/stdarg.h>
+#include <sys/string.h>
+#include <sys/defs.h>
 
 #define MAXBUFLEN 2048
 #define MAXINTLEN 25
