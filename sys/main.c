@@ -5,11 +5,14 @@
 #include <sys/ahci.h>
 #include <sys/interrupt.h>
 #include <sys/ahci.h>
-#include "sys/pagetable.h"
+#include "sys/pcb.h"
+#include "sys/kernelLoad.h"
+#include "sys/thread.h"
 
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
+struct PCB *threadA, *threadB;
 extern char kernmem, physbase;
 
 void start(uint32_t *modulep, void *physbase, void *physfree)
@@ -45,11 +48,23 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("Kernmem %p\n", (uint64_t)&kernmem);
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
   
-  loadKernel((uint64_t)physbase, (uint64_t)physfree); 
-  kprintf("Loaded our own kernel!!!!Its working!!!!!\n"); 
-  //initInterrupts();
-
-//  performAHCITask();
+  loadKernel((uint64_t)physbase, (uint64_t)physfree);
+  //Testing Code
+  /*int* a = (int*)kmalloc(sizeof(int));
+  *a = 10;
+  kprintf("Value of a is: %d\n", *a);
+  *a = 20;
+  kprintf("Value of a after update is: %d\n", *a);*/
+  kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
+  kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
+  threadA = createThread();
+  threadB = createThread();
+  kprintf("Performed kmalloc successfully\n");
+  threadInitialize();
+  performContextSwitch();
+  //threadATask();
+  initInterrupts();
+  //performAHCITask();
 
   while(1);
 }
