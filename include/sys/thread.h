@@ -7,6 +7,7 @@
 struct PCB* createThread();
 void threadInitialize();
 void performContextSwitch();
+void firstUserProcess();
 void threadATask();
 void threadBTask();
 

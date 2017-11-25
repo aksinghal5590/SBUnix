@@ -1,5 +1,8 @@
 .global initialSwitch
 .global schedule
+.global switch_to_ring3
+.extern userProcess_fn
+.extern set_tss_rsp
 
 initialSwitch:
 	movq %rdi, %rsp
@@ -40,4 +43,13 @@ schedule:
 	popq %rcx
 	popq %rbx
 	popq %rax
-	ret 
+	ret
+
+switch_to_ring3:
+	movq %rsp, %rax
+	pushq $0x23
+	pushq %rax
+	pushfq
+	pushq $0x2B
+	pushq userProcess_fn
+	iretq

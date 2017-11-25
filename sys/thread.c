@@ -4,13 +4,17 @@
 #include "sys/pcb.h"
 #include "sys/kernelLoad.h"
 #include "sys/thread.h"
+#include "sys/syscall.h"
+#include <sys/interrupt.h>
 
 extern struct PCB *threadA, *threadB;
 extern void initialSwitch(uint64_t first);
 extern void schedule(uint64_t* first, uint64_t* second);
+extern void switch_to_ring3();
 
 uint64_t threadA_fn = (uint64_t)&threadATask;
 uint64_t threadB_fn = (uint64_t)&threadBTask;
+uint64_t userProcess_fn = (uint64_t)&firstUserProcess;
 
 struct PCB* createThread()
 {
@@ -28,23 +32,38 @@ void threadInitialize()
 void performContextSwitch()
 {
 	initialSwitch(threadA->rsp);
-	schedule(&threadA->rsp, &threadB->rsp);
+}
+
+void firstUserProcess()
+{
+	//kprintf("This is the first user process at: %x\n", &firstUserProcess);
+	while(1)
+	{
+		userWrite(1, "Hello", 5);
+	}
 }
 
 void threadATask()
 {
-	while(1)
+	int i = 0;
+	while(i < 1)
 	{
 		kprintf("Currently in ThreadA\n");
 		schedule(&threadA->rsp, &threadB->rsp);
+		i++;
+	}
+	kprintf("Check by entering ring 3\n");
+	//switch_to_ring3(userProcess_fn);
+	switch_to_ring3();
+	kprintf("Returned from ring 3\n");
+	while(1)
+	{
+		;
 	}
 }
 
 void threadBTask()
 {
-	while(1)
-	{
-		kprintf("Currently in ThreadB\n");
-		schedule(&threadB->rsp, &threadA->rsp);
-	}
+	kprintf("Currently in ThreadB\n");
+	schedule(&threadB->rsp, &threadA->rsp);
 }
