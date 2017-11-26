@@ -1,6 +1,6 @@
 #ifndef _ELF64_H
 #define _ELF64_H
-
+#include "defs.h"
 #define EI_NIDENT 16
 
 typedef uint64_t Elf64_Addr;
@@ -39,5 +39,5 @@ typedef struct {
   Elf64_Xword   p_memsz;
   Elf64_Xword   p_align;
 } Elf64_Phdr;
-
+void read_file(char* file_name);
 #endif
