@@ -3,6 +3,7 @@
 
 struct mm_struct* create_mm_struct() {
 	struct mm_struct *mm = (struct mm_struct*) kmalloc(sizeof(struct mm_struct));
+	mm->vma_list = NULL;
 	return mm;
 }
 
@@ -24,6 +25,10 @@ void insert_vma(struct mm_struct *mm, uint64_t start, uint64_t end, uint64_t siz
 	struct vm_area_struct *new_vma = create_vm_area_struct(start, end, size, access_flags, type);
 	struct vm_area_struct *temp = mm->vma_list;
 	int added = 0;
+	if(mm->vma_list == NULL) {
+		mm->vma_list = new_vma;
+		return;
+	}
 	while(temp->next != NULL) {
 		if(temp->start < end) {
 			if(temp->end <= start) {
