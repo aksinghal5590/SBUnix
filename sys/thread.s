@@ -52,4 +52,6 @@ switch_to_ring3:
 	pushfq
 	pushq $0x2B
 	pushq userProcess_fn
+	movq %rsp, %rdi
+	callq set_tss_rsp
 	iretq

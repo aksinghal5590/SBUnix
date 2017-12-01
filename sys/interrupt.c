@@ -65,7 +65,7 @@ void initIdt() {
 
 	setVector(32, (uint64_t)irq0, 0x08, 0x8E);
 	setVector(33, (uint64_t)irq1, 0x08, 0x8E);
-	setVector(128, (uint64_t)systemCallHandler, 0x08, 0x8E);
+	setVector(128, (uint64_t)systemCallHandler, 0x08, 0xEE);
 	loadIdt(idtptr);
 
 	__asm__("sti");

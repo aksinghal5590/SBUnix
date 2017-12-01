@@ -36,10 +36,10 @@ void performContextSwitch()
 
 void firstUserProcess()
 {
-	//kprintf("This is the first user process at: %x\n", &firstUserProcess);
+	kprintf("This is the first user process at: %x\n", &firstUserProcess);
 	while(1)
 	{
-		userWrite(1, "Hello", 5);
+		userWrite(1, "Vaibhav Rustagi", 5);
 	}
 }
 
@@ -53,7 +53,7 @@ void threadATask()
 		i++;
 	}
 	kprintf("Check by entering ring 3\n");
-	//switch_to_ring3(userProcess_fn);
+ 	initInterrupts();
 	switch_to_ring3();
 	kprintf("Returned from ring 3\n");
 	while(1)

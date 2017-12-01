@@ -63,7 +63,6 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   threadInitialize();
   performContextSwitch();
   //threadATask();
-  initInterrupts();
   //performAHCITask();
 
   while(1);
