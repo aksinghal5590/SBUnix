@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-int main(int argc, char *argv[], char *envp[]) {
-  puts("sbush> ");
+int main() {
+  //puts("sbush> ");
+  write();
   return 0;
 }

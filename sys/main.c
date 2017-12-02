@@ -52,12 +52,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("Value of a after update is: %d\n", *a);*/
   kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
   kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
+  initInterrupts();
   threadA = createThread();
   threadB = createThread();
   //kprintf("Performed kmalloc successfully\n");
   threadInitialize();
-  read_file("bin/sbush");
-  performContextSwitch();
+  uint64_t eEntry = read_file("bin/sbush");
+  performContextSwitch(eEntry);
   //performAHCITask();
 
   while(1);
