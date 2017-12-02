@@ -1,4 +1,5 @@
 #include <sys/defs.h>
+#include <sys/elf64.h>
 #include <sys/gdt.h>
 #include <sys/kprintf.h>
 #include <sys/tarfs.h>
@@ -59,8 +60,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
   threadA = createThread();
   threadB = createThread();
-  kprintf("Performed kmalloc successfully\n");
-  threadInitialize();
+  //kprintf("Performed kmalloc successfully\n");
+  threadInitialize_bin("bin/sbush");
   performContextSwitch();
   //threadATask();
   initInterrupts();

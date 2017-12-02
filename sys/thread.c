@@ -1,6 +1,7 @@
 #include "sys/kprintf.h"
 #include "sys/stdarg.h"
 #include "sys/defs.h"
+#include "sys/elf64.h"
 #include "sys/pcb.h"
 #include "sys/kernelLoad.h"
 #include "sys/thread.h"
@@ -19,6 +20,14 @@ uint64_t userProcess_fn = (uint64_t)&firstUserProcess;
 struct PCB* createThread()
 {
 	return ((struct PCB*) kmalloc(sizeof(struct PCB)));
+}
+
+void threadInitialize_bin(char* binary_name)
+{
+        threadA->kstack[99] = read_file(binary_name);
+        threadB->kstack[99] = threadB_fn;
+        threadA->rsp = (uint64_t)&threadA->kstack[99];
+        threadB->rsp = (uint64_t)&threadB->kstack[83];
 }
 
 void threadInitialize()

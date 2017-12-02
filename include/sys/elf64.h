@@ -39,5 +39,7 @@ typedef struct {
   Elf64_Xword   p_memsz;
   Elf64_Xword   p_align;
 } Elf64_Phdr;
-void read_file(char* file_name);
+
+uint64_t read_file(char* file_name);
+
 #endif
