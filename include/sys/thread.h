@@ -5,6 +5,7 @@
 #include <sys/defs.h>
 
 struct PCB* createThread();
+void threadInitialize_bin(char* binary_name);
 void threadInitialize();
 void performContextSwitch();
 void firstUserProcess();
