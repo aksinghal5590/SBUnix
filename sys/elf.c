@@ -1,19 +1,22 @@
+#include "sys/defs.h"
 #include "sys/elf64.h"
 #include "sys/tarfs.h"
 #include "sys/kprintf.h"
-//#include "sys/defs.h"
 #include "sys/pcb.h"
+#include "sys/userPageTable.h"
 
 extern struct PCB *threadA;
 
 uint64_t read_file(char* file_name) {
 
+    uint64_t* pml4_add = createUserProcess();
     threadA->mm = create_mm_struct();
 
     Elf64_Ehdr* eh = (Elf64_Ehdr*)read_tarfs(file_name);
 
     Elf64_Phdr* ph = (Elf64_Phdr*)((void*)eh + eh->e_phoff);
 
+    updateUserCR3_Val((uint64_t)pml4_add);
     uint64_t ret = 0;
     for (int i = 0; i < eh->e_phnum; ++i) {
         kprintf("%d\n",ph->p_type);
@@ -23,9 +26,19 @@ uint64_t read_file(char* file_name) {
            kprintf("%d\n",ph->p_memsz);
            ret = ph->p_vaddr;
            insert_vma(threadA->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
-        }
+	   mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, eh, ph->p_offset, ph->p_filesz);
+	}
         ph += 1;
     }
-
+    
     return ret;
+}
+
+void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddress, Elf64_Ehdr* eh, uint64_t offset, uint64_t filesz)
+{
+	for(uint64_t i = startAddress; i <= endAddress; i += 0x1000)
+	{
+		walkUserPageTables(pml4_add, i);
+		copyUserData(pml4_add, i,(uint64_t*) (eh+offset), filesz);
+	}
 }

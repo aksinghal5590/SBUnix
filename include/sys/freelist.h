@@ -9,7 +9,9 @@ struct PAGE {
 	//uint8_t use_cnt;
 };
 
-void initializePages(uint64_t physfree);
+//void initializePages(uint64_t physfree);
+
+int initializePages(uint64_t start, uint64_t end);
 
 uint64_t getPage();
 

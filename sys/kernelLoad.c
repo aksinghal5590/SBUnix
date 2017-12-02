@@ -7,8 +7,8 @@ extern char kernmem;
 
 void loadKernel(uint64_t physbase, uint64_t physfree) {
 
-	initializePages(physfree);
-        for(uint64_t i = physbase; i < physfree+(10*(0x1000)); i += 0x1000)
+//	initializePages(physfree);
+        for(uint64_t i = physbase; i < physfree+(1000*(0x1000)); i += 0x1000)
 	{
 		uint64_t v_address = ((uint64_t)&kernmem - physbase + i);
         	walkPageTables(v_address, i);

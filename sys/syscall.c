@@ -51,9 +51,9 @@ void systemCallHandler()
 void systemWrite(uint64_t fd, uint64_t data, uint64_t len)
 {
 	char* d = (char*)data;
-	//kprintf("Data is: %s\n", d);
-	for(uint64_t i = 0; i < len; i++)
+	kprintf("Data is: %s\n", d);
+	/*for(uint64_t i = 0; i < len; i++)
 	{
 		kprintf("%c", d++);
-	}
+	}*/
 }

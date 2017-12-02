@@ -3,6 +3,8 @@
 #include <sys/kprintf.h>
 
 extern void systemCallHandler();
+extern void pageFaultHandler();
+
 struct idt_table idtTable[256];
 
 struct idt_ptr idtptr;
@@ -65,6 +67,7 @@ void initIdt() {
 
 	setVector(32, (uint64_t)irq0, 0x08, 0x8E);
 	setVector(33, (uint64_t)irq1, 0x08, 0x8E);
+	setVector(14, (uint64_t)pageFaultHandler, 0x08, 0x8E);	
 	setVector(128, (uint64_t)systemCallHandler, 0x08, 0xEE);
 	loadIdt(idtptr);
 
