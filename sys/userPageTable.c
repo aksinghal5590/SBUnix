@@ -181,3 +181,51 @@ void copyUserData(uint64_t pml4_add, uint64_t vmaAddress, uint64_t* vAddress, ui
 		}*/
 	}
 }
+
+int user_page_exist(uint64_t pml4Address, uint64_t vAddress)
+{
+	uint64_t* v_userPml4Table = (uint64_t*)(VIRTUAL_BASE + pml4Address);
+	uint64_t pml4_val = *(v_userPml4Table + ((vAddress>>39) & 0x1FF));
+	uint64_t pdtp_base = pml4_val & GET_40_BITS;
+	uint64_t* pdtp_val_ptr = (uint64_t*)(VIRTUAL_BASE + pdtp_base + (((vAddress>>30) & 0x1FF)* sizeof(uint64_t)));
+	uint64_t pdtp_val = (uint64_t)(*pdtp_val_ptr);	
+	uint64_t pd_base = pdtp_val & GET_40_BITS;
+	uint64_t* pd_val_ptr = (uint64_t*)(VIRTUAL_BASE + pd_base + (((vAddress>>21) & 0x1FF) * sizeof(uint64_t)));
+	uint64_t pd_val = (uint64_t)(*pd_val_ptr);
+	uint64_t pt_base = pd_val & GET_40_BITS;
+	uint64_t* pt_val_ptr = (uint64_t*)(VIRTUAL_BASE + pt_base + (((vAddress>>12) & 0x1FF) * sizeof(uint64_t)));
+	uint64_t pt_val = (uint64_t)(*pt_val_ptr);
+	if(pt_val & 0x01)
+        return 1;
+    return 0;
+}
+
+void useExistingPage(uint64_t pml4Address, uint64_t vAddress, uint64_t oldPhysAddress)
+{
+	uint64_t* v_userPml4Table = (uint64_t*)(VIRTUAL_BASE + pml4Address);
+	uint64_t pml4_val = *(v_userPml4Table + ((vAddress>>39) & 0x1FF));
+	uint64_t pdtp_base = pml4_val & GET_40_BITS;
+	uint64_t* pdtp_val_ptr = (uint64_t*)(VIRTUAL_BASE + pdtp_base + (((vAddress>>30) & 0x1FF)* sizeof(uint64_t)));
+	uint64_t pdtp_val = (uint64_t)(*pdtp_val_ptr);	
+	uint64_t pd_base = pdtp_val & GET_40_BITS;
+	uint64_t* pd_val_ptr = (uint64_t*)(VIRTUAL_BASE + pd_base + (((vAddress>>21) & 0x1FF) * sizeof(uint64_t)));
+	uint64_t pd_val = (uint64_t)(*pd_val_ptr);
+	uint64_t pt_base = pd_val & GET_40_BITS;
+	uint64_t* pt_val_ptr = (uint64_t*)(VIRTUAL_BASE + pt_base + (((vAddress>>12) & 0x1FF) * sizeof(uint64_t)));
+	*(pt_val_ptr) = ALL_ZERO | ((oldPhysAddress & GET_40_BITS)) | 0x007;
+}
+
+uint64_t* getPTTableEntry(uint64_t pml4Address, uint64_t vAddress)
+{
+	uint64_t* v_userPml4Table = (uint64_t*)(VIRTUAL_BASE + pml4Address);
+	uint64_t pml4_val = *(v_userPml4Table + ((vAddress>>39) & 0x1FF));
+	uint64_t pdtp_base = pml4_val & GET_40_BITS;
+	uint64_t* pdtp_val_ptr = (uint64_t*)(VIRTUAL_BASE + pdtp_base + (((vAddress>>30) & 0x1FF)* sizeof(uint64_t)));
+	uint64_t pdtp_val = (uint64_t)(*pdtp_val_ptr);	
+	uint64_t pd_base = pdtp_val & GET_40_BITS;
+	uint64_t* pd_val_ptr = (uint64_t*)(VIRTUAL_BASE + pd_base + (((vAddress>>21) & 0x1FF) * sizeof(uint64_t)));
+	uint64_t pd_val = (uint64_t)(*pd_val_ptr);
+	uint64_t pt_base = pd_val & GET_40_BITS;
+	uint64_t* pt_val_ptr = (uint64_t*)(VIRTUAL_BASE + pt_base + (((vAddress>>12) & 0x1FF) * sizeof(uint64_t)));
+    return pt_val_ptr;
+}
