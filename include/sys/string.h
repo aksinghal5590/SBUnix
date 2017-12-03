@@ -9,5 +9,6 @@ int strcmp(const char *s, const char *t);
 char* strcpy(char* d, const char* s);
 char* strcat(char* d, const char* s);
 int fgetc(int fd);
+int strstarts(char *s1, char *s2);
 
 #endif
