@@ -25,6 +25,7 @@ struct PCB {
 
 struct mm_struct {
   struct vm_area_struct *vma_list;
+  struct vm_area_struct *vma_stack_list;
 };
 
 struct vm_area_struct {
@@ -50,5 +51,6 @@ struct PCB* get_free_task_struct();
 
 struct PCB* get_next_proc();
 void print_task_list();
+void insert_stack_vma(struct mm_struct *mm, uint64_t start, uint64_t end, uint64_t size, uint64_t access_flags, uint64_t type);
 
 #endif

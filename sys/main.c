@@ -63,8 +63,17 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   fread(fd, buf, 10000);
   kprintf("%s\n", buf);
   //init_idle_process();
+  //char *buf = (char*)kmalloc(10000);
+  //int fd = fopen("/rootfs/test.txt");
+  //fread(fd, buf, 10000);
+  //kprintf("%s\n", buf);
+
   //read_file("bin/sbush");
   //performContextSwitch();
+  threadInitialize();
+  //performContextSwitch();
+  uint64_t eEntry = read_file("bin/sbush");
+  performContextSwitch(eEntry);
   //performAHCITask();
 
   while(1);

@@ -3,6 +3,15 @@
 
 #include <sys/defs.h>
 
+struct registers
+{
+    uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rsi, rbp, rdx, rcx, rbx, rax, rdi; // Registers for PUSHA
+    uint64_t int_number, err_number;
+    uint64_t rip, cs, rflags, rsp, ss;
+};
+
+typedef struct registers registers_t;
+
 struct idt_table {
 	uint16_t offset1;
 	uint16_t sel;
@@ -49,5 +58,7 @@ void printDefault(uint8_t c);
 
 void outIO(uint16_t port, uint8_t value);
 uint8_t inIO(uint16_t port);
+
+void getCharacters(uint64_t data, uint64_t len);
 
 #endif

@@ -17,16 +17,15 @@ uint64_t read_file(char* file_name) {
     Elf64_Phdr* ph = (Elf64_Phdr*)((void*)eh + eh->e_phoff);
 
     updateUserCR3_Val((uint64_t)pml4_add);
-    //uint64_t ret = 0;
     for (int i = 0; i < eh->e_phnum; ++i) {
         kprintf("%d\n",ph->p_type);
         if(ph->p_type == 1 && ph->p_offset == 0) {
            kprintf("%x\n",ph->p_vaddr);
            kprintf("%x\n",ph->p_paddr);
            kprintf("%d\n",ph->p_memsz);
-           //ret = ph->p_vaddr;
            insert_vma(threadA->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
-	   mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, eh, ph->p_offset, ph->p_filesz);
+           insert_stack_vma(threadA->mm, ph->p_vaddr+0x1000, ph->p_vaddr +0x2000, 0x1000, ph->p_flags, 10);
+    	   //mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, eh, ph->p_offset, ph->p_filesz);
 	}
         ph += 1;
     }

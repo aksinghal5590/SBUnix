@@ -4,6 +4,8 @@
 
 extern char kernmem;
 
+uint64_t* globalPdtpTable = NULL;
+
 uint64_t* pml4Table = NULL;
 
 uint64_t* v_pml4Table = NULL;
@@ -65,6 +67,8 @@ void checkPDTPTable(uint64_t virtual_add, uint64_t phys_add)
 void createPDTPTable(uint64_t virtual_add) {
 
 	pdtpTable = (uint64_t*)getPage();
+    if(globalPdtpTable == NULL)
+        globalPdtpTable = pdtpTable;
 	v_pdtpTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)pdtpTable);
 	*(v_pml4Table + ((virtual_add>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)pdtpTable & GET_40_BITS)) | 0x007;
 	for(int i = 0; i < PAGEINDEX; i++) {
