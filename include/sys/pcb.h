@@ -11,7 +11,7 @@ struct PCB {
    uint64_t ppid;
    uint64_t rsp;
    uint64_t rip;
-   char *p_name[] 
+   char p_name[25]; 
    struct PCB *parent;
    uint64_t child_cnt;
    enum { RUNNING, SLEEPING, ZOMBIE, READY, IDLE } state;
@@ -49,5 +49,6 @@ struct PCB *create_new_proc(char *p_name);
 struct PCB* get_free_task_struct();
 
 struct PCB* get_next_proc();
+void print_task_list();
 
 #endif

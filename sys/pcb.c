@@ -1,12 +1,13 @@
 #include <sys/pcb.h>
 #include <sys/kernelLoad.h>
-
-
-
+#include <sys/string.h>
+#include  "sys/userPageTable.h"
+#include <sys/memset.h>
+#include <sys/kprintf.h>
 struct PCB *task_l = NULL;
 struct PCB *free_task_l = NULL;
 static uint64_t pid = 1;
-struct PCB *current_proc = NULL;
+//struct PCB *current_proc = NULL;
 
 struct mm_struct* create_mm_struct() {
 	struct mm_struct *mm = (struct mm_struct*) kmalloc(sizeof(struct mm_struct));
@@ -71,15 +72,15 @@ struct PCB *create_new_proc(char *p_name)
 	// new_task->sleep_time = 0;
 	proc->parent = NULL;
 	// new_task->pipe = NULL;
-	proc->child_count = 0;
+	proc->child_cnt = 0;
 
 	// new_task->write_redirection_fd = 0;
 	// new_task->read_redirection_fd = 0;
 	proc->wait_on_child_pid = 0;
 	strcpy(proc->p_name, p_name);
-	proc->mm = create_new_mmstruct();
+	proc->mm = create_mm_struct();
 	proc->state = READY;
-	proc->pml4e = createUserPML4Table();	//virtual address
+	proc->pml4 = (uint64_t)createUserPML4Table();	//virtual address
 	memset((void*)proc->kstack, 0, KSTACK_SIZE);
 	proc->next = NULL;
 	// new_task->r.ds = task->r.fs = task->r.es = task->r.gs = 0x23;
@@ -103,7 +104,7 @@ struct PCB* get_free_task_struct(){
 	// return proc; 
 }
 
-struct PCB* get_next_proc() {
+/*struct PCB* get_next_proc() {
 
 	if(!current_proc)
 	{	
@@ -120,19 +121,19 @@ struct PCB* get_next_proc() {
 		return task_l;
 	
 	return NULL;
-}
+}*/
 
 
 
 void add_proc_to_list(struct PCB* proc)
 {
-    PCB* ptr = task_l;
+    struct PCB* ptr = task_l;
 
-    if (proc->state == IDLE) {
+    /*if (proc->state == IDLE) {
         return;
     } else if (proc->state == RUNNING) {
         proc->state = READY;
-    }
+    }*/
 
     if (ptr == NULL) {
         task_l = proc;
@@ -145,4 +146,18 @@ void add_proc_to_list(struct PCB* proc)
         
         proc->next = NULL;
     }
+}
+
+void print_task_list()
+{
+        struct PCB *t = task_l;
+        while(t != NULL)
+        {
+                kprintf("%d     %d",t->pid,t->ppid);
+/*              kprintf2("task id %d", t->pid);
+                kprintf2("task name %s", t->name);
+                kprintf2("task state %d \n", t->state); */
+                t = t->next;
+        }
+        kprintf("%s\n" ,"here");
 }

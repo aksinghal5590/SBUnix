@@ -10,7 +10,7 @@
 #include "sys/kernelLoad.h"
 #include "sys/thread.h"
 #include "sys/freelist.h"
-
+#include "sys/process_manager.h"
 #define INITIAL_STACK_SIZE 4096
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
@@ -56,13 +56,13 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   //threadB = createThread();
   //kprintf("Performed kmalloc successfully\n");
   //threadInitialize();
-
+  init_idle_process();
   init_tarfs();
   char *buf = (char*)kmalloc(10000);
   int fd = fopen("/rootfs/test.txt");
   fread(fd, buf, 10000);
   kprintf("%s\n", buf);
-
+  //init_idle_process();
   //read_file("bin/sbush");
   //performContextSwitch();
   //performAHCITask();

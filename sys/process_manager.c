@@ -1,17 +1,19 @@
 
 #include "sys/pcb.h"
 #include "sys/thread.h"
-
+#include "sys/process_manager.h"
+#include "sys/thread.h"
+#include "sys/kprintf.h"
 struct PCB* current_proc = NULL;
-
-static void idle_process(){
+extern void irq0();
+void idle_process(){
 	while(1);
 }
 
 void init_idle_process(){
-	idle = create_new_task("idle_task"); 
+	struct PCB* idle = create_new_proc("idle_task"); 
 	idle->state = IDLE;
-	schedule_proc(idle, (uint64_t)unidle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
+	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
 }
 
 // struct PCB* get_current_task()
@@ -24,7 +26,7 @@ void init_idle_process(){
 // 	current_task = task;
 // }
 
-void schedule_proc(PCB* proc, uint64_t entry, uint64_t stop)
+void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
 {
     // 1) Set up kernel stack => ss, rsp, rflags, cs, rip
     // if (new_task->IsUserProcess) {
@@ -33,7 +35,8 @@ void schedule_proc(PCB* proc, uint64_t entry, uint64_t stop)
     // } else {
     //     new_task->kernel_stack[KERNEL_STACK_SIZE-1] = 0x10;
     //     new_task->kernel_stack[KERNEL_STACK_SIZE-4] = 0x08;
-    // }
+    //  }
+    kprintf("%s\n", "asmksds");
     proc->kstack[KSTACK_SIZE-1] = 0x23;
     proc->kstack[KSTACK_SIZE-4] = 0x2b;
     proc->kstack[KSTACK_SIZE-2] = stop;
@@ -58,27 +61,28 @@ void schedule_proc(PCB* proc, uint64_t entry, uint64_t stop)
 
     // 5) Add to the next_task_list 
     add_proc_to_list(proc);
+    print_task_list();
 
 }
 
-void print_task_list()
+/*void print_task_list()
 {
 	struct PCB *t = task_l;
 	while(t != NULL)
 	{
 		kprintf("%d	%d	%s	 %s \n",t->pid,t->ppid,t->p_name,t->state);
-/* 		kprintf2("task id %d", t->pid);
+ 		kprintf2("task id %d", t->pid);
 		kprintf2("task name %s", t->name);
-		kprintf2("task state %d \n", t->state); */
+		kprintf2("task state %d \n", t->state);
 		t = t->next;
 	}
-}
+}*/
 
-void copyProcess(PCB* parent) {
+/*void copyProcess(struct PCB* parent) {
 
     struct PCB* child  = createThread();
-    uint64_t parent_pml4   = parent->pml4_t;
-    uint64_t child_pml4    = child->pml4_t;
+    uint64_t parent_pml4   = parent->pml4;
+    uint64_t child_pml4    = child->pml4;
     
     vm_area_struct *parent_vma = parent->mm->vma_list;
     vm_area_struct *child_vma  = NULL;
@@ -160,4 +164,4 @@ void copyProcess(PCB* parent) {
         parent_vma = parent_vma->next;
     }
 
-}
+}*/
