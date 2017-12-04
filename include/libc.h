@@ -35,7 +35,7 @@ pid_t waitpid(pid_t pid, int *wstatus, int options);
 
 //int dup2(int a, int b);
 
-void syscall0(uint64_t sysNum);
+uint64_t syscall0(uint64_t sysNum);
 
 void syscall1(uint64_t sysNum, void* arg1);
 

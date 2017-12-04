@@ -1,15 +1,17 @@
 #include <libc.h>
 
-void syscall0(uint64_t sysNum) {
-
+uint64_t syscall0(uint64_t sysNum) {
+        uint64_t ret;
         __asm__ volatile
         (
                 "movq %[sysNum], %%rax;"
                 "int $0x80;"
-                :
+                : "=a" (ret)
                 : [sysNum]"a"(sysNum)
                 : "cc","memory"
         );
+
+        return ret;
 }
 
 void syscall1(uint64_t sysNum, void* arg1) {
