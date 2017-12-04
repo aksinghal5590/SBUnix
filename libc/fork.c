@@ -2,7 +2,7 @@
 #include "sys/defs.h"
 #include <libc.h>
 
-void fork()
+int fork()
 {
   syscall0(2);      
 }
