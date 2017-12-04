@@ -84,7 +84,7 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
 	}
 }*/
 
-void copyProcess(struct PCB* parent) {
+struct PCB* copyProcess(struct PCB* parent) {
 
     struct PCB* child  = createThread();
     uint64_t parent_pml4   = parent->pml4;
@@ -168,5 +168,7 @@ void copyProcess(struct PCB* parent) {
         updateUserCR3_Val(parent_pml4);
         parent_vma = parent_vma->next;
     }
+
+    return child;
 
 }

@@ -6,6 +6,7 @@
 
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
+extern pid_t forkSyscall(uint64_t sysNum);
 
 extern void getCharacters(uint64_t data, uint64_t len);
 
