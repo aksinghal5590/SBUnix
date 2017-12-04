@@ -18,9 +18,9 @@ void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
 }
 
-void userFork(uint64_t fileDescriptor, char* data, uint64_t len)
+pid_t userFork()
 {
-	 forkSyscall(2);
+	 return forkSyscall(2);
 }
 /*void systemCallHandler()
 {
@@ -86,8 +86,8 @@ void systemRead(uint64_t fileDescriptor, uint64_t data, uint64_t len)
 
 pid_t systemFork()
 {
-    PCB *parent = current_proc; 
-    PCB *child = copyProcess(struct PCB* parent); 
+    struct PCB *parent = current_proc; 
+    struct PCB *child = copyProcess(parent); 
     schedule_proc(child, parent->kstack[KSTACK_SIZE-6], parent->kstack[KSTACK_SIZE-3]);
     child->kstack[KSTACK_SIZE-7] = 0UL;
     return child->pid;
