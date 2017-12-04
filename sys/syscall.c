@@ -3,32 +3,41 @@
 #include "sys/kprintf.h"
 
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
+extern void sysCallHandler();
+
+extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
 
-void* systemCallHandlerTable[2] = {NULL, systemWrite}; 
+void* systemCallHandlerTable[2] = {systemRead, systemWrite}; 
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 {
 	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
 }
 
+/*void systemCallHandler()
+{
+    sysCallHandler();
+    //__asm__ volatile("iretq");
+}*/
+
 void systemCallHandler()
 {
-	uint64_t sysNum;
+    uint64_t sysNum;
 	__asm__ volatile
 	(
-		"movq %%rax, %0;"
+		"pushq %rdx;"
+	);
+	__asm__ volatile
+	(
+		"movq %%rcx, %0;"
 		: "=r"(sysNum)
 		:
 		: "cc", "memory"
 	);
 	if(sysNum >= 0)
 	{
-		__asm__ volatile
-		(
-			"pushq %rdx;"
-		);
 		function_ptr = systemCallHandlerTable[sysNum];
 		__asm__ volatile
 		(
@@ -39,13 +48,13 @@ void systemCallHandler()
 			: "cc", "rcx", "memory"	
 		);
 	}
-	__asm__ volatile
-	(
-		"iretq;"
-		:
-		:
-		: "cc", "memory"
-	);
+    __asm__ volatile
+    (
+        "iretq;"
+        :
+        :
+        :"cc", "memory"
+    );
 }
 
 void systemWrite(uint64_t fd, uint64_t data, uint64_t len)
@@ -56,4 +65,14 @@ void systemWrite(uint64_t fd, uint64_t data, uint64_t len)
 	{
 		kprintf("%c", d++);
 	}*/
+}
+
+void systemRead(uint64_t fileDescriptor, uint64_t data, uint64_t len)
+{
+    if(fileDescriptor==0)
+    {
+        if(len==0)
+            return;
+        getCharacters(data, len);
+    }
 }

@@ -6,6 +6,10 @@
 #define MAXBUFLEN 2048
 #define MAXINTLEN 25
 
+extern uint8_t flag;
+extern uint64_t count, index;
+extern char globalBuf[1024];
+
 static char *memlo = (char *)VIDEO_MEM_VIRTUAL;
 void kprintf(const char *fmt, ...)
 {
@@ -55,6 +59,24 @@ void printtimer(uint64_t seconds) {
 }
 
 void printkeyboard(char *s) {
+    if(flag == 1)
+    {
+        if(*s == '\n')
+        {
+            globalBuf[index++] = '\0';
+            flag = 0;
+        }
+        if(*s != '\b')
+            globalBuf[index++] = *s;
+        else
+            index--;
+    }
+    if(index == count)
+    {
+        globalBuf[index] = '\0';
+        flag = 0;
+    }
+
     register char *temp1,*temp2;
     char *str = "Input character: ";
     for(temp1 = (char*)(VIDEO_COL_VIRTUAL)+160*24; temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2) *temp1 = 7;

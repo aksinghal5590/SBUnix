@@ -66,4 +66,5 @@ void freePage(struct PAGE* p) {
 	//p->use_cnt = 0;
         p->next = free_list;
         free_list = p;
+        pageCount++;
 }
