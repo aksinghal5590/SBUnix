@@ -160,6 +160,7 @@ void print_task_list()
                 t = t->next;
         }
         kprintf("%s\n" ,"here");
+}
 
 void insert_stack_vma(struct mm_struct *mm, uint64_t start, uint64_t end, uint64_t size, uint64_t access_flags, uint64_t type) {
 

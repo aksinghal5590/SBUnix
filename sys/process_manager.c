@@ -4,8 +4,14 @@
 #include "sys/process_manager.h"
 #include "sys/thread.h"
 #include "sys/kprintf.h"
+#include "sys/string.h"
+#include "sys/userPageTable.h"
+#include "sys/kernelLoad.h"
+#define STK 10
+
 struct PCB* current_proc = NULL;
 extern void irq0();
+extern char kernmem;
 void idle_process(){
 	while(1);
 }
@@ -78,35 +84,34 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
 	}
 }*/
 
-/*void copyProcess(struct PCB* parent) {
+void copyProcess(struct PCB* parent) {
 
     struct PCB* child  = createThread();
     uint64_t parent_pml4   = parent->pml4;
     uint64_t child_pml4    = child->pml4;
     
-    vm_area_struct *parent_vma = parent->mm->vma_list;
-    vm_area_struct *child_vma  = NULL;
+    struct vm_area_struct *parent_vma = parent->mm->vma_list;
+    struct vm_area_struct *child_vma  = NULL;
 
-    memcpy((void*)child->mm, (void*)parent->mm, sizeof(mm_struct));
+    memcpy((void*)child->mm, (void*)parent->mm, sizeof(struct mm_struct));
     child->pml4  = child_pml4;
     child->mm->vma_list = NULL; 
 
     child->ppid  = parent->pid;
     // child_->parent = parent_task;
-    kstrcpy(child_task->comm, parent_task->comm);
+    strcpy(child->p_name, parent->p_name);
 
     // add_child_to_parent(child_task);
     while(parent_vma != NULL) {
-    	uint64_t start, end , vadd, padd;
+    	uint64_t vm_start, vm_end , v_add, p_add;
         // uint64_t *pte_entry, page_flags;
-
         vm_start = parent_vma->start;
         vm_end   = parent_vma->end;  
 
         if (child->mm->vma_list == NULL) {
-            child_vma = child->mm->vma_list = create_vm_area_struct(start, end, parent_vma->access_flags, parent_vma->type);
+            child_vma = child->mm->vma_list = create_vm_area_struct(vm_start, vm_end, vm_end-vm_start+1, parent_vma->access_flags, parent_vma->type);
         } else {
-            child_vma->next = create_vm_area_struct(start, end, parent_vma->access_flags, parent_vma->type);
+            child_vma->next = create_vm_area_struct(vm_start,vm_end, vm_end-vm_start+1,parent_vma->access_flags, parent_vma->type);
             child_vma = child_vma->next;
         }
 
@@ -119,11 +124,11 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
                 // pte_entry = get_pte_entry(vaddr);
                 // if (!IS_PRESENT_PAGE(*pte_entry))
                 //     break;
-                if (!user_page_exists(parent_pml4, v_add)) {
+                if (!user_page_exist(parent_pml4, v_add)) {
                 	break;
                 }
                 // Allocate a new page in kernel
-                uint64_t ker_vadd = kmalloc(sizeof(struct PCB));
+                uint64_t ker_vadd = (uint64_t)kmalloc(sizeof(struct PCB));
                 p_add = ker_vadd - kernmem;
 
                 //kprintf("\nStack v:%p p:%p", vaddr, paddr);
@@ -133,9 +138,9 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
                 // Map paddr with child vaddr
                 updateUserCR3_Val(child_pml4);
                 //kprintf("\nStack v:%p p:%p", vaddr, paddr);
-                map_virt_to_phys(v_add, p_add);
+                useExistingPage(child_pml4, v_add, p_add);
 
-                *(get_page_entry_ptr(ker_vadd)) = 0UL;
+                *(getPTTableEntry(child_pml4, ker_vadd)) = 0UL;
 
                 v_add = v_add - PAGESIZE;
             }
@@ -145,16 +150,16 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
             while (v_add < vm_end) {
                 updateUserCR3_Val(parent_pml4);
 
-                uint64_t* page_entry = get_page_entry_ptr(v_add);
+                uint64_t* page_entry = getPTTableEntry(parent_pml4, v_add);
 
-                if (user_page_exists(parent_pml4, v_add)) {
+                if (user_page_exist(parent_pml4, v_add)) {
                     *page_entry= *page_entry & 0xFFFFFFFFFFFFFFFDUL; // resret write bit
                     *page_entry = *page_entry | 0x4000000000000000UL; // set cow bit
                     // page_flags = *pte_entry & PAGING_FLAGS;
 
                     updateUserCR3_Val(child_pml4);
  
-                    map_virt_to_phys(v_add, *page_entry);
+                    useExistingPage(child_pml4, v_add, *page_entry);
                     // phys_inc_block_ref(paddr);
                 }
                 v_add = v_add + PAGESIZE;
@@ -164,4 +169,4 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
         parent_vma = parent_vma->next;
     }
 
-}*/
+}
