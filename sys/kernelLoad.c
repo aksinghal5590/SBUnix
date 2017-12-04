@@ -4,11 +4,12 @@
 #include "sys/kprintf.h"
 
 extern char kernmem;
+extern int pageCount;
 
 void loadKernel(uint64_t physbase, uint64_t physfree) {
 
 //	initializePages(physfree);
-        for(uint64_t i = physbase; i < physfree+(1000*(0x1000)); i += 0x1000)
+        for(uint64_t i = physbase; i < physfree+(pageCount*(0x1000)); i += 0x1000)
 	{
 		uint64_t v_address = ((uint64_t)&kernmem - physbase + i);
         	walkPageTables(v_address, i);
@@ -21,15 +22,15 @@ uint64_t* kmalloc(int64_t size)
 {
 	uint64_t* baseAddress = NULL;
 	uint8_t isFirst = 1;
-	kprintf("size is: %d\n", size);
+//	kprintf("size is: %d\n", size);
 	while(size > 0)
 	{
 		uint64_t pg = getPage();
 		uint64_t v_address = VIRTUAL_BASE + pg;
 		walkPageTables(v_address, pg);
-		kprintf("New page at: %x \n", pg);
+//		kprintf("New page at: %x \n", pg);
 		size = size - 4096;
-		kprintf("size is: %d\n", size);
+//		kprintf("size is: %d\n", size);
 		if(isFirst)
 		{
 			isFirst = 0;

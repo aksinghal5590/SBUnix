@@ -18,7 +18,7 @@ void systemCallHandler()
 	uint64_t sysNum;
 	__asm__ volatile
 	(
-		"movq %%rcx, %0;"
+		"movq %%rax, %0;"
 		: "=r"(sysNum)
 		:
 		: "cc", "memory"

@@ -57,6 +57,7 @@ uint64_t getPage() {
 	//free_list->use_cnt = 1;
 	fp = free_list->physadd;
 	free_list = free_list->next;
+	pageCount--;
 	return fp;
 }
 

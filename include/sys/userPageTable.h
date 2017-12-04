@@ -28,4 +28,10 @@ void checkUserEntry(uint64_t* userPml4Table, uint64_t vmaAddress);
 
 void copyUserData(uint64_t pml4_add, uint64_t vmaAddress, uint64_t* vAddress, uint64_t len);
 
+int user_page_exist(uint64_t pml4Address, uint64_t vAddress);
+
+void useExistingPage(uint64_t pml4Address, uint64_t vAddress, uint64_t oldPhysAddress);
+
+uint64_t* getPTTableEntry(uint64_t pml4Address, uint64_t vAddress);
+
 #endif

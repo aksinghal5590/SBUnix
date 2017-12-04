@@ -15,7 +15,7 @@ extern void switch_to_ring3();
 
 uint64_t threadA_fn = (uint64_t)&threadATask;
 uint64_t threadB_fn = (uint64_t)&threadBTask;
-uint64_t userProcess_fn = (uint64_t)&firstUserProcess;
+uint64_t userProcess_fn;// = (uint64_t)&firstUserProcess;
 
 struct PCB* createThread()
 {
@@ -38,8 +38,9 @@ void threadInitialize()
 	threadB->rsp = (uint64_t)&threadB->kstack[83];
 }
 
-void performContextSwitch()
+void performContextSwitch(uint64_t eEntry)
 {
+	userProcess_fn = eEntry;
 	initialSwitch(threadA->rsp);
 }
 
@@ -63,14 +64,13 @@ void threadATask()
 		i++;
 	}
 	kprintf("Check by entering ring 3\n");
- 	initInterrupts();
 	switch_to_ring3();
 	kprintf("Returned from ring 3\n");
 	while(1)
 	{
 		;
 	}
-}
+} 
 
 void threadBTask()
 {
