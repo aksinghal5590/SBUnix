@@ -1,5 +1,5 @@
 .global writeSyscall
-.global systemFork
+.global forkSyscall
 
 writeSyscall:
 	int $0x80
