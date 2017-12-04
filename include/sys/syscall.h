@@ -4,6 +4,7 @@
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len);
 void writeSyscall(uint64_t sysNum, uint64_t fd, uint64_t data, uint64_t len);
+void forkSyscall(uint64_t sysNum);
 void systemCallHandler();
 void sysHandler();
 void systemWrite(uint64_t fd, uint64_t data, uint64_t len);
