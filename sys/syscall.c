@@ -1,6 +1,8 @@
 #include "sys/defs.h"
 #include "sys/syscall.h"
 #include "sys/kprintf.h"
+#include "sys/process_manager.h"
+#include "sys/pcb.h"
 
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
@@ -9,13 +11,17 @@ extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
 
-void* systemCallHandlerTable[2] = {systemRead, systemWrite}; 
-
+void* systemCallHandlerTable[3] = {systemRead, systemWrite, systemFork}; 
+extern struct PCB* current_proc;
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 {
 	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
 }
 
+void userFork(uint64_t fileDescriptor, char* data, uint64_t len)
+{
+	 forkSyscall(2);
+}
 /*void systemCallHandler()
 {
     sysCallHandler();
@@ -75,4 +81,14 @@ void systemRead(uint64_t fileDescriptor, uint64_t data, uint64_t len)
             return;
         getCharacters(data, len);
     }
+}
+
+
+pid_t systemFork()
+{
+    PCB *parent = current_proc; 
+    PCB *child = copyProcess(struct PCB* parent); 
+    schedule_proc(child, parent->kstack[KSTACK_SIZE-6], parent->kstack[KSTACK_SIZE-3]);
+    child->kstack[KSTACK_SIZE-7] = 0UL;
+    return child->pid;
 }
