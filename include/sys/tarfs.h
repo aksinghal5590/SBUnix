@@ -44,7 +44,9 @@ int fopen(char *name);
 
 int fread(int fd, char *buf, int count);
 
-int opendir(char *dir_name);
+struct file* opendir(int fd);
+
+int fclose(int fd);
 
 
 #endif

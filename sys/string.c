@@ -1,12 +1,10 @@
 #include "sys/string.h"
 #include "sys/kprintf.h"
 
-void* memcpy(void* dest, const void* src, size_t n)
-{
+void* memcpy(void* dest, const void* src, size_t n) {
 	char* d = (char*)dest;
 	const char* s = (char*) src;
-	while(n-- != 0)
-	{
+	while(n-- != 0) {
 		/*if(*s != 0)
 			kprintf("value of s is:%d\n", *s);*/
 		*d = *s;
@@ -20,10 +18,11 @@ void* memcpy(void* dest, const void* src, size_t n)
 
 int strstarts(char *s1, char *s2) {
 	while(s2 != NULL && s1 != NULL) {
-		if(*s1 != *s2)
+		if((*s1) != (*s2)) {
 			return -1;
+		}
 		s1++;
-		s2++
+		s2++;
 	}
 	if(s2 != NULL) {
 		return -1;

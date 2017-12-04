@@ -51,19 +51,18 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   *a = 20;
   kprintf("Value of a after update is: %d\n", *a);*/
   kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
-  //kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
-  //threadA = createThread();
-  //threadB = createThread();
-  //kprintf("Performed kmalloc successfully\n");
+  threadA = createThread();
+  threadB = createThread();
   //threadInitialize();
 
   init_tarfs();
-  char *buf = (char*)kmalloc(10000);
-  int fd = fopen("/rootfs/test.txt");
-  fread(fd, buf, 10000);
-  kprintf("%s\n", buf);
-
-  //read_file("bin/sbush");
+  char *buf = (char*)kmalloc(100);
+  int fd = fopen("/rootfs/hello.txt");
+  if(fd > 0) {
+    fread(fd, buf, 100);
+    kprintf("%s\n", buf);
+  }
+  read_file("/rootfs/bin/sbush");
   //performContextSwitch();
   //performAHCITask();
 
