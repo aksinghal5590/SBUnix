@@ -141,7 +141,7 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
     proc->rip = entry;
     proc->stop = stop;
     add_proc_to_list(proc);
-    print_task_list();
+
 }
 
 /*void print_task_list()
@@ -161,7 +161,9 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
 }*/
 
 struct PCB* copyProcess(struct PCB* parent) {
-    struct PCB* child  = createThread();
+
+    struct PCB* child  = create_new_proc("child");
+
     uint64_t parent_pml4   = parent->pml4;
     uint64_t child_pml4    = child->pml4;
     
@@ -192,7 +194,8 @@ struct PCB* copyProcess(struct PCB* parent) {
 
         if (parent_vma->type == STK) {
 
-            v_add = ((vm_end) >> 12 << 12) - 0x1000;
+            //v_add = ((vm_end) >> 12 << 12) - 0x1000;
+            v_add = vm_end;
             while (v_add >= vm_start) {
                 updateUserCR3_Val(parent_pml4);
 
@@ -221,7 +224,8 @@ struct PCB* copyProcess(struct PCB* parent) {
             }
 
         } else {
-        	v_add = ((vm_start) >> 12 << 12); //align page
+        	// v_add = ((vm_start) >> 12 << 12); //align page
+            v_add = vm_start;
             while (v_add < vm_end) {
                 updateUserCR3_Val(parent_pml4);
 

@@ -5,6 +5,8 @@
 #include "sys/pcb.h"
 #include "sys/userPageTable.h"
 #include "sys/process_manager.h"
+#include "sys/thread.h"
+#include "sys/stdarg.h"
 
 #define S_TOP 0xF0000000
 #define S_SIZE 0x10000
@@ -14,9 +16,7 @@ struct PCB *userThread;
 uint64_t read_file(char* file_name) {
 
     userThread = create_new_proc("User Process", 1); 
-    uint64_t* pml4_add = createUserProcess();
-    userThread->pml4 = (uint64_t)pml4_add;
-    userThread->mm = create_mm_struct();
+    uint64_t pml4_add = userThread->pml4;
 
     Elf64_Ehdr* eh = (Elf64_Ehdr*)read_tarfs(file_name);
 
@@ -46,6 +46,8 @@ uint64_t read_file(char* file_name) {
     	    mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, (uint64_t*)eh+(ph->p_offset), ph->p_filesz);
 
 	      }
+           //insert_vma(threadA->mm, ph->p_vaddr+0x1000, ph->p_vaddr +0x2000, 0x1000, ph->p_flags, 10);
+    	   //mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, eh, ph->p_offset, ph->p_filesz);
         ph += 1;
     }
     struct vm_area_struct *temp = userThread->mm->vma_list;
@@ -66,7 +68,9 @@ void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddr
 {
 	for(uint64_t i = startAddress; i < endAddress; i += 0x1000)
 	{
-		walkUserPageTables(pml4_add, i);
-		copyUserData(pml4_add, i,offset, filesz);
+
+		walkUserPageTables(pml4_add, i, 0);
+    copyUserData(pml4_add, i,offset, filesz);
+
 	}
 }

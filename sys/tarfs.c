@@ -56,7 +56,7 @@ void init_tarfs() {
 		}
 		offset += diff + H_SIZE;
 	}
-	print_file_list();
+	//print_file_list();
 }
 
 void print_file_list() {

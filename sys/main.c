@@ -25,7 +25,6 @@ extern struct PCB* idle;
 
 int pgCount = 0;
 
-
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   struct smap_t {
@@ -65,8 +64,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
   //kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
-  //threadA = createThread();
-  //threadB = createThread();
+  threadA = create_new_proc("ThreadA");
+  threadB = createThread();
   //kprintf("Performed kmalloc successfully\n");
   //threadInitialize();
   init_idle_process();
@@ -76,6 +75,11 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   int fd = fopen("/rootfs/test.txt");
   fread(fd, buf, 10000);
   kprintf("%s\n", buf);
+
+  // char *buf = (char*)kmalloc(10000);
+  // int fd = fopen("/rootfs/test.txt");
+  // fread(fd, buf, 10000);
+  // kprintf("%s\n", buf);
   //init_idle_process();
 
 
@@ -88,15 +92,20 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
   //read_file("bin/sbush");
   //performContextSwitch();
+
   //threadInitialize();
-  //performContextSwitch();
   initInterrupts();
+
   uint64_t eEntry = read_file("bin/sbush");
   //performContextSwitch(eEntry);
   if(eEntry);
   struct PCB* t = idle;
   if(t != NULL)
     initialSwitch(t->rsp);
+  //current_proc = threadA;
+  //performContextSwitch(eEntry);
+  // print_task_list();
+  //performAHCITask();
   while(1);
 }
 

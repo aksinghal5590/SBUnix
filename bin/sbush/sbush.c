@@ -8,9 +8,10 @@ int main() {
   yield();
   write(1, "OS by Akshat, Ashish and Vaibhav, version3", 20);
   int f = fork();
-  if(f==0) {
-     write(1, f, 20);
+  if(f ==0 ) {
+     write(1, "Ferdman Bhadwa h", 20);
   }
+  write(1, "OS ki maa ki", 20);
   /*char buf[1024];
   read(0, buf, 10);
   write(1, buf, 10);

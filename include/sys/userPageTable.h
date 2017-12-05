@@ -10,21 +10,21 @@ uint64_t* createUserPML4Table();
 
 void updateUserCR3_Val(uint64_t userPml4Table);
 
-void walkUserPageTables(uint64_t userPml4Table, uint64_t vmaAddress);
+void walkUserPageTables(uint64_t userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
-void checkUserPDTPTable(uint64_t userPml4Table, uint64_t vmaAddress);
+void checkUserPDTPTable(uint64_t userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
-void createUserPDTPTable(uint64_t* userPml4Table, uint64_t vmaAddress);
+void createUserPDTPTable(uint64_t* userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
-void checkUserPDTable(uint64_t* userPml4Table, uint64_t vmaAddress);
+void checkUserPDTable(uint64_t* userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
-void createUserPDTable(uint64_t* userPml4Table, uint64_t vmaAddress);
+void createUserPDTable(uint64_t* userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
-void checkUserPTTable(uint64_t* userPml4Table, uint64_t vmaAddress);
+void checkUserPTTable(uint64_t* userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
-void createUserPTTable(uint64_t* userPml4Table, uint64_t vmaAddress);
+void createUserPTTable(uint64_t* userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
-void checkUserEntry(uint64_t* userPml4Table, uint64_t vmaAddress);
+void checkUserEntry(uint64_t* userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress);
 
 void copyUserData(uint64_t pml4_add, uint64_t vmaAddress, uint64_t* vAddress, uint64_t len);
 

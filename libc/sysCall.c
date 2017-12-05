@@ -4,7 +4,7 @@ uint64_t syscall0(uint64_t sysNum) {
         uint64_t ret;
         __asm__ volatile
         (
-                "movq %[sysNum], %%rax;"
+                "movq %[sysNum], %%rcx;"
                 "int $0x80;"
                 : "=a" (ret)
                 : [sysNum]"a"(sysNum)

@@ -99,6 +99,8 @@ pid_t systemFork()
     struct PCB *child = copyProcess(parent); 
     schedule_proc(child, parent->kstack[KSTACK_SIZE-6], parent->kstack[KSTACK_SIZE-3]);
     child->kstack[KSTACK_SIZE-7] = 0UL;
+    kprintf("%d\n", child->pid);
+    print_task_list();
     return child->pid;
 
 void systemExit(uint64_t status)

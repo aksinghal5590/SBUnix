@@ -72,6 +72,7 @@ struct PCB *create_new_proc(char *p_name, uint8_t isUser)
 	// 	add_proc_to_list(proc);
 	struct PCB *proc =  ((struct PCB*) kmalloc(sizeof(struct PCB)));
 	proc->pid = pid++;
+	kprintf("PID of %s - %d\n", p_name, proc->pid);
 	proc->ppid = 0;
 	// new_task->sleep_time = 0;
 	proc->parent = NULL;
@@ -210,9 +211,9 @@ void print_task_list()
         struct PCB *t = task_l;
         while(t != NULL)
         {
-                kprintf("%d     %d",t->pid,t->ppid);
 
                 kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
+
 /*              kprintf2("task id %d", t->pid);
                 kprintf2("task name %s", t->name);
                 kprintf2("task state %d \n", t->state); */
