@@ -1,10 +1,16 @@
 #include <sys/interrupt.h>
 #include <sys/defs.h>
 #include <sys/kprintf.h>
+#include "sys/pcb.h"
 
 extern void systemCallHandler();
 extern void pageFaultHandler();
+extern void updateUserCR3_Val(uint64_t userPml4Table);
+extern void set_tss_rsp(void *rsp);
 void pageFault();
+
+extern struct PCB *userThread;
+int t_flag = 0;
 
 struct idt_table idtTable[256];
 
@@ -63,11 +69,11 @@ void initIdt() {
 	idtptr.baseptr = (uint64_t)&idtTable;
 
 	for(int i = 0; i < 256; i++) {
-		;//setVector(i, (uint64_t)irqDefault, 0x08, 0x8E);
+		setVector(i, (uint64_t)irqDefault, 0x08, 0x8E);
 	}
 
-	//setVector(32, (uint64_t)irq0, 0x08, 0x8E);
-	//setVector(33, (uint64_t)irq1, 0x08, 0x8E);
+	setVector(32, (uint64_t)irq0, 0x08, 0x8E);
+	setVector(33, (uint64_t)irq1, 0x08, 0x8E);
 	setVector(14, (uint64_t)pageFault, 0x08, 0x8E);	
 	setVector(128, (uint64_t)systemCallHandler, 0x08, 0xEE);
 	loadIdt(idtptr);

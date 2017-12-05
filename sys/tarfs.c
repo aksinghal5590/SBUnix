@@ -119,7 +119,7 @@ int opendir(char *dir_name) {
 	struct file *f = f_list_head;
 	char type[1] = {'5'};
 	while(f->next != NULL) {
-		if(strcmp(f->name, name) == 0 && strcmp(f->type, type) == 0) {
+		if(strcmp(f->name, dir_name) == 0 && strcmp(f->type, type) == 0) {
 			return f->fd;
 		}
 		f = f->next;

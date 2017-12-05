@@ -10,13 +10,22 @@
 #include "sys/kernelLoad.h"
 #include "sys/thread.h"
 #include "sys/freelist.h"
+#include "sys/process_manager.h"
 
 #define INITIAL_STACK_SIZE 4096
+
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
+
 uint32_t* loader_stack;
 struct PCB *threadA, *threadB;
 extern char kernmem, physbase;
+extern struct PCB* current_proc;
+extern void initialSwitch(uint64_t rsp);
+extern struct PCB* idle;
+
 int pgCount = 0;
+
+
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   struct smap_t {
@@ -51,6 +60,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   *a = 20;
   kprintf("Value of a after update is: %d\n", *a);*/
   kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
+
+  __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
+  __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
+
   //kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
   //threadA = createThread();
   //threadB = createThread();
@@ -58,6 +71,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   //threadInitialize();
 
   init_tarfs();
+
+  init_idle_process();
   //char *buf = (char*)kmalloc(10000);
   //int fd = fopen("/rootfs/test.txt");
   //fread(fd, buf, 10000);
@@ -65,12 +80,15 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
   //read_file("bin/sbush");
   //performContextSwitch();
-  threadInitialize();
+  //threadInitialize();
   //performContextSwitch();
+  initInterrupts();
   uint64_t eEntry = read_file("bin/sbush");
-  performContextSwitch(eEntry);
-  //performAHCITask();
-
+  //performContextSwitch(eEntry);
+  if(eEntry);
+  struct PCB* t = idle;
+  if(t != NULL)
+    initialSwitch(t->rsp);
   while(1);
 }
 

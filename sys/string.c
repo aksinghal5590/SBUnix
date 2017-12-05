@@ -23,7 +23,7 @@ int strstarts(char *s1, char *s2) {
 		if(*s1 != *s2)
 			return -1;
 		s1++;
-		s2++
+		s2++;
 	}
 	if(s2 != NULL) {
 		return -1;

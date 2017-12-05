@@ -23,6 +23,8 @@ int execve(char* filename, char* argv[], char* envp[]);
 
 void exit(int status);
 
+void yield();
+
 pid_t waitpid(pid_t pid, int *wstatus, int options);
 
 //int getdents(int fd, char* dirp, int count);

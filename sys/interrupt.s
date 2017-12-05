@@ -76,7 +76,7 @@ isr_common:
     movq %rsp, %rdi
     callq isr_handler
     POPA
-    add $0x8, %rsp
+    add $0x10, %rsp
     sti
     iretq
 
@@ -85,20 +85,24 @@ irqDefault:
 
 irq0:
 	cli
-	pushq %rax
+/*	pushq %rax
 	pushq %rcx
 	pushq %rdx
 	pushq %r8
 	pushq %r9
 	pushq %r10
-	callq irq0Handler
-	popq %r10
+*/  PUSHA
+    movq %rsp, %rdi
+    callq irq0Handler
+    POPA
+/*	popq %r10
 	popq %r9
 	popq %r8
 	popq %rdx
 	popq %rcx
 	popq %rax
- 	iretq
+*/  sti
+    iretq
 
 irq1:
         cli
