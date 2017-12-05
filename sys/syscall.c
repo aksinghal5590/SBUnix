@@ -4,20 +4,28 @@
 #include "sys/process_manager.h"
 #include "sys/pcb.h"
 
+extern struct PCB* current_proc;
+
+extern void add_proc_to_list(struct PCB* proc);
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
+
 extern pid_t forkSyscall(uint64_t sysNum);
 
+extern void schedule_next_process();
 extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
 
-void* systemCallHandlerTable[3] = {systemRead, systemWrite, systemFork}; 
 extern struct PCB* current_proc;
+void* systemCallHandlerTable[4] = {systemRead, systemWrite, systemExit, systemYield, systemFork}; 
+
+
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 {
 	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
 }
+
 
 pid_t userFork()
 {
@@ -38,7 +46,7 @@ void systemCallHandler()
 	);
 	__asm__ volatile
 	(
-		"movq %%rcx, %0;"
+		"movq %%rax, %0;"
 		: "=r"(sysNum)
 		:
 		: "cc", "memory"
@@ -92,4 +100,18 @@ pid_t systemFork()
     schedule_proc(child, parent->kstack[KSTACK_SIZE-6], parent->kstack[KSTACK_SIZE-3]);
     child->kstack[KSTACK_SIZE-7] = 0UL;
     return child->pid;
+
+void systemExit(uint64_t status)
+{
+    kprintf("Process exit with status: %d\n", status);
+    current_proc->state = EXIT;
+    schedule_next_process();
+}
+
+void systemYield()
+{
+    kprintf("Inside Yield\n");
+    current_proc->state = READY;
+    //add_proc_to_list(current_proc);
+    schedule_next_process();    
 }

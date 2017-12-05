@@ -1,4 +1,3 @@
-
 #include "sys/pcb.h"
 #include "sys/thread.h"
 #include "sys/process_manager.h"
@@ -7,11 +6,19 @@
 #include "sys/string.h"
 #include "sys/userPageTable.h"
 #include "sys/kernelLoad.h"
+#include "sys/utility.h"
+
 #define STK 10
 
-struct PCB* current_proc = NULL;
+extern struct PCB* current_proc;
 extern void irq0();
 extern char kernmem;
+extern struct PCB* task_l;
+extern struct PCB* idle;
+
+extern void schedule(uint64_t* firstProc, uint64_t* secondProc);
+extern void set_tss_rsp(void* rsp);
+extern int check_proc_present();
 void idle_process(){
 	while(1);
 }
@@ -20,6 +27,49 @@ void init_idle_process(){
 	struct PCB* idle = create_new_proc("idle_task"); 
 	idle->state = IDLE;
 	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
+}
+
+void switch_to_ring3_from_kernel()
+{
+    uint64_t s = current_proc->stop;
+    uint64_t* stack = (uint64_t*)s;
+    uint64_t e = current_proc->rip;
+    __asm__ volatile
+    (
+        "pushq $0x23;"
+        "pushq %[stack];"
+        "pushfq;"
+        "pushq $0x2B;"
+        "pushq %[e];"
+        :
+        :[stack]"g"(stack), [e]"g"(e)
+        :"cc", "memory"
+    );
+    set_tss_rsp(&current_proc->kstack[99]);
+    __asm__ volatile("iretq");
+    while(1)
+    {
+        kprintf("Hello\n");
+    }
+}
+
+void idle_process(){
+    uint64_t i = 0;	
+    while(1)
+    {
+        i++;
+        if(i < 4)
+        {
+            kprintf("In idle task\n");
+            if(check_proc_present())
+            {
+                struct PCB* t = get_next_proc();
+                loadCR3(t->pml4);
+                current_proc = t;
+                schedule(&idle->rsp, &t->rsp);
+            }
+        }
+    }
 }
 
 // struct PCB* get_current_task()
@@ -42,39 +92,65 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
     //     new_task->kernel_stack[KERNEL_STACK_SIZE-1] = 0x10;
     //     new_task->kernel_stack[KERNEL_STACK_SIZE-4] = 0x08;
     //  }
-    kprintf("%s\n", "asmksds");
-    proc->kstack[KSTACK_SIZE-1] = 0x23;
-    proc->kstack[KSTACK_SIZE-4] = 0x2b;
-    proc->kstack[KSTACK_SIZE-2] = stop;
-    proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
-    proc->kstack[KSTACK_SIZE-5] = entry;
+//     kprintf("%s\n", "asmksds");
+//     proc->kstack[KSTACK_SIZE-1] = 0x23;
+//     proc->kstack[KSTACK_SIZE-4] = 0x2b;
+//     proc->kstack[KSTACK_SIZE-2] = stop;
+//     proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
+//     proc->kstack[KSTACK_SIZE-5] = entry;
 
-    // proc->rip = entry;
+//     // proc->rip = entry;
 
-// #if DEBUG_SCHEDULING
-//     kprintf("\tEntry Point:%p", entry_point);
-//     kprintf("\tStackTop:%p", stack_top);
-// #endif
+// // #if DEBUG_SCHEDULING
+// //     kprintf("\tEntry Point:%p", entry_point);
+// //     kprintf("\tStackTop:%p", stack_top);
+// // #endif
 
-    // 2) Leave 9 spaces for POPA => KERNEL_STACK_SIZE-6 to KERNEL_STACK_SIZE-20
+//     // 2) Leave 9 spaces for POPA => KERNEL_STACK_SIZE-6 to KERNEL_STACK_SIZE-20
 
-    // 3) Set return address to POPA in irq0()
-    proc->kstack[KSTACK_SIZE-21] = (uint64_t)irq0 + 0x20;
+//     // 3) Set return address to POPA in irq0()
+//     proc->kstack[KSTACK_SIZE-21] = (uint64_t)irq0 + 0x20;
 
-    // 4) Set rsp to KERNEL_STACK_SIZE-16
-    proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-22];
+//     // 4) Set rsp to KERNEL_STACK_SIZE-16
+//     proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-22];
+//     proc->rip = entry;
+
+//     // 5) Add to the next_task_list 
+//     add_proc_to_list(proc);
+//     print_task_list();
+
+    kprintf("%s\n", "Scheduling a process.");
+    if(!proc->isUser)
+    {
+        proc->kstack[KSTACK_SIZE-1] = 0x10;
+        proc->kstack[KSTACK_SIZE-4] = 0x08;    
+        proc->kstack[KSTACK_SIZE-2] = stop;
+        proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
+        proc->kstack[KSTACK_SIZE-5] = entry;
+    }
+    else
+    {
+        proc->kstack[KSTACK_SIZE-1] = (uint64_t)&switch_to_ring3_from_kernel;
+    }
+
+    if(proc->isUser)
+        proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-17];
+    else
+        proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-5];
+
     proc->rip = entry;
-
-    // 5) Add to the next_task_list 
+    proc->stop = stop;
     add_proc_to_list(proc);
     print_task_list();
-
 }
 
 /*void print_task_list()
 {
+<<<<<<< HEAD
 	struct PCB *t = task_l;
 	while(t != NULL)
+=======
+>>>>>>> vrustagi
 	{
 		kprintf("%d	%d	%s	 %s \n",t->pid,t->ppid,t->p_name,t->state);
  		kprintf2("task id %d", t->pid);
@@ -85,7 +161,6 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
 }*/
 
 struct PCB* copyProcess(struct PCB* parent) {
-
     struct PCB* child  = createThread();
     uint64_t parent_pml4   = parent->pml4;
     uint64_t child_pml4    = child->pml4;
@@ -171,4 +246,25 @@ struct PCB* copyProcess(struct PCB* parent) {
 
     return child;
 
+}
+
+void schedule_next_process()
+{
+    struct PCB* temp = current_proc;
+    struct PCB* next_proc = get_next_proc();
+    if(next_proc == NULL)
+        next_proc = idle;
+    
+    loadCR3(next_proc->pml4);
+    if(temp->state == EXIT)
+    {
+        temp->next = NULL;
+        //to do
+    }
+    else
+    {
+        add_proc_to_list(temp);
+    }
+    current_proc = next_proc;
+    schedule(&temp->rsp, &current_proc->rsp);
 }

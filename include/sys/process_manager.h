@@ -9,5 +9,6 @@
 void init_idle_process();
 void schedule_proc(struct PCB* new_task, uint64_t entry, uint64_t stop);
 struct PCB* copyProcess(struct PCB* parent);
+void schedule_next_process();
 
 #endif

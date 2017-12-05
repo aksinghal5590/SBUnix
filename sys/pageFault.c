@@ -7,7 +7,7 @@
 extern void walkUserPageTables(uint64_t userPml4Table, uint64_t vmaAddress);
 void copyUserData(uint64_t pml4_add, uint64_t vmaAddress, uint64_t* vAddress, uint64_t len);
 
-extern struct PCB *threadA;
+extern struct PCB *userThread;
 
 void pageFaultHandler()
 {
@@ -37,8 +37,8 @@ void pageFaultHandler()
     }
     else
     {
-        struct vm_area_struct* vma = threadA->mm->vma_list;
-        struct vm_area_struct* vmas = threadA->mm->vma_list;
+        struct vm_area_struct* vma = userThread->mm->vma_list;
+        struct vm_area_struct* vmas = userThread->mm->vma_list;
         uint64_t startAdd, endAdd, startAdds, endAdds;
         while(vma != NULL)
         {
