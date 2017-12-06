@@ -5,9 +5,19 @@
 #include <sys/pcb.h>
 #include "sys/defs.h"
 
-
-void init_idle_process();
-void schedule_proc(struct PCB* new_task, uint64_t entry, uint64_t stop);
+void switch_to_ring3_from_kernel();
+void initIdleProcess();
+void idleProcess();
+void initializeProc(struct PCB* new_task, uint64_t entry, uint64_t stop);
 void copyProcess(struct PCB* parent);
-void schedule_next_process();
+void loadNextProcess();
+
+void addProcToReadyList(struct PCB* proc);
+void addProcToSleepList(struct PCB* proc);
+struct PCB* getNextReadyProc();
+struct PCB* getNextSleepProc();
+int checkReadyProcPresent();
+void printReadyList();
+void printSleepList();
+
 #endif

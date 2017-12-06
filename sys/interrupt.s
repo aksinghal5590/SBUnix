@@ -85,23 +85,11 @@ irqDefault:
 
 irq0:
 	cli
-/*	pushq %rax
-	pushq %rcx
-	pushq %rdx
-	pushq %r8
-	pushq %r9
-	pushq %r10
-*/  PUSHA
+    PUSHA
     movq %rsp, %rdi
     callq irq0Handler
     POPA
-/*	popq %r10
-	popq %r9
-	popq %r8
-	popq %rdx
-	popq %rcx
-	popq %rax
-*/  sti
+    sti
     iretq
 
 irq1:
@@ -119,4 +107,5 @@ irq1:
         popq %rdx
         popq %rcx
         popq %rax
+        sti
         iretq

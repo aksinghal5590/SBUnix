@@ -10,81 +10,67 @@
 
 #define STK 10
 
-extern struct PCB* current_proc;
-extern void irq0();
-extern char kernmem;
-extern struct PCB* task_l;
-extern struct PCB* idle;
+struct PCB *ready_proc_list = NULL;
+struct PCB *sleep_proc_list = NULL;
+struct PCB* current_proc = NULL;
+struct PCB* idle = NULL;
 
+extern char kernmem;
 extern void schedule(uint64_t* firstProc, uint64_t* secondProc);
 extern void set_tss_rsp(void* rsp);
-extern int check_proc_present();
 
 void switch_to_ring3_from_kernel()
 {
-    uint64_t s = current_proc->stop;
-    uint64_t* stack = (uint64_t*)s;
+    uint64_t* s = (uint64_t*)current_proc->stop;
     uint64_t e = current_proc->rip;
     __asm__ volatile
     (
         "pushq $0x23;"
-        "pushq %[stack];"
+        "pushq %[s];"
         "pushfq;"
         "pushq $0x2B;"
         "pushq %[e];"
         :
-        :[stack]"g"(stack), [e]"g"(e)
+        :[s]"g"(s), [e]"g"(e)
         :"cc", "memory"
     );
-    set_tss_rsp(&current_proc->kstack[99]);
+    set_tss_rsp(&current_proc->kstack[KSTACK_SIZE-1]);
     __asm__ volatile("iretq");
-    while(1)
-    {
-        kprintf("Hello\n");
-    }
 }
 
-void idle_process(){
-    uint64_t i = 0;	
-    while(1)
-    {
-        i++;
-        if(i < 4)
-        {
-            kprintf("In idle task\n");
-            if(check_proc_present())
-            {
-                struct PCB* t = get_next_proc();
-                loadCR3(t->pml4);
-                current_proc = t;
-                schedule(&idle->rsp, &t->rsp);
-            }
-        }
-    }
-}
-
-void init_idle_process(){
+void initIdleProcess(){
 	idle = create_new_proc("idle_task", 0); 
 	idle->state = IDLE;
-	schedule_proc(idle, (uint64_t)&idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
+	initializeProc(idle, (uint64_t)&idleProcess, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
 }
 
-// struct PCB* get_current_task()
-// {
-// 	return current_task;	
-// }
+void idleProcess(){
+    uint64_t i = 0;
+    while(1)
+    {
+            if(i < 3)
+            {
+                kprintf("In idle task\n");
+                if(checkReadyProcPresent())
+                {
+                    struct PCB* t = getNextReadyProc();
+                    loadCR3(t->pml4);
+                    current_proc = t;
+                    current_proc->state = RUNNING;
+                    schedule(&idle->rsp, &t->rsp);
+                }
+            }
+            i++;
+    }
+}
 
-// void set_current_task(struct PCB* task)
-// {
-// 	current_task = task;
-// }
-
-void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
+void initializeProc(struct PCB* proc, uint64_t entry, uint64_t stop)
 {
-    kprintf("%s\n", "Scheduling a process.");
+    kprintf("%s\n", "Initializing a process.");
+
     if(!proc->isUser)
     {
-        proc->kstack[KSTACK_SIZE-1] = 0x10;
+        proc->kstack[KSTACK_SIZE-1] = 0x10; //kernel segment
         proc->kstack[KSTACK_SIZE-4] = 0x08;    
         proc->kstack[KSTACK_SIZE-2] = stop;
         proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
@@ -102,20 +88,8 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
 
     proc->rip = entry;
     proc->stop = stop;
-    add_proc_to_list(proc);
-    print_task_list();
+    addProcToReadyList(proc);
 }
-
-/*void print_task_list()
-{
-	{
-		kprintf("%d	%d	%s	 %s \n",t->pid,t->ppid,t->p_name,t->state);
- 		kprintf2("task id %d", t->pid);
-		kprintf2("task name %s", t->name);
-		kprintf2("task state %d \n", t->state);
-		t = t->next;
-	}
-}*/
 
 void copyProcess(struct PCB* parent) {
 
@@ -131,13 +105,9 @@ void copyProcess(struct PCB* parent) {
     child->mm->vma_list = NULL; 
 
     child->ppid  = parent->pid;
-    // child_->parent = parent_task;
     strcpy(child->p_name, parent->p_name);
-
-    // add_child_to_parent(child_task);
     while(parent_vma != NULL) {
     	uint64_t vm_start, vm_end , v_add, p_add;
-        // uint64_t *pte_entry, page_flags;
         vm_start = parent_vma->start;
         vm_end   = parent_vma->end;  
 
@@ -153,47 +123,30 @@ void copyProcess(struct PCB* parent) {
             v_add = ((vm_end) >> 12 << 12) - 0x1000;
             while (v_add >= vm_start) {
                 updateUserCR3_Val(parent_pml4);
-
-                // pte_entry = get_pte_entry(vaddr);
-                // if (!IS_PRESENT_PAGE(*pte_entry))
-                //     break;
                 if (!user_page_exist(parent_pml4, v_add)) {
                 	break;
                 }
-                // Allocate a new page in kernel
                 uint64_t ker_vadd = (uint64_t)kmalloc(sizeof(struct PCB));
                 p_add = ker_vadd - kernmem;
-
-                //kprintf("\nStack v:%p p:%p", vaddr, paddr);
-                // Copy parent page in kernel space
                 memcpy((void*)ker_vadd, (void*)v_add, PAGESIZE);
-
-                // Map paddr with child vaddr
                 updateUserCR3_Val(child_pml4);
-                //kprintf("\nStack v:%p p:%p", vaddr, paddr);
                 useExistingPage(child_pml4, v_add, p_add);
-
                 *(getPTTableEntry(child_pml4, ker_vadd)) = 0UL;
-
                 v_add = v_add - PAGESIZE;
             }
-
-        } else {
-        	v_add = ((vm_start) >> 12 << 12); //align page
+        } 
+        else {
+        	v_add = ((vm_start) >> 12 << 12);
             while (v_add < vm_end) {
                 updateUserCR3_Val(parent_pml4);
 
                 uint64_t* page_entry = getPTTableEntry(parent_pml4, v_add);
 
                 if (user_page_exist(parent_pml4, v_add)) {
-                    *page_entry= *page_entry & 0xFFFFFFFFFFFFFFFDUL; // resret write bit
-                    *page_entry = *page_entry | 0x4000000000000000UL; // set cow bit
-                    // page_flags = *pte_entry & PAGING_FLAGS;
-
+                    *page_entry= *page_entry & 0xFFFFFFFFFFFFFFFDUL;
+                    *page_entry = *page_entry | 0x4000000000000000UL;
                     updateUserCR3_Val(child_pml4);
- 
                     useExistingPage(child_pml4, v_add, *page_entry);
-                    // phys_inc_block_ref(paddr);
                 }
                 v_add = v_add + PAGESIZE;
             }
@@ -201,17 +154,18 @@ void copyProcess(struct PCB* parent) {
         updateUserCR3_Val(parent_pml4);
         parent_vma = parent_vma->next;
     }
-
 }
 
-void schedule_next_process()
+void loadNextProcess()
 {
     struct PCB* temp = current_proc;
-    struct PCB* next_proc = get_next_proc();
+    struct PCB* next_proc = getNextReadyProc();
+    
     if(next_proc == NULL)
         next_proc = idle;
     
     loadCR3(next_proc->pml4);
+
     if(temp->state == EXIT)
     {
         temp->next = NULL;
@@ -219,8 +173,112 @@ void schedule_next_process()
     }
     else
     {
-        add_proc_to_list(temp);
+        addProcToReadyList(temp);
     }
     current_proc = next_proc;
+    current_proc->state = RUNNING;
     schedule(&temp->rsp, &current_proc->rsp);
+}
+
+void addProcToReadyList(struct PCB* proc)
+{
+    if(proc->state == IDLE)
+        return;
+    else if(proc->state == RUNNING || proc->state == SLEEPING)
+        proc->state = READY;
+    
+    if(ready_proc_list == NULL)
+    {
+        ready_proc_list = proc;
+    }
+    else
+    {
+        struct PCB* temp = ready_proc_list;
+        while(temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+        temp->next = proc;
+        proc->next = NULL;
+    }
+}
+
+void addProcToSleepList(struct PCB* proc)
+{
+    if(proc->state == IDLE)
+        return;
+    else if(proc->state == RUNNING)
+        proc->state = SLEEPING;
+    
+    if(sleep_proc_list == NULL)
+    {
+        sleep_proc_list = proc;
+    }
+    else
+    {
+        struct PCB* temp = sleep_proc_list;
+        while(temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+        temp->next = proc;
+        proc->next = NULL;
+    }
+}
+
+struct PCB* getNextReadyProc() {
+	
+    if(ready_proc_list == NULL)
+        return NULL;
+    else
+    {
+        struct PCB* proc = ready_proc_list;
+        ready_proc_list = ready_proc_list->next;
+        proc->next = NULL;
+        return proc;
+    }
+}
+
+struct PCB* getNextSleepProc()
+{	
+    if(sleep_proc_list == NULL)
+        return NULL;
+    else
+    {
+        struct PCB* proc = sleep_proc_list;
+        sleep_proc_list = sleep_proc_list->next;
+        proc->next = NULL;
+        return proc;
+    }
+}
+
+int checkReadyProcPresent()
+{
+    if(ready_proc_list != NULL)
+        return 1;
+    return 0;
+}
+
+void printReadyList()
+{
+        struct PCB *t = ready_proc_list;
+        while(t != NULL)
+        {
+                kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
+                kprintf("task name %s", t->p_name);
+                kprintf("task state %d \n", t->state);
+                t = t->next;
+        }
+}
+
+void printSleepList()
+{
+        struct PCB *t = sleep_proc_list;
+        while(t != NULL)
+        {
+                kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
+                kprintf("task name %s", t->p_name);
+                kprintf("task state %d \n", t->state);
+                t = t->next;
+        }
 }

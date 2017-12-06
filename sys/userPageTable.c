@@ -22,7 +22,7 @@ uint64_t* createUserPML4Table() {
 	}
 	
 	//uint64_t v_address = (uint64_t)&kernmem;
-	*(v_userPml4Table + (((VIRTUAL_BASE)>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)globalPdtpTable & GET_40_BITS)) | 0x007;
+	*(v_userPml4Table + (((VIRTUAL_BASE)>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)globalPdtpTable & GET_40_BITS)) | 0x003;
 	return userPml4Table;
 }
 

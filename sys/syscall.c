@@ -5,10 +5,9 @@
 
 extern struct PCB* current_proc;
 
-extern void add_proc_to_list(struct PCB* proc);
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
-extern void schedule_next_process();
+extern void loadNextProcess();    
 extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
@@ -79,13 +78,12 @@ void systemExit(uint64_t status)
 {
     kprintf("Process exit with status: %d\n", status);
     current_proc->state = EXIT;
-    schedule_next_process();
+    loadNextProcess();
 }
 
 void systemYield()
 {
     kprintf("Inside Yield\n");
     current_proc->state = READY;
-    //add_proc_to_list(current_proc);
-    schedule_next_process();    
+    loadNextProcess();    
 }

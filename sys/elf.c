@@ -53,7 +53,7 @@ uint64_t read_file(char* file_name) {
     insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress, 1, 0);
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
-    schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
+    initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     return eh->e_entry;
 }
 

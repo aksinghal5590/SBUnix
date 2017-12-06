@@ -25,7 +25,6 @@ extern struct PCB* idle;
 
 int pgCount = 0;
 
-
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   struct smap_t {
@@ -72,7 +71,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
   init_tarfs();
 
-  init_idle_process();
+  initIdleProcess();
   //char *buf = (char*)kmalloc(10000);
   //int fd = fopen("/rootfs/test.txt");
   //fread(fd, buf, 10000);

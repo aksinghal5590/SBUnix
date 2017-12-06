@@ -9,6 +9,7 @@ void loadCR3(uint64_t pml4)
 		:"r"(pml4)
 		:"cc"
 	);
+    __asm__("sti");
 }
 
 uint64_t getCR2Val()
