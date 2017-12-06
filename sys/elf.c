@@ -39,7 +39,7 @@ uint64_t read_file(char* file_name) {
            kprintf("%x\n",ph->p_paddr);
            kprintf("%d\n",ph->p_memsz);
 
-           insert_vma(threadA->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
+           insert_vma(userThread->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
            //insert_vma(threadA->mm, ph->p_vaddr+0x1000, ph->p_vaddr +0x2000, 0x1000, ph->p_flags, 10);
     	   //mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, eh, ph->p_offset, ph->p_filesz);
            //insert_vma(userThread->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);

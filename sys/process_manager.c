@@ -19,12 +19,13 @@ extern struct PCB* idle;
 extern void schedule(uint64_t* firstProc, uint64_t* secondProc);
 extern void set_tss_rsp(void* rsp);
 extern int check_proc_present();
-void idle_process(){
-	while(1);
-}
+void idle_process();
+// void idle_process(){
+// 	while(1);
+// }
 
 void init_idle_process(){
-	struct PCB* idle = create_new_proc("idle_task"); 
+	struct PCB* idle = create_new_proc("idle_task", 0); 
 	idle->state = IDLE;
 	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
 }
@@ -162,7 +163,7 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
 
 struct PCB* copyProcess(struct PCB* parent) {
 
-    struct PCB* child  = create_new_proc("child");
+    struct PCB* child  = create_new_proc("child", 1);
 
     uint64_t parent_pml4   = parent->pml4;
     uint64_t child_pml4    = child->pml4;

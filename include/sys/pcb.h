@@ -48,7 +48,6 @@ void insert_vma(struct mm_struct *mm, uint64_t start, uint64_t end, uint64_t siz
 
 void add_proc_to_list(struct PCB* proc);
 
-struct PCB *create_new_proc(char *p_name);
 
 struct PCB* get_free_task_struct();
 

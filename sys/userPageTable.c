@@ -125,10 +125,7 @@ void createUserPTTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t 
 	for(int i = 0; i < PAGEINDEX; i++) {
 		*(v_userPtTable+i) = 0x0;
 	}
-<<<<<<< Updated upstream
-	uint64_t phys_add = getPage();
-	*(v_userPtTable + ((vmaAddress>>12) & 0x1FF)) = ALL_ZERO | ((phys_add & GET_40_BITS)) | 0x007;
-=======
+
 	if(oldPhysAddres) {
 		*(v_userPtTable + ((vmaAddress>>12) & 0x1FF)) = ALL_ZERO | ((oldPhysAddres & GET_40_BITS)) | 0x007;
 	} else {
@@ -138,7 +135,6 @@ void createUserPTTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t 
 	//kprintf("Value of userPtTable After Update: %x\n", *(v_userPtTable + ((vmaAddress>>12) & 0x1FF)));
 	}
 	//kprintf("Value of userPtTable After Update: %x\n", *(v_userPtTable + ((vmaAddress>>12) & 0x1FF)));
->>>>>>> Stashed changes
 }
 
 void checkUserEntry(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress)

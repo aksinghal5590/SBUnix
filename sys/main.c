@@ -64,7 +64,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
   //kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
-  threadA = create_new_proc("ThreadA");
+  threadA = create_new_proc("ThreadA", 1);
   threadB = createThread();
   //kprintf("Performed kmalloc successfully\n");
   //threadInitialize();

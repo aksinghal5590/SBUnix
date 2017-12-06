@@ -18,7 +18,7 @@ extern void getCharacters(uint64_t data, uint64_t len);
 uint64_t* function_ptr = NULL;
 
 extern struct PCB* current_proc;
-void* systemCallHandlerTable[4] = {systemRead, systemWrite, systemExit, systemYield, systemFork}; 
+void* systemCallHandlerTable[5] = {systemRead, systemWrite, systemExit, systemYield, systemFork}; 
 
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
@@ -29,7 +29,7 @@ void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 
 pid_t userFork()
 {
-	 return forkSyscall(2);
+	 return forkSyscall(4);
 }
 /*void systemCallHandler()
 {
@@ -102,6 +102,7 @@ pid_t systemFork()
     kprintf("%d\n", child->pid);
     print_task_list();
     return child->pid;
+}
 
 void systemExit(uint64_t status)
 {
