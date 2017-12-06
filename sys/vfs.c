@@ -35,7 +35,7 @@ void init_vfs() {
 		inode_count++;
 		f = f->next;
 	}
-	print_vfs();
+//	print_vfs();
 	set_cwd(&d_entries[0]);
 }
 

@@ -47,11 +47,9 @@ void init_tarfs() {
 		uint64_t diff = 0;
 		if (size > 0) {
 			diff = ((size % H_SIZE) == 0) ? size : size + (H_SIZE - size%H_SIZE);
-			start += size / (H_SIZE + 1) + 2;
-		} else {
-			start += 1;
 		}
 		offset += diff + H_SIZE;
+		start = (struct posix_header_ustar *)(&_binary_tarfs_start + offset);
 	}
 //	print_file_list();
 }

@@ -10,16 +10,23 @@
 #include "sys/thread.h"
 #include "sys/freelist.h"
 #include "sys/vfs.h"
-
-#define INITIAL_STACK_SIZE 4096
+#include "sys/process_manager.h"
 
 void print_file();
 
+#define INITIAL_STACK_SIZE 4096
+
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
+
 uint32_t* loader_stack;
 struct PCB *threadA, *threadB;
 extern char kernmem, physbase;
+extern struct PCB* current_proc;
+extern void initialSwitch(uint64_t rsp);
+extern struct PCB* idle;
+
 int pgCount = 0;
+
 void start(uint32_t *modulep, void *physbase, void *physfree)
 {
   struct smap_t {
@@ -47,17 +54,30 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
   kprintf("Page Count: %d\n", pgCount);
   loadKernel((uint64_t)physbase, (uint64_t)physfree);
-  kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
-//  threadA = createThread();
-//  threadB = createThread();
-//  threadInitialize();
-  initInterrupts();
   init_tarfs();
   init_vfs();
-  print_file();
-  //uint64_t e_entry = read_file("/bin/sbush");
-  //performContextSwitch(e_entry);
+  initInterrupts();
+  kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
+
+  __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
+  __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
+
+  threadA = create_new_proc("ThreadA", 1);
+  threadB = createThread();
+
+  init_idle_process();
+
+  //uint64_t eEntry = read_file("/bin/sbush");
+  //if(eEntry);
+  //struct PCB* t = idle;
+  //if(t != NULL)
+    //initialSwitch(t->rsp);
+  //current_proc = threadA;
+  //performContextSwitch(eEntry);
+  // print_task_list();
   //performAHCITask();
+
+  print_file();
 
   while(1);
 }

@@ -9,7 +9,7 @@
 
 int main();
 
-int read(int fd, char* buf, int count);
+void read(uint64_t fd, char* buf, uint64_t len);
 
 void write(uint64_t fd, char* buf, uint64_t len);
 
@@ -23,6 +23,8 @@ int execve(char* filename, char* argv[], char* envp[]);
 
 void exit(int status);
 
+void yield();
+
 pid_t waitpid(pid_t pid, int *wstatus, int options);
 
 //int getdents(int fd, char* dirp, int count);
@@ -35,7 +37,7 @@ pid_t waitpid(pid_t pid, int *wstatus, int options);
 
 //int dup2(int a, int b);
 
-void syscall0(uint64_t sysNum);
+uint64_t syscall0(uint64_t sysNum);
 
 void syscall1(uint64_t sysNum, void* arg1);
 
@@ -49,6 +51,6 @@ void syscall2_ii(uint64_t sysNum, int arg1, int arg2);
 
 void syscall_ici(uint64_t sysNum, int arg1, char* arg2, int arg3);
 
-void syscall3(uint64_t sysNum, uint64_t arg1, uint64_t arg2, uint64_t arg3);
+void syscall3(uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t sysNum);
 
 #endif

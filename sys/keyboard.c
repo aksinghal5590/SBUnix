@@ -3,7 +3,6 @@
 #include <sys/kprintf.h>
 #include <sys/terminal.h>
 
-
 extern uint8_t scancodes[256][2];
 
 void initKeyboard() {
@@ -21,6 +20,26 @@ void printKeyboardChar(uint8_t printChar)
 }
 
 uint8_t special_char = 0;
+uint8_t flag = 0;
+uint64_t count = 0, index = 0;
+char globalBuf[1024];
+
+void getCharacters(uint64_t data, uint64_t len)
+{
+    char* buf = (char*)data;
+    count = len;
+    flag = 1;
+
+    //__asm__("sti");
+
+    while(flag == 1)
+    {
+        ;
+    }
+    memcpy((void*)buf, (void*)globalBuf, len);
+    count = 0;
+    index = 0;
+}
 
 void printDefault(uint8_t c) {
 	if(c >= 0 && c <= 31) {
