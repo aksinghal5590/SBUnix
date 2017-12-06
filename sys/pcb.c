@@ -10,7 +10,7 @@ struct PCB* current_proc = NULL;
 struct PCB* idle = NULL;
 static uint64_t pid = 1;
 extern struct PCB* current_proc;
-
+struct d_entry d_entries[256];
 
 struct mm_struct* create_mm_struct() {
 	struct mm_struct *mm = (struct mm_struct*) kmalloc(sizeof(struct mm_struct));
@@ -79,13 +79,17 @@ struct PCB *create_new_proc(char *p_name, uint8_t isUser)
 
 	// new_task->write_redirection_fd = 0;
 	// new_task->read_redirection_fd = 0;
-    proc->isUser = isUser;
+	proc->isUser = isUser;
 	proc->wait_on_child_pid = 0;
 	strcpy(proc->p_name, p_name);
 	proc->mm = create_mm_struct();
 	proc->state = READY;
 	proc->pml4 = (uint64_t)createUserPML4Table();	//virtual address
 	memset((void*)proc->kstack, 0, KSTACK_SIZE);
+
+	proc->cwd = &d_entries[0];
+	proc->fd_count = 0;
+
 	proc->next = NULL;
 	// new_task->r.ds = task->r.fs = task->r.es = task->r.gs = 0x23;
 	

@@ -1,19 +1,19 @@
 #include "sys/vfs.h"
+#include "sys/pcb.h"
 #include "sys/tarfs.h"
 #include "sys/string.h"
 #include "sys/kprintf.h"
 #include "sys/terminal.h"
 
+extern struct PCB *current_proc;
+
 struct d_entry* get_d_entry_parent(int pos, char *f_name);
 void print_vfs();
 
-struct d_entry *cwd;
-struct vfs_file *fd_table[256];
 struct d_entry d_entries[256];
 struct inode inodes[256];
 int d_e_count = 0;
 int inode_count = 0;
-int fd_count = 3;
 
 void init_vfs() {
 
@@ -36,34 +36,33 @@ void init_vfs() {
 		f = f->next;
 	}
 //	print_vfs();
-	set_cwd(&d_entries[0]);
 }
 
 struct d_entry* get_cwd() {
-	return cwd;
+	return current_proc->cwd;
 }
 
 void set_cwd(struct d_entry *new_cwd) {
-	cwd = new_cwd;
+	current_proc->cwd = new_cwd;
 }
 
 int update_fd_table(struct vfs_file *vf) {
 	int ret;
-	fd_table[fd_count] = vf;
-	ret = fd_count++;
+	current_proc->fd_table[current_proc->fd_count] = vf;
+	ret = current_proc->fd_count++;
 	return ret;
 }
 
 struct vfs_file* get_fd_table_entry(int fd) {
 	if(fd < 0)
 		return NULL;
-	return fd_table[fd];
+	return current_proc->fd_table[fd];
 }
 
 void clear_fd_table_entry(int fd) {
 	if(fd < 0)
 		return;
-	fd_table[fd] = NULL;
+	current_proc->fd_table[fd] = NULL;
 }
 
 void print_vfs() {
@@ -193,7 +192,7 @@ int sys_chdir(char *path) {
 }
 
 void sys_getcwd(char *buf, int size) {
-	memcpy(buf, cwd->name, ((size < strlen(cwd->name)) ? size : strlen(cwd->name)));
+	memcpy(buf, get_cwd()->name, ((size < strlen(get_cwd()->name)) ? size : strlen(get_cwd()->name)));
 }
 
 int sys_read(int fd, char *buf, int count) {
