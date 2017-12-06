@@ -11,6 +11,7 @@
 #include "sys/freelist.h"
 #include "sys/vfs.h"
 #include "sys/process_manager.h"
+#include "sys/syscall.h"
 
 void print_file();
 
@@ -56,26 +57,26 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   loadKernel((uint64_t)physbase, (uint64_t)physfree);
   init_tarfs();
   init_vfs();
+  initSyscalls();
   initInterrupts();
   kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
 
   __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
-  threadA = create_new_proc("ThreadA", 1);
-  threadB = createThread();
+//  threadA = create_new_proc("ThreadA", 1);
+//  threadB = createThread();
 
   init_idle_process();
 
-  //uint64_t eEntry = read_file("/bin/sbush");
-  //if(eEntry);
-  //struct PCB* t = idle;
-  //if(t != NULL)
-    //initialSwitch(t->rsp);
-  //current_proc = threadA;
-  //performContextSwitch(eEntry);
-  // print_task_list();
-  //performAHCITask();
+  read_file("/bin/sbush");
+  struct PCB* t = idle;
+  if(t != NULL)
+    initialSwitch(t->rsp);
+//  current_proc = threadA;
+//  performContextSwitch(eEntry);
+//  print_task_list();
+//  performAHCITask();
 
   print_file();
 
@@ -83,8 +84,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 }
 
 void print_file() {
-//	char *buf = (char*)kmalloc(1028*10);
-/*	int fd = sys_open("/hello.txt", 0);
+	char *buf = (char*)kmalloc(1024*10);
+	int fd = sys_open("/hello.txt", 0);
 	if(fd > 0) {
 		sys_read(fd, buf, 10);
 		kprintf("%s\n", buf);
@@ -106,7 +107,7 @@ void print_file() {
 	sys_chdir("../etc/");
         sys_getcwd(buf, 1024);
         kprintf("CWD: %s\n", buf);
-*/
+
 /*	int fd = sys_open("/", 0);
 	if(fd > 0) {
 		int bytes = sys_getdents(fd, buf, 1028*10);
@@ -122,6 +123,7 @@ void print_file() {
 	while((entry = sys_readdir(dirp)) != NULL)
 		kprintf("%s\n", entry->d_name);
 	sys_closedir(dirp);
+
 }
 
 void boot(void)

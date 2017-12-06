@@ -1,9 +1,9 @@
-#include <stdio.h>
+#include <unistd.h>
 #include "sys/defs.h"
 #include <libc.h>
 
-void write(uint64_t fd, char* buf, uint64_t len)
+ssize_t write(int fd, const void* buf, size_t len)
 {
-  syscall3(fd, (uint64_t)buf, len, 1);      
+  return syscall3(fd, (uint64_t)buf, len, __NR_write);      
 }
 

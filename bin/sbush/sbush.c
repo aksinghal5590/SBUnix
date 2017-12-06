@@ -1,5 +1,6 @@
-#include <stdio.h>
+#include <stdlib.h>
 #include <libc.h>
+#include <unistd.h>
 
 
 int main() {
@@ -8,13 +9,27 @@ int main() {
   write(1, "OS by Akshat, Ashish and Vaibhav, version2", 20);
   yield();
   write(1, "OS by Akshat, Ashish and Vaibhav, version3", 20);
-  int f = fork();
-  if(f ==0 ) {
-     write(1, "Ferdman Bhadwa h", 20);
-  }
+  //int f = fork();
+  //if(f ==0 ) {
+  //   write(1, "Ferdman Bhadwa h", 20);
+  //}
   write(1, "OS ki maa ki", 20);
-  /*char buf[1024];
-  read(0, buf, 10);
+  
+  char buf[1024];
+  getcwd(buf, 1024);
+  /*int i = 0;
+  while(buf[i++] != '\0')
+    buf[i] = '\n';
+    buf[i+1] = '\0';*/
+  write(1, buf, 1024);
+  chdir("bin");
+  getcwd(buf, 1024);
+  /*i = 0;
+  while(buf[i++] != '\0')
+    buf[i] = '\n';
+    buf[i+1] = '\0';*/
+  write(1, buf, 1024);
+  /*read(0, buf, 10);
   write(1, buf, 10);
   read(0, buf, 5);
   write(1, buf, 5);

@@ -24,7 +24,7 @@ void idle_process();
 // }
 
 void init_idle_process(){
-	struct PCB* idle = create_new_proc("idle_task", 0); 
+	idle = create_new_proc("idle_task", 0); 
 	idle->state = IDLE;
 	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
 }

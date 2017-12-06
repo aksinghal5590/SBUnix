@@ -3,6 +3,7 @@
 #include "sys/kprintf.h"
 #include "sys/process_manager.h"
 #include "sys/pcb.h"
+#include "sys/vfs.h"
 
 extern struct PCB* current_proc;
 
@@ -18,7 +19,21 @@ extern void getCharacters(uint64_t data, uint64_t len);
 uint64_t* function_ptr = NULL;
 
 extern struct PCB* current_proc;
-void* systemCallHandlerTable[5] = {systemRead, systemWrite, systemExit, systemYield, systemFork}; 
+void* systemCallHandlerTable[128];
+// = {systemRead, systemWrite, systemExit, systemYield, systemFork};
+
+void initSyscalls() {
+	systemCallHandlerTable[__NR_read] = sys_read;
+	systemCallHandlerTable[__NR_write] = sys_write;
+	systemCallHandlerTable[__NR_open] = sys_open;
+	systemCallHandlerTable[__NR_close] = sys_close;
+	systemCallHandlerTable[__NR_yield] = systemYield;
+	systemCallHandlerTable[__NR_fork] = systemFork;
+	systemCallHandlerTable[__NR_exit] = systemExit;
+	systemCallHandlerTable[__NR_getdents] = sys_getdents;
+	systemCallHandlerTable[__NR_getcwd] = sys_getcwd;
+	systemCallHandlerTable[__NR_chdir] = sys_chdir;
+} 
 
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)

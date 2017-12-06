@@ -4,6 +4,6 @@
 
 int fork()
 {
-  return syscall0(4);
+  return syscall0(__NR_fork);
 }
 
