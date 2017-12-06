@@ -1,7 +1,6 @@
 #include "sys/tarfs.h"
 #include "sys/kprintf.h"
 #include "sys/string.h"
-#include "sys/kernelLoad.h"
 
 uint32_t oct_to_dec(int num);
 uint32_t pow(int b, int pow);
@@ -10,23 +9,23 @@ void append_file(struct file *f);
 void print_file_list();
 
 struct file *f_list_head, *f_list_tail;
-int fd_count = 3;
+
+struct file* get_tarfs_list() {
+	return f_list_head;
+}
 
 void init_tarfs() {
 	struct posix_header_ustar* start = (struct posix_header_ustar*)&_binary_tarfs_start;
 	struct posix_header_ustar* end = (struct posix_header_ustar*)&_binary_tarfs_end;
 	struct file* f;
-	char* root_name = "/rootfs/";
+	char* root_name = "/";
 	const uint64_t H_SIZE = sizeof(struct posix_header_ustar);
 	uint64_t offset = 0;
 	
 	f = (struct file*)kmalloc(sizeof(struct file));
-        f->fd = fd_count++;
         strcpy(f->name, root_name);
-	char type[1] = {'5'};
-        strcpy(f->type, type);
+	f->type[0] = '5';
         f->size = oct_to_dec(atoi(start->size));
-        f->offset = 0;
 	f->addr = 0;
         f->next = NULL;
         append_file(f);
@@ -39,10 +38,8 @@ void init_tarfs() {
 		strcat(full_name, start->name);
 		strcpy(f->name, full_name);
 
-		f->fd = fd_count++;
-		strcpy(f->type, start->typeflag);
+		f->type[0] = start->typeflag[0];
 		f->size = oct_to_dec(atoi(start->size));
-		f->offset = 0;
 		f->addr = (uint64_t)(&_binary_tarfs_start + offset + H_SIZE);
 		f->next = NULL;
 		append_file(f);
@@ -62,8 +59,7 @@ void init_tarfs() {
 void print_file_list() {
 	struct file *temp = f_list_head;
 	while(temp->next != NULL) {
-		kprintf("File desrciptor: %d\n", temp->fd);
-		kprintf("File Name: %s\n", temp->name);
+		kprintf("File Name: %s   Size: %d\n", temp->name, temp->size);
 		temp = temp->next;
 	}
 }
@@ -79,58 +75,10 @@ void* read_tarfs(char *file_name) {
         return NULL;
 }
 
-/*void* read_tarfs(char *file_name) {
-	struct posix_header_ustar* start = (struct posix_header_ustar*)&_binary_tarfs_start;
-	struct posix_header_ustar* end = (struct posix_header_ustar*)&_binary_tarfs_end;
-	int size;
-	while(start < end) {
-		char* ptr = (char *)(start+1);
-		if(strcmp(file_name, (start)->name) == 0) {
-			return (void*)ptr;
-		}
-		size = oct_to_dec(atoi(start->size));
-		if (size > 0) {
-			start += size / (sizeof(struct posix_header_ustar) + 1) + 2;
-		} else {
-			start += 1;
-		} 
-	}
-	return NULL;
-}*/
-
-int fopen(char *name) {
+struct file* fopen(char *name) {
 	struct file *f = f_list_head;
 	while(f->next != NULL) {
 		if(strcmp(f->name, name) == 0) {
-			return f->fd;
-		}
-		f = f->next;
-	}
-	return -1;
-}
-
-int fread(int fd, char *buf, int count) {
-	struct file *temp = f_list_head;
-	while(temp->next != NULL) {
-		if(temp->fd == fd) {
-			count = ((temp->size - temp->offset) >= count) ? count : (temp->size - temp->offset);
-			count = temp->size >= count ? count : temp->size;
-//			kprintf("%d\n", temp->addr);
-//			kprintf("%d\n", (uint64_t)&_binary_tarfs_start);
-			memcpy((void*)buf, (void*)(temp->addr + temp->offset), count);
-			temp->offset = temp->offset + count;
-			return count;
-		}
-		temp = temp->next;
-	}
-	return 0;
-}
-
-struct file* opendir(int fd) {
-	struct file *f = f_list_head;
-	char type[1] = {'5'};
-	while(f->next != NULL) {
-		if(f->fd == fd && strcmp(f->type, type) == 0) {
 			return f;
 		}
 		f = f->next;
@@ -138,18 +86,15 @@ struct file* opendir(int fd) {
 	return NULL;
 }
 
-int fclose(int fd) {
-	struct file *f = f_list_head;
-	while(f->next != NULL) {
-		if(f->fd == fd) {
-			f->offset = 0;
-			return 0;
-		}
-		f = f->next;
+int fread(struct file *f, char *buf, int offset, int count) {
+	if(f != NULL) {
+		count = ((f->size - offset) >= count) ? count : (f->size - offset);
+		count = f->size >= count ? count : f->size;
+		memcpy((void*)buf, (void*)(f->addr + offset), count);
+		return count;
 	}
-	return -1;
+	return 0;
 }
-
 
 uint32_t oct_to_dec(int num) {
     int result = 0;

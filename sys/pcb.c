@@ -1,5 +1,5 @@
-#include <sys/pcb.h>
-#include <sys/kernelLoad.h>
+#include "sys/pcb.h"
+#include "sys/kprintf.h"
 
 struct mm_struct* create_mm_struct() {
 	struct mm_struct *mm = (struct mm_struct*) kmalloc(sizeof(struct mm_struct));

@@ -7,11 +7,14 @@
 #include <sys/interrupt.h>
 #include <sys/ahci.h>
 #include "sys/pcb.h"
-#include "sys/kernelLoad.h"
 #include "sys/thread.h"
 #include "sys/freelist.h"
+#include "sys/vfs.h"
 
 #define INITIAL_STACK_SIZE 4096
+
+void print_file();
+
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
 uint32_t* loader_stack;
 struct PCB *threadA, *threadB;
@@ -44,29 +47,61 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
   kprintf("Page Count: %d\n", pgCount);
   loadKernel((uint64_t)physbase, (uint64_t)physfree);
-  //Testing Code
-  /*int* a = (int*)kmalloc(sizeof(int));
-  *a = 10;
-  kprintf("Value of a is: %d\n", *a);
-  *a = 20;
-  kprintf("Value of a after update is: %d\n", *a);*/
   kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
-  threadA = createThread();
-  threadB = createThread();
-  //threadInitialize();
-
+//  threadA = createThread();
+//  threadB = createThread();
+//  threadInitialize();
+  initInterrupts();
   init_tarfs();
-  char *buf = (char*)kmalloc(100);
-  int fd = fopen("/rootfs/hello.txt");
-  if(fd > 0) {
-    fread(fd, buf, 100);
-    kprintf("%s\n", buf);
-  }
-  read_file("/rootfs/bin/sbush");
-  //performContextSwitch();
+  init_vfs();
+  print_file();
+  //uint64_t e_entry = read_file("/bin/sbush");
+  //performContextSwitch(e_entry);
   //performAHCITask();
 
   while(1);
+}
+
+void print_file() {
+//	char *buf = (char*)kmalloc(1028*10);
+/*	int fd = sys_open("/hello.txt", 0);
+	if(fd > 0) {
+		sys_read(fd, buf, 10);
+		kprintf("%s\n", buf);
+		sys_read(fd, buf, 10);
+		kprintf("%s\n", buf);
+		sys_read(fd, buf, 10);
+		kprintf("%s\n", buf);
+	}
+	buf = (char*)kmalloc(100);
+	sys_getcwd(buf, 1024);
+	kprintf("CWD: %s\n", buf);
+
+	buf = (char*)kmalloc(100);
+	sys_chdir("bin");
+	sys_getcwd(buf, 1024);
+        kprintf("CWD: %s\n", buf);
+
+	buf = (char*)kmalloc(100);
+	sys_chdir("../etc/");
+        sys_getcwd(buf, 1024);
+        kprintf("CWD: %s\n", buf);
+*/
+/*	int fd = sys_open("/", 0);
+	if(fd > 0) {
+		int bytes = sys_getdents(fd, buf, 1028*10);
+		for(int i = 0; i <= bytes;) {
+			struct dirent *dir = (struct dirent*)(buf + i);
+			kprintf("%s\n", dir->d_name);
+			i += sizeof(struct dirent);
+		}
+	}
+*/
+	DIR *dirp = sys_opendir("/");
+	struct dirent *entry = NULL;
+	while((entry = sys_readdir(dirp)) != NULL)
+		kprintf("%s\n", entry->d_name);
+	sys_closedir(dirp);
 }
 
 void boot(void)

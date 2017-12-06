@@ -3,7 +3,6 @@
 #include "sys/defs.h"
 #include "sys/elf64.h"
 #include "sys/pcb.h"
-#include "sys/kernelLoad.h"
 #include "sys/thread.h"
 #include "sys/syscall.h"
 #include <sys/interrupt.h>
