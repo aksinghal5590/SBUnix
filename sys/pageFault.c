@@ -4,7 +4,7 @@
 #include "sys/defs.h"
 #include "sys/pcb.h"
 
-extern void walkUserPageTables(uint64_t userPml4Table, uint64_t vmaAddress);
+extern void walkUserPageTables(uint64_t userPml4Table, uint64_t vmaAddress, uint64_t oldPhyAddress);
 void copyUserData(uint64_t pml4_add, uint64_t vmaAddress, uint64_t* vAddress, uint64_t len);
 
 extern struct PCB *userThread;
@@ -50,7 +50,7 @@ void pageFaultHandler()
             {
                 for(uint64_t i = startAdd; i < endAdd; i += 0x1000)
 	            {
-		            walkUserPageTables(cr3_val, i);
+		            walkUserPageTables(cr3_val, i, 0);
 		            copyUserData(cr3_val, i,(uint64_t*) i, 4096);
 	            }
                 break;
@@ -59,7 +59,7 @@ void pageFaultHandler()
             {
                 for(uint64_t i = startAdds; i < endAdds; i += 0x1000)
 	            {
-		            walkUserPageTables(cr3_val, cr2_val);
+		            walkUserPageTables(cr3_val, cr2_val, 0);
 		            copyUserData(cr3_val, cr2_val,(uint64_t*) cr2_val, 4096);
 	            }
                 break;

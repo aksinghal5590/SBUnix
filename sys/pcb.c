@@ -1,12 +1,12 @@
-#include <sys/pcb.h>
-#include <sys/kernelLoad.h>
-#include <sys/string.h>
-#include "sys/userPageTable.h"
-#include <sys/memset.h>
+#include "sys/pcb.h"
 #include "sys/kprintf.h"
+#include <sys/string.h>
+#include  "sys/userPageTable.h"
+#include <sys/kprintf.h>
 
 static uint64_t pid = 1;
 extern struct PCB* current_proc;
+struct d_entry d_entries[256];
 
 struct mm_struct* create_mm_struct() {
 	struct mm_struct *mm = (struct mm_struct*) kmalloc(sizeof(struct mm_struct));
@@ -62,16 +62,22 @@ struct PCB *create_new_proc(char *p_name, uint8_t isUser)
 {
 	struct PCB *proc =  ((struct PCB*) kmalloc(sizeof(struct PCB)));
 	proc->pid = pid++;
+	kprintf("PID of %s - %d\n", p_name, proc->pid);
 	proc->ppid = 0;
 	proc->parent = NULL;
 	proc->child_cnt = 0;
     proc->isUser = isUser;
+	proc->isUser = isUser;
 	proc->wait_on_child_pid = 0;
 	strcpy(proc->p_name, p_name);
 	proc->mm = create_mm_struct();
 	proc->state = READY;
 	proc->pml4 = (uint64_t)createUserPML4Table();
 	memset((void*)proc->kstack, 0, KSTACK_SIZE);
+
+	proc->cwd = &d_entries[0];
+	proc->fd_count = 0;
+
 	proc->next = NULL;
 	return proc;
 }

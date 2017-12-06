@@ -3,7 +3,6 @@
 #include "sys/defs.h"
 #include "sys/elf64.h"
 #include "sys/pcb.h"
-#include "sys/kernelLoad.h"
 #include "sys/thread.h"
 #include "sys/syscall.h"
 #include <sys/interrupt.h>
@@ -15,7 +14,7 @@ extern void switch_to_ring3();
 
 uint64_t threadA_fn = (uint64_t)&threadATask;
 uint64_t threadB_fn = (uint64_t)&threadBTask;
-uint64_t userProcess_fn;// = (uint64_t)&firstUserProcess;
+uint64_t userProcess_fn= (uint64_t)&firstUserProcess;
 
 struct PCB* createThread()
 {
@@ -38,9 +37,9 @@ void threadInitialize()
 	threadB->rsp = (uint64_t)&threadB->kstack[83];
 }
 
-void performContextSwitch(uint64_t eEntry)
+void performContextSwitch()
 {
-	userProcess_fn = eEntry;
+//	userProcess_fn = eEntry;
 	initialSwitch(threadA->rsp);
 }
 

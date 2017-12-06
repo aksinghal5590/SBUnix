@@ -1,6 +1,7 @@
 #include <sys/string.h>
 #include <sys/interrupt.h>
 #include <sys/kprintf.h>
+#include <sys/terminal.h>
 
 extern uint8_t scancodes[256][2];
 
@@ -15,6 +16,7 @@ void printKeyboardChar(uint8_t printChar)
 	s[0] = (char)printChar;
 	s[1] ='\0';
 	printkeyboard(s);
+	append_buffer(&s[0], 1);
 }
 
 uint8_t special_char = 0;
@@ -49,6 +51,7 @@ void printDefault(uint8_t c) {
 	} else {
 		char s[] = {(char)c, '\0'};
 		printkeyboard(s);
+		append_buffer(&s[0], 1);
 	}
 }
 

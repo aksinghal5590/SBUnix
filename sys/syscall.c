@@ -1,6 +1,7 @@
 #include "sys/defs.h"
 #include "sys/syscall.h"
 #include "sys/kprintf.h"
+#include "sys/process_manager.h"
 #include "sys/pcb.h"
 
 extern struct PCB* current_proc;
@@ -8,15 +9,26 @@ extern struct PCB* current_proc;
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
 extern void loadNextProcess();    
+
+extern pid_t forkSyscall(uint64_t sysNum);
+
 extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
 
-void* systemCallHandlerTable[4] = {systemRead, systemWrite, systemExit, systemYield}; 
+extern struct PCB* current_proc;
+void* systemCallHandlerTable[5] = {systemRead, systemWrite, systemExit, systemYield, systemFork}; 
+
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 {
 	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
+}
+
+
+pid_t userFork()
+{
+	 return forkSyscall(4);
 }
 
 void systemCallHandler()
@@ -72,6 +84,17 @@ void systemRead(uint64_t fileDescriptor, uint64_t data, uint64_t len)
             return;
         getCharacters(data, len);
     }
+}
+
+pid_t systemFork()
+{
+    struct PCB *parent = current_proc; 
+    struct PCB *child = copyProcess(parent); 
+    initializeProc(child, parent->kstack[KSTACK_SIZE-6], parent->kstack[KSTACK_SIZE-3]);
+    child->kstack[KSTACK_SIZE-7] = 0UL;
+    kprintf("%d\n", child->pid);
+    printReadyList();
+    return child->pid;
 }
 
 void systemExit(uint64_t status)

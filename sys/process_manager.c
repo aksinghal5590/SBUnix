@@ -5,7 +5,6 @@
 #include "sys/kprintf.h"
 #include "sys/string.h"
 #include "sys/userPageTable.h"
-#include "sys/kernelLoad.h"
 #include "sys/utility.h"
 
 #define STK 10
@@ -91,9 +90,10 @@ void initializeProc(struct PCB* proc, uint64_t entry, uint64_t stop)
     addProcToReadyList(proc);
 }
 
-void copyProcess(struct PCB* parent) {
+struct PCB* copyProcess(struct PCB* parent) {
 
-    struct PCB* child  = createThread();
+    struct PCB* child  = create_new_proc("child", 1);
+
     uint64_t parent_pml4   = parent->pml4;
     uint64_t child_pml4    = child->pml4;
     
@@ -120,7 +120,7 @@ void copyProcess(struct PCB* parent) {
 
         if (parent_vma->type == STK) {
 
-            v_add = ((vm_end) >> 12 << 12) - 0x1000;
+            v_add = vm_end;
             while (v_add >= vm_start) {
                 updateUserCR3_Val(parent_pml4);
                 if (!user_page_exist(parent_pml4, v_add)) {
@@ -136,7 +136,8 @@ void copyProcess(struct PCB* parent) {
             }
         } 
         else {
-        	v_add = ((vm_start) >> 12 << 12);
+        	// v_add = ((vm_start) >> 12 << 12); //align page
+            v_add = vm_start;
             while (v_add < vm_end) {
                 updateUserCR3_Val(parent_pml4);
 
@@ -154,6 +155,7 @@ void copyProcess(struct PCB* parent) {
         updateUserCR3_Val(parent_pml4);
         parent_vma = parent_vma->next;
     }
+    return child;
 }
 
 void loadNextProcess()

@@ -27,24 +27,22 @@ struct posix_header_ustar {
 };
 
 struct file {
-  int fd;
   char name[1024];
   uint64_t addr;
   char type[1];
   int size;
-  uint64_t offset;
   struct file *next;
 };
 
 void init_tarfs();
 
+struct file* get_tarfs_list();
+
 void* read_tarfs(char*s);
 
-int fopen(char *name);
+struct file* fopen(char *name);
 
-int fread(int fd, char *buf, int count);
-
-int opendir(char *dir_name);
+int fread(struct file *f, char *buf, int offset, int count);
 
 
 #endif

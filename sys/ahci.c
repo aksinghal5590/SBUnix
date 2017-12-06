@@ -2,7 +2,6 @@
 #include <sys/ahci.h>
 #include "sys/kprintf.h"
 #include "sys/pciConfigSpace.h"
-#include "sys/memset.h"
 
 static int check_type(hba_port_t *port);
 

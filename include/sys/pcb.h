@@ -3,8 +3,9 @@
 
 #include <stdarg.h>
 #include "sys/defs.h"
-
+#include "sys/vfs.h"
 #define KSTACK_SIZE 100
+
 
 struct PCB {
    uint64_t kstack[KSTACK_SIZE];
@@ -24,6 +25,9 @@ struct PCB {
    uint64_t entry;
    uint8_t isUser;
    uint64_t stop;
+   struct d_entry *cwd;
+   struct vfs_file *fd_table[256];
+   int fd_count;
 };
 
 struct mm_struct {

@@ -1,5 +1,3 @@
-#include <sys/defs.h>
-#include <sys/elf64.h>
 #include <sys/gdt.h>
 #include <sys/kprintf.h>
 #include <sys/tarfs.h>
@@ -7,10 +5,12 @@
 #include <sys/interrupt.h>
 #include <sys/ahci.h>
 #include "sys/pcb.h"
-#include "sys/kernelLoad.h"
 #include "sys/thread.h"
 #include "sys/freelist.h"
+#include "sys/vfs.h"
 #include "sys/process_manager.h"
+
+void print_file();
 
 #define INITIAL_STACK_SIZE 4096
 
@@ -21,7 +21,9 @@ struct PCB *threadA, *threadB;
 extern char kernmem, physbase;
 extern struct PCB* current_proc;
 extern void initialSwitch(uint64_t rsp);
+uint64_t read_file(char* file_name);
 extern struct PCB* idle;
+extern struct PCB* createThread();
 
 int pgCount = 0;
 
@@ -52,43 +54,36 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
   kprintf("Page Count: %d\n", pgCount);
   loadKernel((uint64_t)physbase, (uint64_t)physfree);
-  //Testing Code
-  /*int* a = (int*)kmalloc(sizeof(int));
-  *a = 10;
-  kprintf("Value of a is: %d\n", *a);
-  *a = 20;
-  kprintf("Value of a after update is: %d\n", *a);*/
+  init_tarfs();
+  init_vfs();
   kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
 
   __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
-  //kprintf("Size of PCB is: %d\n", sizeof(struct PCB));
-  //threadA = createThread();
-  //threadB = createThread();
-  //kprintf("Performed kmalloc successfully\n");
-  //threadInitialize();
-
-  init_tarfs();
-
   initIdleProcess();
-  //char *buf = (char*)kmalloc(10000);
-  //int fd = fopen("/rootfs/test.txt");
-  //fread(fd, buf, 10000);
-  //kprintf("%s\n", buf);
-
-  //read_file("bin/sbush");
-  //performContextSwitch();
-  //threadInitialize();
-  //performContextSwitch();
+/*  threadA = createThread();
+  threadB = createThread();
+  threadInitialize();*/
   initInterrupts();
-  uint64_t eEntry = read_file("bin/sbush");
-  //performContextSwitch(eEntry);
+  //performContextSwitch();
+
+  uint64_t eEntry = read_file("/bin/sbush");
   if(eEntry);
   struct PCB* t = idle;
-  if(t != NULL)
-    initialSwitch(t->rsp);
+  if(t!= NULL)
+      initialSwitch(t->rsp);
+  print_file();
+
   while(1);
+}
+
+void print_file() {
+	DIR *dirp = sys_opendir("/");
+	struct dirent *entry = NULL;
+	while((entry = sys_readdir(dirp)) != NULL)
+		kprintf("%s\n", entry->d_name);
+	sys_closedir(dirp);
 }
 
 void boot(void)

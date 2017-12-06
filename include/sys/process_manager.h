@@ -9,7 +9,7 @@ void switch_to_ring3_from_kernel();
 void initIdleProcess();
 void idleProcess();
 void initializeProc(struct PCB* new_task, uint64_t entry, uint64_t stop);
-void copyProcess(struct PCB* parent);
+struct PCB* copyProcess(struct PCB* parent);
 void loadNextProcess();
 
 void addProcToReadyList(struct PCB* proc);

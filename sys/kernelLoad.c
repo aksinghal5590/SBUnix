@@ -1,4 +1,3 @@
-#include "sys/kernelLoad.h"
 #include "sys/pagetable.h"
 #include "sys/freelist.h"
 #include "sys/kprintf.h"

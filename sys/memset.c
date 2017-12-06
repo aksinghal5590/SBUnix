@@ -1,4 +1,4 @@
-#include "sys/memset.h"
+#include "sys/kprintf.h"
 
 void* memset(void* ptr, int value, size_t num)
 {
