@@ -35,13 +35,13 @@ uint64_t read_file(char* file_name) {
     updateUserCR3_Val((uint64_t)pml4_add);
     for (int i = 0; i < eh->e_phnum; ++i) {
         kprintf("%d\n",ph->p_type);
-        if(ph->p_type == 1 && ph->p_offset == 0) {
+        if(ph->p_type == 1) {
            kprintf("%x\n",ph->p_vaddr);
            kprintf("%x\n",ph->p_paddr);
            kprintf("%d\n",ph->p_memsz);
 
             insert_vma(userThread->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
-    	    mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, (uint64_t*)eh+(ph->p_offset), ph->p_filesz);
+    	    //mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, (uint64_t*)eh+(ph->p_offset), ph->p_filesz);
 
 	      }
         ph += 1;
@@ -66,6 +66,6 @@ void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddr
 	{
 
 		walkUserPageTables(pml4_add, i, 0);
-        copyUserData(pml4_add, i,offset, filesz);
 	}
+    copyUserData(pml4_add, startAddress, offset, filesz);
 }

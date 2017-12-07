@@ -4,5 +4,5 @@
 
 void exit(int status)
 {
-    syscall1_i(2, status);
+    syscall1_i(__NR_exit, status);
 }

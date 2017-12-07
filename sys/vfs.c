@@ -192,7 +192,9 @@ int sys_chdir(char *path) {
 }
 
 void sys_getcwd(char *buf, int size) {
-	memcpy(buf, get_cwd()->name, ((size < strlen(get_cwd()->name)) ? size : strlen(get_cwd()->name)));
+	size = (size < strlen(get_cwd()->name)) ? size : strlen(get_cwd()->name);
+	memcpy(buf, get_cwd()->name, size);
+	buf[size] = '\0';
 }
 
 int sys_read(int fd, char *buf, int count) {

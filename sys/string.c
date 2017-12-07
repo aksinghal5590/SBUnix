@@ -7,6 +7,7 @@ void* memcpy(void* dest, const void* src, size_t n) {
 	while(n-- != 0) {
 		/*if(*s != 0)
 			kprintf("value of s is:%d\n", *s);*/
+        //kprintf("Inside Memcopy\n");
 		*d = *s;
 		/*if(*d != 0)
 			kprintf("value of d is:%d\n", *d);*/

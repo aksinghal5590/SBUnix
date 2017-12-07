@@ -4,5 +4,5 @@
 
 void yield()
 {
-    syscall0(3);
+    syscall0(__NR_yield);
 }

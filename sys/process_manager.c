@@ -20,8 +20,15 @@ extern void set_tss_rsp(void* rsp);
 
 void switch_to_ring3_from_kernel()
 {
-    uint64_t* s = (uint64_t*)current_proc->stop;
-    uint64_t e = current_proc->rip;
+    //uint64_t* s = (uint64_t*)current_proc->stop;
+    //uint64_t e = current_proc->rip;
+    /*__asm__ volatile
+    (
+        "movq %[e], %%rax;"
+        :
+        :[e]"g"(e)
+        :"cc", "memory"
+    );
     __asm__ volatile
     (
         "pushq $0x23;"
@@ -31,8 +38,8 @@ void switch_to_ring3_from_kernel()
         "pushq %[e];"
         :
         :[s]"g"(s), [e]"g"(e)
-        :"cc", "memory"
-    );
+        :"cc","rax","memory"
+    );*/
     set_tss_rsp(&current_proc->kstack[KSTACK_SIZE-1]);
     __asm__ volatile("iretq");
 }
@@ -71,17 +78,20 @@ void initializeProc(struct PCB* proc, uint64_t entry, uint64_t stop)
     {
         proc->kstack[KSTACK_SIZE-1] = 0x10; //kernel segment
         proc->kstack[KSTACK_SIZE-4] = 0x08;    
-        proc->kstack[KSTACK_SIZE-2] = stop;
-        proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
-        proc->kstack[KSTACK_SIZE-5] = entry;
     }
     else
     {
-        proc->kstack[KSTACK_SIZE-1] = (uint64_t)&switch_to_ring3_from_kernel;
+        //proc->kstack[KSTACK_SIZE-1] = (uint64_t)&switch_to_ring3_from_kernel;
+        proc->kstack[KSTACK_SIZE-1] = 0x23;
+        proc->kstack[KSTACK_SIZE-4] = 0x2b;
     }
 
+    proc->kstack[KSTACK_SIZE-2] = stop;
+    proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
+    proc->kstack[KSTACK_SIZE-5] = entry;
+    
     if(proc->isUser)
-        proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-17];
+        proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-21];
     else
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-5];
 
@@ -180,6 +190,7 @@ void loadNextProcess()
     current_proc = next_proc;
     current_proc->state = RUNNING;
     schedule(&temp->rsp, &current_proc->rsp);
+    switch_to_ring3_from_kernel();
 }
 
 void addProcToReadyList(struct PCB* proc)

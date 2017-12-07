@@ -28,13 +28,13 @@ int read_stdin(char *buf, int size) {
 int write_stdout(char *buf, int size) {
 	if(buf[size] != '\0')
 		buf[size] = '\0';
-	kprintf("%s", buf);
+	kprintf("%s\n", buf);
 	return size;
 }
 
 int write_stderr(char *buf, int size) {
 	if(buf[size] != '\0')
                 buf[size] = '\0';
-	kprintf("Error: %s", buf);
+	kprintf("Error: %s\n", buf);
 	return size;
 }

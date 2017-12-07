@@ -69,6 +69,7 @@ isr13:
 pageFault:
     cli
     pushq $14
+    movq %cr2, %rax
     jmp isr_common
 
 isr_common:

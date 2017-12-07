@@ -1,7 +1,8 @@
 #include "sys/defs.h"
 #include <libc.h>
+#include <unistd.h>
 
-void read(uint64_t fd, char* buf, uint64_t len)
+ssize_t read(int fd, void* buf, size_t count)
 {
-  syscall3(0, fd, (uint64_t)buf, len);
+  return syscall3(fd, (uint64_t)buf, count, __NR_read);
 }

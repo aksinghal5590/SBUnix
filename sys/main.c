@@ -9,6 +9,7 @@
 #include "sys/freelist.h"
 #include "sys/vfs.h"
 #include "sys/process_manager.h"
+#include "sys/syscall.h"
 
 void print_file();
 
@@ -56,6 +57,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   loadKernel((uint64_t)physbase, (uint64_t)physfree);
   init_tarfs();
   init_vfs();
+  initSyscalls();
+  initInterrupts();
   kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
 
   __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
@@ -65,7 +68,6 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 /*  threadA = createThread();
   threadB = createThread();
   threadInitialize();*/
-  initInterrupts();
   //performContextSwitch();
 
   uint64_t eEntry = read_file("/bin/sbush");
@@ -73,12 +75,36 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   struct PCB* t = idle;
   if(t!= NULL)
       initialSwitch(t->rsp);
+
   print_file();
 
   while(1);
 }
 
 void print_file() {
+	char *buf = (char*)kmalloc(1024*10);
+	int fd = sys_open("/hello.txt", 0);
+	if(fd > 0) {
+		sys_read(fd, buf, 10);
+		kprintf("%s\n", buf);
+		sys_read(fd, buf, 10);
+		kprintf("%s\n", buf);
+		sys_read(fd, buf, 10);
+		kprintf("%s\n", buf);
+	}
+	buf = (char*)kmalloc(100);
+	sys_getcwd(buf, 1024);
+	kprintf("CWD: %s\n", buf);
+
+	buf = (char*)kmalloc(100);
+	sys_chdir("bin");
+	sys_getcwd(buf, 1024);
+    kprintf("CWD: %s\n", buf);
+
+	buf = (char*)kmalloc(100);
+	sys_chdir("../etc/");
+    sys_getcwd(buf, 1024);
+    kprintf("CWD: %s\n", buf);
 	DIR *dirp = sys_opendir("/");
 	struct dirent *entry = NULL;
 	while((entry = sys_readdir(dirp)) != NULL)

@@ -5,10 +5,8 @@
 #include "sys/tarfs.h"
 
 #define MAX_LEN 1024
-
-enum flags {
-	O_RDONLY, O_RDWR, O_DIRECTORY
-};
+#define O_RDONLY 00000000
+#define O_DIRECTORY 00200000
 
 typedef struct vfs_dir DIR;
 
