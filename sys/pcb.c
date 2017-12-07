@@ -130,26 +130,26 @@ struct PCB* get_free_task_struct(){
 
 
 
-void add_proc_to_list(struct PCB* proc)
-{
-    struct PCB* ptr = task_l;
+// void add_proc_to_list(struct PCB* proc)
+// {
+//     struct PCB* ptr = task_l;
 
-    /*if (proc->state == IDLE) {
-        return;
-    } else if (proc->state == RUNNING) {
-        proc->state = READY;
-    }*/
+//     if (proc->state == IDLE) {
+//         return;
+//     } else if (proc->state == RUNNING) {
+//         proc->state = READY;
+//     }
 
-    if (ptr == NULL) {
-        task_l = proc;
-    } else {
-        while (ptr->next != NULL) {
-            ptr = ptr->next;
-        }
+//     if (ptr == NULL) {
+//         task_l = proc;
+//     } else {
+//         while (ptr->next != NULL) {
+//             ptr = ptr->next;
+//         }
         
-        ptr->next = proc;
-    }
-}
+//         ptr->next = proc;
+//     }
+// }
 
 int check_proc_present()
 {

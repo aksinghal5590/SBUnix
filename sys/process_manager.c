@@ -25,7 +25,7 @@ void idle_process();
 // }
 
 void init_idle_process(){
-	struct PCB* idle = create_new_proc("idle_task", 0); 
+	idle = create_new_proc("idle_task", 0); 
 	idle->state = IDLE;
 	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
 }
@@ -44,7 +44,7 @@ void switch_to_ring3_from_kernel()
         "pushq %[e];"
         :
         :[stack]"g"(stack), [e]"g"(e)
-        :"cc", "memory"
+        :"cc", "memory", "rax"
     );
     set_tss_rsp(&current_proc->kstack[99]);
     __asm__ volatile("iretq");
@@ -138,7 +138,9 @@ void schedule_proc(struct PCB* proc, uint64_t entry, uint64_t stop)
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-17];
     else
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-5];
-
+    // if(proc->pid == 4) {
+    //     proc->rsp = 0xffffffff802f0230;
+    // }
     proc->rip = entry;
     proc->stop = stop;
     add_proc_to_list(proc);
@@ -195,8 +197,8 @@ struct PCB* copyProcess(struct PCB* parent) {
 
         if (parent_vma->type == STK) {
 
-            //v_add = ((vm_end) >> 12 << 12) - 0x1000;
-            v_add = vm_end;
+            // v_add = ((vm_end) >> 12 << 12) - 0x1000;
+            v_add = vm_end - 0x1000;
             while (v_add >= vm_start) {
                 updateUserCR3_Val(parent_pml4);
 
@@ -208,7 +210,7 @@ struct PCB* copyProcess(struct PCB* parent) {
                 }
                 // Allocate a new page in kernel
                 uint64_t ker_vadd = (uint64_t)kmalloc(sizeof(struct PCB));
-                p_add = ker_vadd - kernmem;
+                p_add = ker_vadd - VIRTUAL_BASE;
 
                 //kprintf("\nStack v:%p p:%p", vaddr, paddr);
                 // Copy parent page in kernel space

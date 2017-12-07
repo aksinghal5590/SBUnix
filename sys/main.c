@@ -83,7 +83,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   //init_idle_process();
 
 
-  init_idle_process();
+  //init_idle_process();
 
   //char *buf = (char*)kmalloc(10000);
   //int fd = fopen("/rootfs/test.txt");
@@ -97,6 +97,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   initInterrupts();
 
   uint64_t eEntry = read_file("bin/sbush");
+  print_task_list();
   //performContextSwitch(eEntry);
   if(eEntry);
   struct PCB* t = idle;

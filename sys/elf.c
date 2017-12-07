@@ -57,7 +57,7 @@ uint64_t read_file(char* file_name) {
     }
     uint64_t endStackVAddress = S_TOP;
     uint64_t startStackVAddress = S_TOP - S_SIZE;
-    insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress, 1, 0);
+    insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress+1, 1, 10);
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
     schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
