@@ -176,8 +176,8 @@ void copyUserData(uint64_t pml4_add, uint64_t vmaAddress, uint64_t* vAddress, ui
 	uint64_t pt_val = (uint64_t)(*pt_val_ptr);
 	if(pt_val & 0x01)
 	{
-		uint64_t* v_pt_val = (uint64_t*) (VIRTUAL_BASE + (pt_val & GET_40_BITS));
-		memcpy((void*)v_pt_val, (void*)vAddress, len);
+		//uint64_t* v_pt_val = (uint64_t*) (VIRTUAL_BASE + (pt_val & GET_40_BITS));
+		memcpy((void*)vmaAddress, (void*)vAddress, len);
 		/*char* src = (char*)vmaAddress;
 		char* dest = (char*)v_pt_val;
 		

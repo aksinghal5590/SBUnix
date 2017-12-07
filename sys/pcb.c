@@ -40,17 +40,18 @@ void insert_vma(struct mm_struct *mm, uint64_t start, uint64_t end, uint64_t siz
 		mm->vma_list = new_vma;
 		return;
 	}
+	if(end < temp->start) {
+		new_vma->next = temp;
+		temp->prev = new_vma;
+		mm->vma_list = new_vma;
+		return;
+	}
 	while(temp->next != NULL) {
-		if(temp->start < end) {
-			if(temp->end <= start) {
-				new_vma->prev = temp->prev;
-				new_vma->next = temp;
-				temp->prev->next = new_vma;
-				temp->prev = new_vma;
-			} else {
-				//TODO
-				//break existing into 2 and insert new_vma in between
-			}
+		if(temp->end <= start && temp->next->start >= end) {
+			new_vma->prev = temp;
+			new_vma->next = temp->next;
+			temp->next = new_vma;
+			temp->next->prev = new_vma;
 			added = 1;
 			break;
 		}

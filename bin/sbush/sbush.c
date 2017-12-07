@@ -1,19 +1,25 @@
 #include <stdlib.h>
 #include <libc.h>
 #include <unistd.h>
+#include <stdio.h>
 
-
+int a[20];
 int main() {
-  write(1, "OS by Akshat, Ashish and Vaibhav, version1", 20);
-  yield();
+
+  for(int i = 0; i < 20; i++) {
+	a[i] = 0;
+	//printf("Value of a[%d] = %d. Its address: %x\n", i, a[i], &a[i]);
+  }
+  //write(1, "OS by Akshat, Ashish and Vaibhav, version1", 20);
+  //yield();
   write(1, "OS by Akshat, Ashish and Vaibhav, version2", 20);
   yield();
-  write(1, "OS by Akshat, Ashish and Vaibhav, version3", 20);
+  //write(1, "OS by Akshat, Ashish and Vaibhav, version3", 20);
   //int f = fork();
   //if(f ==0 ) {
   //   write(1, "Ferdman Bhadwa h", 20);
   //}
-  write(1, "OS ki maa ki", 20);
+  //write(1, "OS ki maa ki", 20);
   
   char buf[1024];
   getcwd(buf, 1024);

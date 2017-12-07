@@ -4,5 +4,5 @@
 
 ssize_t read(int fd, void* buf, size_t count)
 {
-  return syscall3(fd, (uint64_t)buf, count, __NR_read);
+  return syscall_ici(__NR_read, fd, (char*)buf, count);
 }

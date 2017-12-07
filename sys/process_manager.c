@@ -58,7 +58,7 @@ void idle_process(){
     while(1)
     {
         i++;
-        if(i < 4)
+        if(i < 10)
         {
             kprintf("In idle task\n");
             if(check_proc_present())
