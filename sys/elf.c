@@ -60,6 +60,7 @@ struct PCB* read_file(char* file_name) {
     insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress+1, 1, 10);
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
+    //TODO Copy argument to stacks
     schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }

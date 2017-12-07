@@ -15,7 +15,7 @@ struct PCB {
    char p_name[25]; 
    struct PCB *parent;
    uint64_t child_cnt;
-   enum { RUNNING, SLEEPING, ZOMBIE, READY, IDLE, EXIT } state;
+   enum { RUNNING, SLEEPING, ZOMBIE, READY, IDLE, EXIT, WAIT } state;
    int exit_status;
    uint64_t pml4;
    struct mm_struct *mm;

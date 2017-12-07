@@ -19,9 +19,9 @@ extern void getCharacters(uint64_t data, uint64_t len);
 uint64_t* function_ptr = NULL;
 
 extern struct PCB* current_proc;
-void* systemCallHandlerTable[6] = {systemRead, 
+void* systemCallHandlerTable[7] = {systemRead, 
 	systemWrite, systemExit, systemYield, 
-	systemFork, systemExecvpe}; 
+	systemFork, systemExecvpe, systemWaitPid}; 
 
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
@@ -124,7 +124,7 @@ void systemYield()
 }
 
 
-
+//TODO copy siblings and child
 void systemExecvpe(char *file_path, char *argv[], char *envp[])
 {
     struct PCB *exec = read_file(file_path);
@@ -152,4 +152,25 @@ void systemExecvpe(char *file_path, char *argv[], char *envp[])
     }
     // execvpe failed; so return -1
     return -1;
+}
+
+//TODO check if valid pid
+uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
+{
+    // int *status_p = (int*) fstatus;
+    if (current_proc->child_cnt == 0) {
+        //if (status_p) *status_p = -1;
+        return -1;
+    }
+
+    if (pid > 0) {
+        current_proc->wait_on_child_pid = pid;
+    } else {
+        current_proc->wait_on_child_pid = 0;
+    }
+
+    current_proc->state = WAIT;
+
+    // if (status_p) *status_p = 0;
+    return (uint64_t)current_task->wait_on_child_pid;
 }
