@@ -64,9 +64,6 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
-//  threadA = create_new_proc("ThreadA", 1);
-//  threadB = createThread();
-
   init_idle_process();
 
   read_file("/bin/sbush");

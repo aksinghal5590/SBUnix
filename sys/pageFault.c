@@ -39,28 +39,16 @@ void pageFaultHandler()
     {
         struct vm_area_struct* vma = userThread->mm->vma_list;
         struct vm_area_struct* vmas = userThread->mm->vma_list;
-        uint64_t startAdd, endAdd, startAdds, endAdds;
+        uint64_t startAdd, endAdd;
         while(vma != NULL)
         {
             startAdd = vma->start;
             endAdd = vma->end;
-            startAdds = vmas->start;
-            endAdds = vmas->end;
             if(cr2_val >= startAdd && cr2_val <= endAdd)
             {
                 for(uint64_t i = startAdd; i < endAdd; i += 0x1000)
 	            {
 		            walkUserPageTables(cr3_val, i, 0);
-		            copyUserData(cr3_val, i,(uint64_t*) i, 4096);
-	            }
-                break;
-            }
-            if(cr2_val >= startAdds && cr2_val <= endAdds)
-            {
-                for(uint64_t i = startAdds; i < endAdds; i += 0x1000)
-	            {
-		            walkUserPageTables(cr3_val, cr2_val, 0);
-		            copyUserData(cr3_val, cr2_val,(uint64_t*) cr2_val, 4096);
 	            }
                 break;
             }
