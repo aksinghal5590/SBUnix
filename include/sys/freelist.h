@@ -4,14 +4,16 @@
 #include "sys/defs.h"
 
 struct PAGE {
-        struct PAGE *next;
+    struct PAGE *next;
 	uint64_t physadd;
-	//uint8_t use_cnt;
+	uint8_t use_cnt;
 };
 
 //void initializePages(uint64_t physfree);
 
 int initializePages(uint64_t start, uint64_t end);
+
+struct PAGE* getPageStruct(uint64_t pageAdd);
 
 uint64_t getPage();
 

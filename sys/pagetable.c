@@ -37,6 +37,8 @@ void walkPageTables(uint64_t virtual_add, uint64_t phys_add) {
 void createPML4Table() {
 
 	pml4Table = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)pml4Table);
+    p->use_cnt = 1;
 	v_pml4Table = (uint64_t*)(VIRTUAL_BASE + (uint64_t)pml4Table);
 	for(int i = 0; i < PAGEINDEX; i++) {
 		*(v_pml4Table + i) = 0x02;
@@ -68,6 +70,8 @@ void checkPDTPTable(uint64_t virtual_add, uint64_t phys_add)
 void createPDTPTable(uint64_t virtual_add) {
 
 	pdtpTable = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)pdtpTable);
+    p->use_cnt = 1;
     if(globalPdtpTable == NULL)
         globalPdtpTable = pdtpTable;
 	v_pdtpTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)pdtpTable);
@@ -93,6 +97,8 @@ void checkPDTable(uint64_t virtual_add, uint64_t phys_add)
 void createPDTable(uint64_t virtual_add) {
 
 	pdTable = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)pdTable);
+    p->use_cnt = 1;
 	v_pdTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)pdTable);
 	*(v_pdtpTable + ((virtual_add>>30) & 0x1FF)) = ALL_ZERO | (((uint64_t)pdTable & GET_40_BITS)) | 0x003;
 	for(int i = 0; i < PAGEINDEX; i++) {
@@ -122,6 +128,8 @@ void checkPTTable(uint64_t virtual_add, uint64_t phys_add)
 void createPTTable(uint64_t virtual_add, uint64_t phys_add) {
 
 	ptTable = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)ptTable);
+    p->use_cnt = 1;
 	v_ptTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)ptTable);
 	*(v_pdTable + ((virtual_add>>21) & 0x1FF)) = ALL_ZERO | (((uint64_t)ptTable & GET_40_BITS)) | 0x003;
 	for(int i = 0; i < PAGEINDEX; i++) {

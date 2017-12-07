@@ -16,6 +16,8 @@ uint64_t* createUserProcess()
 uint64_t* createUserPML4Table() {
 
 	uint64_t* userPml4Table = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)userPml4Table);
+    p->use_cnt = 1;
 	uint64_t* v_userPml4Table = (uint64_t*)(VIRTUAL_BASE + (uint64_t)userPml4Table);
 	for(int i = 0; i < PAGEINDEX; i++) {
 		*(v_userPml4Table + i) = 0x0;
@@ -57,6 +59,8 @@ void checkUserPDTPTable(uint64_t userPml4Table, uint64_t vmaAddress, uint64_t ol
 void createUserPDTPTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress) {
 
 	uint64_t* userPdtpTable = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)userPdtpTable);
+    p->use_cnt = 1;
 	uint64_t* v_userPdtpTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)userPdtpTable);
 	*(v_userPml4Table + ((vmaAddress>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)userPdtpTable & GET_40_BITS)) | 0x007;
     for(int i = 0; i < PAGEINDEX; i++) {
@@ -80,6 +84,8 @@ void checkUserPDTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t o
 void createUserPDTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddress) {
 
 	uint64_t* userPdTable = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)userPdTable);
+    p->use_cnt = 1;
 	uint64_t* v_userPdTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)userPdTable);
 	uint64_t pml4_val = *(v_userPml4Table + ((vmaAddress>>39) & 0x1FF));
 	uint64_t pdtp_base = pml4_val & GET_40_BITS;
@@ -112,6 +118,8 @@ void checkUserPTTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t o
 void createUserPTTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t oldPhysAddres) {
 
 	uint64_t* userPtTable = (uint64_t*)getPage();
+    struct PAGE* p = getPageStruct((uint64_t)userPtTable);
+    p->use_cnt = 1;
 	uint64_t* v_userPtTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)userPtTable);
 
 	uint64_t pml4_val = *(v_userPml4Table + ((vmaAddress>>39) & 0x1FF));
@@ -128,8 +136,12 @@ void createUserPTTable(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t 
 
 	if(oldPhysAddres) {
 		*(v_userPtTable + ((vmaAddress>>12) & 0x1FF)) = ALL_ZERO | ((oldPhysAddres & GET_40_BITS)) | 0x007;
+        struct PAGE* p = getPageStruct(oldPhysAddres);
+        p->use_cnt += 1;
 	} else {
 		uint64_t phys_add = getPage();
+        struct PAGE* p = getPageStruct(phys_add);
+        p->use_cnt = 1;
 	//kprintf("Value of userPtTable: %x\n", *(v_userPtTable));
 	    *(v_userPtTable + ((vmaAddress>>12) & 0x1FF)) = ALL_ZERO | ((phys_add & GET_40_BITS)) | 0x007;
 	//kprintf("Value of userPtTable After Update: %x\n", *(v_userPtTable + ((vmaAddress>>12) & 0x1FF)));
@@ -154,8 +166,12 @@ void checkUserEntry(uint64_t* v_userPml4Table, uint64_t vmaAddress, uint64_t old
 	{   
 		if(oldPhysAddress) {
 			*(pt_val_ptr) = ALL_ZERO | ((oldPhysAddress & GET_40_BITS)) | 0x007;
+            struct PAGE* p = getPageStruct(oldPhysAddress);
+            p->use_cnt += 1;
 		} else {
 			uint64_t phys_add = getPage();
+            struct PAGE* p = getPageStruct(phys_add);
+            p->use_cnt = 1;
 		   *(pt_val_ptr) = ALL_ZERO | ((phys_add & GET_40_BITS)) | 0x007;
 		}
 	}

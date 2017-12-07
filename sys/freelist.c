@@ -14,7 +14,7 @@ int initializePages(uint64_t start, uint64_t end) {
         for(int i = 0; pageCount < PAGE_COUNT && i < count; pageCount++, i++) {
                 page_list[pageCount].next = NULL;
                 page_list[pageCount].physadd = baseAddress + (i * PAGESIZE);
-                //page_list[i].use_cnt = 0;
+                page_list[i].use_cnt = 0;
                 if(tail == NULL)
                         tail = page_list;
                 else
@@ -28,33 +28,24 @@ int initializePages(uint64_t start, uint64_t end) {
 	return pageCount;
 }
 
-/*void initializePages(uint64_t physfree) {
-
-	uint64_t baseAddress = (physfree/PAGESIZE + 1)*PAGESIZE;
-	struct PAGE* tail = NULL;
-        for(int i = 0; i < PAGE_COUNT; i++) {
-		page_list[i].next = NULL;
-                page_list[i].physadd = baseAddress + (i * PAGESIZE);
-		//page_list[i].use_cnt = 0;
-		if(tail == NULL)
-			tail = page_list;
-		else
-		{
-			tail->next = (page_list + i);
-			tail = (page_list + i);
-		}
+struct PAGE* getPageStruct(uint64_t pageAdd)
+{
+    int i;
+    for(i = 0; i < PAGE_COUNT; i++)
+    {
+        if(page_list[i].physadd == pageAdd)
+        {
+            break;
         }
-	if(free_list == NULL)
-		free_list = page_list;
-}*/
+    }
+    return  &(page_list[i]);
+}
 
 uint64_t getPage() {
 	uint64_t fp;
 	if (!(free_list)) {
 		return 0;
 	}
-
-	//free_list->use_cnt = 1;
 	fp = free_list->physadd;
 	free_list = free_list->next;
 	pageCount--;
@@ -62,9 +53,8 @@ uint64_t getPage() {
 }
 
 void freePage(struct PAGE* p) {
-
-	//p->use_cnt = 0;
-        p->next = free_list;
-        free_list = p;
-        pageCount++;
+    p->next = free_list;
+    p->use_cnt = 0;
+    free_list = p;
+    pageCount++;
 }
