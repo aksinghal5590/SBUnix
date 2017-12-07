@@ -13,5 +13,6 @@ pid_t systemFork();
 pid_t userFork();
 void systemExit(uint64_t status);
 void systemYield();
+void systemExecvpe(char *file_path, char *argv[], char *envp[]);
 
 #endif

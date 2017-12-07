@@ -3,6 +3,7 @@
 #include "sys/kprintf.h"
 #include "sys/process_manager.h"
 #include "sys/pcb.h"
+#include "sys/elf64.h"
 
 extern struct PCB* current_proc;
 
@@ -18,7 +19,9 @@ extern void getCharacters(uint64_t data, uint64_t len);
 uint64_t* function_ptr = NULL;
 
 extern struct PCB* current_proc;
-void* systemCallHandlerTable[5] = {systemRead, systemWrite, systemExit, systemYield, systemFork}; 
+void* systemCallHandlerTable[6] = {systemRead, 
+	systemWrite, systemExit, systemYield, 
+	systemFork, systemExecvpe}; 
 
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
@@ -117,5 +120,36 @@ void systemYield()
     kprintf("Inside Yield\n");
     current_proc->state = READY;
     //add_proc_to_list(current_proc);
-    schedule_next_process();    
+    schedule_next_process();
+}
+
+
+
+void systemExecvpe(char *file_path, char *argv[], char *envp[])
+{
+    struct PCB *exec = read_file(file_path);
+    kprintf("%s\n", "Inside Execvpe");
+
+    if (exec ! == NULL) {
+        // struct PCB *temp = current_proc;
+
+        // Exec process has same pid, ppid and parent
+        set_pid(exec->pid);
+        exec->pid  = current_proc->pid;
+        exec->ppid = current_proc->ppid;
+        exec->parent = current_proc->parent;
+        //memcpy((void*)new_task->file_descp, (void*)cur_task->file_descp, MAXFD*8);
+
+        // // Replace current child with new exec process
+        // replace_child_task(cur_task, new_task);
+
+        // Exit from the current process
+        // empty_task_struct(cur_task);
+        // cur_task->state = EXIT;
+        // schedule_next_process()
+        systemExit(0);
+ 
+    }
+    // execvpe failed; so return -1
+    return -1;
 }

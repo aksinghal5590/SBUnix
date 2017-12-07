@@ -11,11 +11,11 @@
 #define S_TOP 0xF0000000
 #define S_SIZE 0x10000
 
-struct PCB *userThread;
+// struct PCB *userThread;
 
-uint64_t read_file(char* file_name) {
+struct PCB* read_file(char* file_name) {
 
-    userThread = create_new_proc("User Process", 1); 
+    struct PCB *userThread = create_new_proc("User Process", 1); 
     uint64_t pml4_add = userThread->pml4;
 
     Elf64_Ehdr* eh = (Elf64_Ehdr*)read_tarfs(file_name);
@@ -61,7 +61,7 @@ uint64_t read_file(char* file_name) {
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
     schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
-    return eh->e_entry;
+    return userThread;
 }
 
 void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddress, uint64_t* offset, uint64_t filesz)

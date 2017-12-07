@@ -9,10 +9,13 @@ struct PCB *task_l = NULL;
 struct PCB *free_task_l = NULL;
 struct PCB* current_proc = NULL;
 struct PCB* idle = NULL;
-static uint64_t pid = 1;
+static uint64_t pid = 0;
 extern struct PCB* current_proc;
 
 //struct PCB *current_proc = NULL;
+void set_pid(pid_t curr_pid) {
+	pid = curr_pid;
+}
 
 struct mm_struct* create_mm_struct() {
 	struct mm_struct *mm = (struct mm_struct*) kmalloc(sizeof(struct mm_struct));

@@ -96,10 +96,10 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   //threadInitialize();
   initInterrupts();
 
-  uint64_t eEntry = read_file("bin/sbush");
+  struct PCB* init_proc = read_file("bin/init");
   print_task_list();
   //performContextSwitch(eEntry);
-  if(eEntry);
+  // if(eEntry);
   struct PCB* t = idle;
   if(t != NULL)
     initialSwitch(t->rsp);
