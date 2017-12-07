@@ -3,6 +3,9 @@
 
 #include "sys/defs.h"
 
+void divideByZeroHandler();
+void tssFaultHandler();
+void gpfFaultHandler();
 void pageFaultHandler();
 
 #endif

@@ -70,5 +70,4 @@ struct dirent* sys_readdir(DIR *dirp);
 
 int sys_closedir(DIR *dirp);
 
-
 #endif

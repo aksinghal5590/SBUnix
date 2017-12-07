@@ -2,12 +2,12 @@
 .global irq0
 .global irq1
 
-.global isr0
-.global isr10
-.global isr13
+.global divideByZero
+.global tssFaul
+.global gpfFault
 .global pageFault
-.global isr_common
-.extern isr_handler
+.global interrupt_common
+.extern interrupt_handler
 
 .extern irq0Handler
 .extern irq1Handler
@@ -48,34 +48,34 @@
     popq %rdi
 .endm
 
-isr0:
+divideByZero:
     cli
     pushq $0
     pushq $0
-    jmp isr_common
+    jmp interrupt_common
 
-isr10:
+tssFault:
     cli
     pushq $0
     pushq $10
-    jmp isr_common
+    jmp interrupt_common
 
-isr13:
+gpfFault:
     cli
     pushq $0
     pushq $13
-    jmp isr_common
+    jmp interrupt_common
 
 pageFault:
     cli
     pushq $14
     movq %cr2, %rax
-    jmp isr_common
+    jmp interrupt_common
 
-isr_common:
+interrupt_common:
     PUSHA
     movq %rsp, %rdi
-    callq isr_handler
+    callq interrupt_handler
     POPA
     add $0x10, %rsp
     sti
@@ -95,18 +95,8 @@ irq0:
 
 irq1:
         cli
-        pushq %rax
-        pushq %rcx
-        pushq %rdx
-        pushq %r8
-        pushq %r9
-        pushq %r10
+        PUSHA    
         callq irq1Handler
-        popq %r10
-        popq %r9
-        popq %r8
-        popq %rdx
-        popq %rcx
-        popq %rax
+        POPA
         sti
         iretq

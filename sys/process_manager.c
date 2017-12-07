@@ -20,26 +20,20 @@ extern void set_tss_rsp(void* rsp);
 
 void switch_to_ring3_from_kernel()
 {
-    //uint64_t* s = (uint64_t*)current_proc->stop;
-    //uint64_t e = current_proc->rip;
-    /*__asm__ volatile
-    (
-        "movq %[e], %%rax;"
-        :
-        :[e]"g"(e)
-        :"cc", "memory"
-    );
+    uint64_t s = current_proc->stop;
+    uint64_t* stack = (uint64_t*)s;
+    uint64_t e = current_proc->rip;
     __asm__ volatile
     (
         "pushq $0x23;"
-        "pushq %[s];"
+        "pushq %[stack];"
         "pushfq;"
         "pushq $0x2B;"
         "pushq %[e];"
         :
-        :[s]"g"(s), [e]"g"(e)
-        :"cc","rax","memory"
-    );*/
+        :[stack]"g"(stack), [e]"g"(e)
+        :"cc", "memory"
+    );
     set_tss_rsp(&current_proc->kstack[KSTACK_SIZE-1]);
     __asm__ volatile("iretq");
 }
@@ -53,20 +47,20 @@ void initIdleProcess(){
 void idleProcess(){
     uint64_t i = 0;
     while(1)
-    {
-            if(i < 3)
+    { 
+        if(i < 10)
+        {
+            kprintf("In idle task\n");
+            if(checkReadyProcPresent())
             {
-                kprintf("In idle task\n");
-                if(checkReadyProcPresent())
-                {
-                    struct PCB* t = getNextReadyProc();
-                    loadCR3(t->pml4);
-                    current_proc = t;
-                    current_proc->state = RUNNING;
-                    schedule(&idle->rsp, &t->rsp);
-                }
+                struct PCB* t = getNextReadyProc();
+                loadCR3(t->pml4);
+                current_proc = t;
+                current_proc->state = RUNNING;
+                schedule(&idle->rsp, &t->rsp);
             }
-            i++;
+        }
+        i++;
     }
 }
 
@@ -78,20 +72,19 @@ void initializeProc(struct PCB* proc, uint64_t entry, uint64_t stop)
     {
         proc->kstack[KSTACK_SIZE-1] = 0x10; //kernel segment
         proc->kstack[KSTACK_SIZE-4] = 0x08;    
+        proc->kstack[KSTACK_SIZE-2] = stop;
+        proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
+        proc->kstack[KSTACK_SIZE-5] = entry;
     }
     else
     {
-        //proc->kstack[KSTACK_SIZE-1] = (uint64_t)&switch_to_ring3_from_kernel;
-        proc->kstack[KSTACK_SIZE-1] = 0x23;
-        proc->kstack[KSTACK_SIZE-4] = 0x2b;
+        proc->kstack[KSTACK_SIZE-1] = (uint64_t)&switch_to_ring3_from_kernel;
+        //proc->kstack[KSTACK_SIZE-1] = 0x23;
+        //proc->kstack[KSTACK_SIZE-4] = 0x2b;
     }
-
-    proc->kstack[KSTACK_SIZE-2] = stop;
-    proc->kstack[KSTACK_SIZE-3] = 0x200202UL;
-    proc->kstack[KSTACK_SIZE-5] = entry;
     
     if(proc->isUser)
-        proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-21];
+        proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-17];
     else
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-5];
 

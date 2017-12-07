@@ -2,12 +2,10 @@
 #include <sys/defs.h>
 #include <sys/kprintf.h>
 #include "sys/pcb.h"
+#include "sys/pageFault.h"
 
 extern void systemCallHandler();
-extern void pageFaultHandler();
-extern void updateUserCR3_Val(uint64_t userPml4Table);
-extern void set_tss_rsp(void *rsp);
-void pageFault();
+extern void pageFault();
 
 extern struct PCB *userThread;
 int t_flag = 0;
@@ -120,18 +118,18 @@ uint8_t inIO(uint16_t port) {
 	return ret;
 }
 
-void isr_handler(registers_t regSet)
+void interrupt_handler(registers_t regSet)
 {
     switch (regSet.int_number) {
-    /*    case 0:
-            divide_by_zero_handler(regSet);
+        case 0:
+            divideByZeroHandler();
             break;
         case 10:
-            tss_fault_handler(regSet);
+            tssFaultHandler();
             break;
         case 13:
-            gpf_handler(regSet);
-            break;*/
+            gpfFaultHandler();
+            break;
         case 14:
             pageFaultHandler(regSet);
             break;

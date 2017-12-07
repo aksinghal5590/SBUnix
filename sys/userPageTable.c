@@ -215,8 +215,6 @@ void useExistingPage(uint64_t pml4Address, uint64_t vAddress, uint64_t oldPhysAd
 	// *(pt_val_ptr) = ALL_ZERO | ((oldPhysAddress & GET_40_BITS)) | 0x007;
 }
 
-
-
 uint64_t* getPTTableEntry(uint64_t pml4Address, uint64_t vAddress)
 {
 	uint64_t* v_userPml4Table = (uint64_t*)(VIRTUAL_BASE + pml4Address);

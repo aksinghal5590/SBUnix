@@ -21,7 +21,7 @@
 
 #include "sys/defs.h"
 
-int execve(char* filename, char* argv[], char* envp[]);
+//int execve(char* filename, char* argv[], char* envp[]);
 
 void exit(int status);
 
@@ -31,18 +31,18 @@ void yield();
 
 uint64_t syscall0(uint64_t sysNum);
 
-int syscall1(uint64_t sysNum, void* arg1);
+uint64_t syscall1(uint64_t sysNum, void* arg1);
 
-void syscall1_i(uint64_t sysNum, int arg1);
+uint64_t syscall1_i(uint64_t sysNum, int arg1);
 
-void syscall1_ip(uint64_t sysNum, int* arg1);
+uint64_t syscall1_ip(uint64_t sysNum, int* arg1);
 
-int syscall2(uint64_t sysNum, void* arg1, int arg2);
+uint64_t syscall2(uint64_t sysNum, void* arg1, int arg2);
 
-void syscall2_ii(uint64_t sysNum, int arg1, int arg2);
+uint64_t syscall2_ii(uint64_t sysNum, int arg1, int arg2);
 
-void syscall_ici(uint64_t sysNum, int arg1, char* arg2, int arg3);
+uint64_t syscall_ici(uint64_t sysNum, int arg1, char* arg2, int arg3);
 
-int syscall3(uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t sysNum);
+uint64_t syscall3(uint64_t sysNum, uint64_t arg1, uint64_t arg2, uint64_t arg3);
 
 #endif

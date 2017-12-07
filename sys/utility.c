@@ -39,3 +39,11 @@ uint64_t getCR3Val()
 	kprintf("Value of CR3 is: %x\n", cr3_val);
     return cr3_val;
 }
+
+void ERROR(char* error)
+{
+    kprintf("%s. Please Reboot the System.\n", error);
+    //TODO exit the process
+    //__asm__ ("sti");
+    while(1);
+}
