@@ -95,15 +95,6 @@ void print_file() {
 	sys_getcwd(buf, 1024);
     kprintf("CWD: %s\n", buf);
 
-	buf = (char*)kmalloc(100);
-	sys_chdir("../etc/");
-    sys_getcwd(buf, 1024);
-    kprintf("CWD: %s\n", buf);
-	DIR *dirp = sys_opendir("/");
-	struct dirent *entry = NULL;
-	while((entry = sys_readdir(dirp)) != NULL)
-		kprintf("%s\n", entry->d_name);
-	sys_closedir(dirp);
 }
 
 void boot(void)

@@ -77,7 +77,7 @@ struct PCB *create_new_proc(char *p_name, uint8_t isUser)
 	memset((void*)proc->kstack, 0, KSTACK_SIZE);
 
 	proc->cwd = &d_entries[0];
-	proc->fd_count = 0;
+	proc->fd_count = 3;
 
 	proc->next = NULL;
 	return proc;

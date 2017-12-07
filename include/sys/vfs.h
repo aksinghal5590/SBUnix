@@ -4,15 +4,12 @@
 #include "sys/defs.h"
 #include "sys/tarfs.h"
 
-#define MAX_LEN 1024
+#define MAX_LEN 255
 #define O_RDONLY 00000000
 #define O_DIRECTORY 00200000
 
-typedef struct vfs_dir DIR;
-
-
 struct d_entry {
-	char name[MAX_LEN];
+	char name[MAX_LEN + 1];
 	struct d_entry *parent;
 	int inode_no;
 };
@@ -27,15 +24,8 @@ struct vfs_file {
 	int offset;
 };
 
-struct vfs_dir {
-	struct d_entry *d_e;
-	struct d_entry *d_e_child[64];
-	int child_count;
-	int curr_child;
-};
-
 struct dirent {
-  char d_name[MAX_LEN];
+  char d_name[MAX_LEN + 1];
 };
 
 void init_vfs();
@@ -63,11 +53,5 @@ void sys_getcwd(char *buf, int size);
 int sys_read(int fd, char *buf, int count);
 
 int sys_write(int fd, char *buf, int count);
-
-DIR* sys_opendir(const char *name);
-
-struct dirent* sys_readdir(DIR *dirp);
-
-int sys_closedir(DIR *dirp);
 
 #endif
