@@ -35,13 +35,10 @@ struct regs {
 
 
 void initInterrupts();
-
-
 void initPIC();
 void initIdt();
 void loadIdt(struct idt_ptr idtptr);
 void setVector(int pos, uint64_t baseptr, uint16_t sel, uint8_t flags);
-
 
 extern void irqDefault();
 extern void irq0();
@@ -55,10 +52,11 @@ void initScanCodeTable();
 void keyboardImpl();
 void printDefault(uint8_t c);
 
-
 void outIO(uint16_t port, uint8_t value);
 uint8_t inIO(uint16_t port);
 
 void getCharacters(uint64_t data, uint64_t len);
+
+void interrupt_handler(registers_t regSet);
 
 #endif

@@ -6,5 +6,6 @@
 void loadCR3(uint64_t pml4);
 uint64_t getCR2Val();
 uint64_t getCR3Val();
+void ERROR(char* error);
 
 #endif

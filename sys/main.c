@@ -1,5 +1,3 @@
-#include <sys/defs.h>
-#include <sys/elf64.h>
 #include <sys/gdt.h>
 #include <sys/kprintf.h>
 #include <sys/tarfs.h>
@@ -24,7 +22,9 @@ struct PCB *threadA, *threadB;
 extern char kernmem, physbase;
 extern struct PCB* current_proc;
 extern void initialSwitch(uint64_t rsp);
+uint64_t read_file(char* file_name);
 extern struct PCB* idle;
+extern struct PCB* createThread();
 
 int pgCount = 0;
 
@@ -64,19 +64,14 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
-  init_idle_process();
+  initIdleProcess();
 
   read_file("/bin/sbush");
   struct PCB* t = idle;
-  if(t != NULL)
-    initialSwitch(t->rsp);
-//  current_proc = threadA;
-//  performContextSwitch(eEntry);
-//  print_task_list();
-//  performAHCITask();
+  if(t!= NULL)
+      initialSwitch(t->rsp);
 
   print_file();
-
   while(1);
 }
 
@@ -98,29 +93,17 @@ void print_file() {
 	buf = (char*)kmalloc(100);
 	sys_chdir("bin");
 	sys_getcwd(buf, 1024);
-        kprintf("CWD: %s\n", buf);
+    kprintf("CWD: %s\n", buf);
 
 	buf = (char*)kmalloc(100);
 	sys_chdir("../etc/");
-        sys_getcwd(buf, 1024);
-        kprintf("CWD: %s\n", buf);
-
-/*	int fd = sys_open("/", 0);
-	if(fd > 0) {
-		int bytes = sys_getdents(fd, buf, 1028*10);
-		for(int i = 0; i <= bytes;) {
-			struct dirent *dir = (struct dirent*)(buf + i);
-			kprintf("%s\n", dir->d_name);
-			i += sizeof(struct dirent);
-		}
-	}
-*/
+    sys_getcwd(buf, 1024);
+    kprintf("CWD: %s\n", buf);
 	DIR *dirp = sys_opendir("/");
 	struct dirent *entry = NULL;
 	while((entry = sys_readdir(dirp)) != NULL)
 		kprintf("%s\n", entry->d_name);
 	sys_closedir(dirp);
-
 }
 
 void boot(void)

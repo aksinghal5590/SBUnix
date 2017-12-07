@@ -1,5 +1,6 @@
-#include "sys/pagetable.h"
+#include "sys/defs.h"
 #include "sys/freelist.h"
+#include "sys/pagetable.h"
 #include "sys/kprintf.h"
 
 extern char kernmem;
@@ -70,7 +71,7 @@ void createPDTPTable(uint64_t virtual_add) {
     if(globalPdtpTable == NULL)
         globalPdtpTable = pdtpTable;
 	v_pdtpTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)pdtpTable);
-	*(v_pml4Table + ((virtual_add>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)pdtpTable & GET_40_BITS)) | 0x007;
+	*(v_pml4Table + ((virtual_add>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)pdtpTable & GET_40_BITS)) | 0x003;
 	for(int i = 0; i < PAGEINDEX; i++) {
 		*(v_pdtpTable+i) = 0x02;
 	}
@@ -93,7 +94,7 @@ void createPDTable(uint64_t virtual_add) {
 
 	pdTable = (uint64_t*)getPage();
 	v_pdTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)pdTable);
-	*(v_pdtpTable + ((virtual_add>>30) & 0x1FF)) = ALL_ZERO | (((uint64_t)pdTable & GET_40_BITS)) | 0x007;
+	*(v_pdtpTable + ((virtual_add>>30) & 0x1FF)) = ALL_ZERO | (((uint64_t)pdTable & GET_40_BITS)) | 0x003;
 	for(int i = 0; i < PAGEINDEX; i++) {
 		*(v_pdTable+i) = 0x02;
 	}
@@ -122,11 +123,11 @@ void createPTTable(uint64_t virtual_add, uint64_t phys_add) {
 
 	ptTable = (uint64_t*)getPage();
 	v_ptTable = (uint64_t*)(VIRTUAL_BASE + (uint64_t)ptTable);
-	*(v_pdTable + ((virtual_add>>21) & 0x1FF)) = ALL_ZERO | (((uint64_t)ptTable & GET_40_BITS)) | 0x007;
+	*(v_pdTable + ((virtual_add>>21) & 0x1FF)) = ALL_ZERO | (((uint64_t)ptTable & GET_40_BITS)) | 0x003;
 	for(int i = 0; i < PAGEINDEX; i++) {
 		*(v_ptTable+i) = 0x02;
 	}
-	*(v_ptTable + ((virtual_add>>12) & 0x1FF)) = ALL_ZERO | ((phys_add & GET_40_BITS)) | 0x007;
+	*(v_ptTable + ((virtual_add>>12) & 0x1FF)) = ALL_ZERO | ((phys_add & GET_40_BITS)) | 0x003;
 }
 
 void checkEntry(uint64_t virtual_add, uint64_t phys_add)
@@ -144,6 +145,6 @@ void checkEntry(uint64_t virtual_add, uint64_t phys_add)
 
 	if(!(pt_val & 0x01))
 	{
-		*(pt_val_ptr) = ALL_ZERO | ((phys_add & GET_40_BITS)) | 0x007;
+		*(pt_val_ptr) = ALL_ZERO | ((phys_add & GET_40_BITS)) | 0x003;
 	}
 }

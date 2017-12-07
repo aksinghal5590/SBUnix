@@ -22,7 +22,7 @@ uint64_t* createUserPML4Table() {
 	}
 	
 	//uint64_t v_address = (uint64_t)&kernmem;
-	*(v_userPml4Table + (((VIRTUAL_BASE)>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)globalPdtpTable & GET_40_BITS)) | 0x007;
+	*(v_userPml4Table + (((VIRTUAL_BASE)>>39) & 0x1FF)) = ALL_ZERO | (((uint64_t)globalPdtpTable & GET_40_BITS)) | 0x003;
 	return userPml4Table;
 }
 
@@ -178,17 +178,6 @@ void copyUserData(uint64_t pml4_add, uint64_t vmaAddress, uint64_t* vAddress, ui
 	{
 		//uint64_t* v_pt_val = (uint64_t*) (VIRTUAL_BASE + (pt_val & GET_40_BITS));
 		memcpy((void*)vmaAddress, (void*)vAddress, len);
-		/*char* src = (char*)vmaAddress;
-		char* dest = (char*)v_pt_val;
-		
-		for(int i = 0; i < 4096; i++)
-		{
-			dest = src;
-			kprintf("Value of dest is: %d\n", dest);
-			kprintf("Value of src is: %d\n", src);
-			dest++;
-			src++;
-		}*/
 	}
 }
 
@@ -225,8 +214,6 @@ void useExistingPage(uint64_t pml4Address, uint64_t vAddress, uint64_t oldPhysAd
 	// uint64_t* pt_val_ptr = (uint64_t*)(VIRTUAL_BASE + pt_base + (((vAddress>>12) & 0x1FF) * sizeof(uint64_t)));
 	// *(pt_val_ptr) = ALL_ZERO | ((oldPhysAddress & GET_40_BITS)) | 0x007;
 }
-
-
 
 uint64_t* getPTTableEntry(uint64_t pml4Address, uint64_t vAddress)
 {
