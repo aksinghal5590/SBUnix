@@ -127,7 +127,7 @@ void systemYield()
 //TODO copy siblings and child
 void systemExecvpe(char *file_path, char *argv[], char *envp[])
 {
-    struct PCB *exec = read_file(file_path);
+    struct PCB *exec = read_file(file_path, argv , envp);
     kprintf("%s\n", "Inside Execvpe");
 
     if (exec ! == NULL) {
@@ -145,7 +145,7 @@ void systemExecvpe(char *file_path, char *argv[], char *envp[])
 
         // Exit from the current process
         // empty_task_struct(cur_task);
-        // cur_task->state = EXIT;
+        cur_task->state = EXIT;
         // schedule_next_process()
         systemExit(0);
  

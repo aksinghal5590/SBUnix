@@ -7,13 +7,16 @@
 #include "sys/process_manager.h"
 #include "sys/thread.h"
 #include "sys/stdarg.h"
+#include "sys/string.h"
 
 #define S_TOP 0xF0000000
 #define S_SIZE 0x10000
 
+extern struct PCB* current_proc;
+
 // struct PCB *userThread;
 
-struct PCB* read_file(char* file_name) {
+struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
 
     struct PCB *userThread = create_new_proc("User Process", 1); 
     uint64_t pml4_add = userThread->pml4;
@@ -61,6 +64,7 @@ struct PCB* read_file(char* file_name) {
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
     //TODO Copy argument to stacks
+    copyArgumentsToStack(file_name, userThread, argv, endStackVAddress-0x8);
     schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
@@ -74,4 +78,81 @@ void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddr
     copyUserData(pml4_add, i,offset, filesz);
 
 	}
+}
+
+uint64_t getArgCount(char *argv[])
+{
+  uint64_t cnt = 0;
+  while(argv[i]) {
+    cnt += 1;
+  }
+  
+  return cnt;
+}
+
+void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char* envp[], uint64_t user_stk) 
+{
+    char arg[15][50];
+    char arge[15][50];
+    int len, i;
+    int argc = getArgCount(argv);
+    int envc = getArgCount(envp);
+
+    if(file_name) {
+       argc += 1;
+       strcpy(arg[0], file_name);
+    }
+    
+    int idx = 1;
+    if (argv != NULL) {
+        while (argv[idx-1]) {
+            strcpy(arg[idx], argv[idx-1]);
+            idx++;
+        } 
+    }
+
+    int idx = 1;
+    if (envp != NULL) {
+        while (envp[idx-1]) {
+            strcpy(arge[idx], envp[idx-1]);
+            idx++;
+        } 
+    }
+    
+    updateUserCR3_Val(proc->pml4);
+
+    for (i = envc-1; i >= 0; i--) {
+        user_stk = (uint64_t*)((void*)user_stk - (strlen(arge[i]) + 1));
+        memcpy((char*)user_stk, arge[i], strlen(arge[i]) + 1);
+        envp[i] = user_stk;
+    }
+
+    for (i = argc-1; i >= 0; i--) {
+        user_stk = (uint64_t*)((void*)user_stk - (strlen(arg[i]) + 1));
+        memcpy((char*)user_stk, arg[i], strlen(arg[i]) + 1);
+        argv[i] = user_stk;
+    }
+
+
+    for (i = envc-1; i >= 0; i--) {
+        user_stk--;
+        *user_stk = (uint64_t)envp[i];
+    }
+
+    user_stk--;
+    *user_stk = 0x0;
+    
+    for (i = argc-1; i >= 0; i--) {
+        user_stk--;
+        *user_stk = (uint64_t)argv[i];
+    }
+
+    // user_stk--;
+    // *user_stk = (uint64_t)envc;
+
+    user_stk--;
+    *user_stk = (uint64_t)argc;
+
+    updateUserCR3_Val(current_proc->pml4);
+
 }

@@ -96,7 +96,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   //threadInitialize();
   initInterrupts();
 
-  struct PCB* init_proc = read_file("bin/init");
+  struct PCB* init_proc = read_file("bin/init", NULL, NULL);
   print_task_list();
   //performContextSwitch(eEntry);
   // if(eEntry);
