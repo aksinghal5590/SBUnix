@@ -64,7 +64,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
     //TODO Copy argument to stacks
-    copyArgumentsToStack(file_name, userThread, argv, endStackVAddress-0x8);
+    copyArgumentsToStack(file_name, userThread, argv, (uint64_t*)endStackVAddress-0x8);
     schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
@@ -90,12 +90,12 @@ uint64_t getArgCount(char *argv[])
   return cnt;
 }
 
-void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char* envp[], uint64_t *user_stk) 
+void copyArgumentsToStack(uint64_t* file_name, struct PCB* proc, uint64_t* argv[], uint64_t* envp[], uint64_t *user_stk) 
 {
     char arg[15][50];
     char arge[15][50];
-    int argc = getArgCount(argv);
-    int envc = getArgCount(envp);
+    uint64_t argc = getArgCount(argv);
+    uint64_t envc = getArgCount(envp);
 
     if(file_name) {
        argc += 1;
