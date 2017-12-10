@@ -51,6 +51,6 @@ void syscall2_ii(uint64_t sysNum, int arg1, int arg2);
 
 void syscall_ici(uint64_t sysNum, int arg1, char* arg2, int arg3);
 
-void syscall3(uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t sysNum);
+uint64_t syscall3(uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t sysNum);
 
 #endif
