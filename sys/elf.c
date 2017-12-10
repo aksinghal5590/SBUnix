@@ -80,7 +80,7 @@ void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddr
 	}
 }
 
-uint64_t getArgCount(char *argv[])
+uint64_t getArgCount(uint64_t *argv[])
 {
   uint64_t cnt = 0;
   while(argv[i]) {
