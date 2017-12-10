@@ -16,7 +16,7 @@ extern struct PCB* current_proc;
 
 // struct PCB *userThread;
 
-struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
+struct PCB* read_file(char* file_name, uint64_t *argv[], uint64_t *envp[]) {
 
     struct PCB *userThread = create_new_proc("User Process", 1); 
     uint64_t pml4_add = userThread->pml4;
@@ -64,7 +64,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
     //TODO Copy argument to stacks
-    copyArgumentsToStack(file_name, userThread, argv, (uint64_t*)endStackVAddress-0x8);
+    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)endStackVAddress-0x8);
     schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
@@ -83,7 +83,7 @@ void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddr
 uint64_t getArgCount(uint64_t *argv[])
 {
   uint64_t cnt = 0;
-  while(argv[i]) {
+  while(argv[cnt]) {
     cnt += 1;
   }
   
@@ -105,14 +105,14 @@ void copyArgumentsToStack(uint64_t* file_name, struct PCB* proc, uint64_t* argv[
     int idx = 1;
     if (argv != NULL) {
         while (argv[idx-1]) {
-            strcpy(arg[idx], argv[idx-1]);
+            strcpy(arg[idx], (void*)argv[idx-1]);
             idx++;
         } 
     }
 
     if (envp != NULL) {
         while (envp[idx-1]) {
-            strcpy(arge[idx], envp[idx-1]);
+            strcpy(arge[idx], (void*)envp[idx-1]);
             idx++;
         } 
     }
