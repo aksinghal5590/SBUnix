@@ -90,7 +90,7 @@ uint64_t getArgCount(uint64_t *argv[])
   return cnt;
 }
 
-void copyArgumentsToStack(uint64_t* file_name, struct PCB* proc, uint64_t* argv[], uint64_t* envp[], uint64_t *user_stk) 
+void copyArgumentsToStack(char* file_name, struct PCB* proc, uint64_t* argv[], uint64_t* envp[], uint64_t *user_stk) 
 {
     char arg[15][50];
     char arge[15][50];
