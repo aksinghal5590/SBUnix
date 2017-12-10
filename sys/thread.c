@@ -24,7 +24,7 @@ struct PCB* createThread()
 
 void threadInitialize_bin(char* binary_name)
 {
-        threadA->kstack[99] = read_file(binary_name);
+        threadA->kstack[99] = read_file(binary_name, NULL, NULL);
         threadB->kstack[99] = threadB_fn;
         threadA->rsp = (uint64_t)&threadA->kstack[99];
         threadB->rsp = (uint64_t)&threadB->kstack[83];
