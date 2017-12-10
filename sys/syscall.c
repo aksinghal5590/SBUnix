@@ -125,12 +125,12 @@ void systemYield()
 
 
 //TODO copy siblings and child
-void systemExecvpe(char *file_path, char *argv[], char *envp[])
+int systemExecvpe(char *file_path, char *argv[], char *envp[])
 {
     struct PCB *exec = read_file(file_path, argv , envp);
     kprintf("%s\n", "Inside Execvpe");
 
-    if (exec ! == NULL) {
+    if (exec != NULL) {
         // struct PCB *temp = current_proc;
 
         // Exec process has same pid, ppid and parent
@@ -145,7 +145,7 @@ void systemExecvpe(char *file_path, char *argv[], char *envp[])
 
         // Exit from the current process
         // empty_task_struct(cur_task);
-        cur_task->state = EXIT;
+        current_proc->state = EXIT;
         // schedule_next_process()
         systemExit(0);
  
@@ -172,5 +172,5 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
     current_proc->state = WAIT;
 
     // if (status_p) *status_p = 0;
-    return (uint64_t)current_task->wait_on_child_pid;
+    return (uint64_t)current_proc->wait_on_child_pid;
 }

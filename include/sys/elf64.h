@@ -40,7 +40,7 @@ typedef struct {
   Elf64_Xword   p_align;
 } Elf64_Phdr;
 
-struct PCB* read_file(char* file_name);
+struct PCB* read_file(char* file_name, char *argv[], char *envp[]);
 void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddress, uint64_t* offset, uint64_t filesz);
 void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], uint64_t user_stk);
 uint64_t getArgCount(char *argv[]);
