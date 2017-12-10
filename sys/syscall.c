@@ -127,7 +127,7 @@ void systemYield()
 //TODO copy siblings and child
 int systemExecvpe(char *file_path, char *argv[], char *envp[])
 {
-    struct PCB *exec = read_file(file_path, argv , envp);
+    struct PCB *exec = read_file(file_path, (uint64_t*)argv , (uint64_t*)envp);
     kprintf("%s\n", "Inside Execvpe");
 
     if (exec != NULL) {
