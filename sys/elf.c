@@ -14,7 +14,6 @@
 
 extern struct PCB* current_proc;
 
-// struct PCB *userThread;
 
 struct PCB* read_file(char* file_name, uint64_t *argv[], uint64_t *envp[]) {
 
