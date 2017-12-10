@@ -87,7 +87,6 @@ struct file* fopen(char *name) {
 int fread(struct file *f, char *buf, int offset, int count) {
 	if(f != NULL) {
 		count = ((f->size - offset) >= count) ? count : (f->size - offset);
-		count = f->size >= count ? count : f->size;
 		memcpy((void*)buf, (void*)(f->addr + offset), count);
 		return count;
 	}

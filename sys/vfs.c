@@ -126,12 +126,24 @@ int sys_getdents(int fd, char *buf, int count) {
 	return ret;
 }
 
-int sys_open(char *path, int flags) {
-	const struct file *f = fopen(path);
+int sys_open(char *name, int flags) {
 	int ret = -1;
+	if(name == NULL)
+		return ret;
+	char *full_name = (char*)kmalloc(1020);
+	if(name[0] != '/') {
+		sys_getcwd(full_name, 1020);
+		strcat(full_name, name);
+	} else {
+		strcpy(full_name, name);
+	}
+	const struct file *f = fopen(full_name);
+	int isDirectory = (flags == O_DIRECTORY) ? 1 : 0;
 	if(f != NULL) {
 		for(int i = 0; i < inode_count; i++) {
 			if(f == inodes[i].f) {
+				if(isDirectory && f->type[0] != '5')
+					return -1;
 				struct vfs_file *vf = (struct vfs_file*)kmalloc(sizeof(struct vfs_file));
 				vf->inode_no = i;
 				vf->offset = 0;
@@ -216,7 +228,7 @@ int sys_write(int fd, char *buf, int count) {
 	if(fd == 1) {
 		memcpy((void*)wr, (void*)buf, count);
 		if(wr[count] != '\0')
-			wr[++count] = '\0';
+			wr[count] = '\0';
 		return write_stdout(wr, count);
 	}
 	if(fd == 2) {
@@ -228,7 +240,7 @@ int sys_write(int fd, char *buf, int count) {
 	kprintf("Write not supported!!\n");
 	return -1;	
 }
-
+/*
 DIR* sys_opendir(const char *name) {
 	if(name == NULL)
 		return NULL;
@@ -276,3 +288,4 @@ int sys_closedir(DIR *dirp) {
 	dirp = NULL;
 	return 0;
 }
+*/

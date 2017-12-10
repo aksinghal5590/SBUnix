@@ -8,6 +8,7 @@ int close(int fd);
 ssize_t read(int fd, void *buf, size_t count);
 ssize_t write(int fd, const void *buf, size_t count);
 int unlink(const char *pathname);
+int getdents(int fd, char *dirp, size_t count);
 
 int chdir(const char *path);
 int getcwd(char *buf, size_t size);

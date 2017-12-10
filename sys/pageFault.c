@@ -92,9 +92,6 @@ void pageFaultHandler(registers_t regSet)
         {
             startAdd = vma->start;
             endAdd = vma->end;
-            kprintf("StartAddress: %x  ", startAdd);
-            //kprintf("EndAddress: %x\n", endAdd);
-            kprintf("name: %s\n", current_proc->p_name);
             if(cr2_val >= startAdd && cr2_val <= endAdd)
             {
                 for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)

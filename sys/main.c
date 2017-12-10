@@ -65,8 +65,8 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
   initIdleProcess();
-  uint64_t eEntry = read_file("/bin/sbush");
-  if(eEntry);
+
+  read_file("/bin/sbush");
   struct PCB* t = idle;
   if(t!= NULL)
       initialSwitch(t->rsp);
@@ -95,15 +95,6 @@ void print_file() {
 	sys_getcwd(buf, 1024);
     kprintf("CWD: %s\n", buf);
 
-	buf = (char*)kmalloc(100);
-	sys_chdir("../etc/");
-    sys_getcwd(buf, 1024);
-    kprintf("CWD: %s\n", buf);
-	DIR *dirp = sys_opendir("/");
-	struct dirent *entry = NULL;
-	while((entry = sys_readdir(dirp)) != NULL)
-		kprintf("%s\n", entry->d_name);
-	sys_closedir(dirp);
 }
 
 void boot(void)
