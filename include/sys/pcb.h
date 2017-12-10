@@ -66,6 +66,7 @@ struct PCB* get_next_proc();
 void print_task_list();
 
 int check_proc_present();
+void set_pid(pid_t curr_pid);
 //void get_next_task();
 
 #endif
