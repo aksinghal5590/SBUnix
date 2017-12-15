@@ -67,6 +67,7 @@ void print_task_list();
 
 int check_proc_present();
 void set_pid(pid_t curr_pid);
+void add_proc_to_front(struct PCB* proc);
 //void get_next_task();
 
 #endif

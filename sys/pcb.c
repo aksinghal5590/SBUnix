@@ -258,6 +258,28 @@ void insert_stack_vma(struct mm_struct *mm, uint64_t start, uint64_t end, uint64
 	}
 }
 
+void add_proc_to_front(struct PCB* proc)
+{
+    if(proc->state == IDLE)
+        return;
+    else if(proc->state == RUNNING || proc->state == READY)
+    {
+        proc->state = READY;
+    }
+    else
+        return;
+
+    if(task_l == NULL)
+    {
+        task_l = proc;
+    }
+    else
+    {
+        proc->next = task_l;
+        task_l = proc;
+    }
+}
+
 /*void get_next_task()
 {
     struct PCB* t = task_l;

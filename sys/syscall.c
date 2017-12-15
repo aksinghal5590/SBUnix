@@ -5,7 +5,6 @@
 #include "sys/pcb.h"
 #include "sys/elf64.h"
 
-extern struct PCB* current_proc;
 
 extern void add_proc_to_list(struct PCB* proc);
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
@@ -17,7 +16,7 @@ extern void schedule_next_process();
 extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
-
+extern struct PCB* task_l;
 extern struct PCB* current_proc;
 void* systemCallHandlerTable[7] = {systemRead, 
 	systemWrite, systemExit, systemYield, 
@@ -108,7 +107,7 @@ pid_t systemFork()
     return child->pid;
 }
 
-void systemExit(uint64_t status)
+void systemExit(uint64_t status, )
 {
     kprintf("Process exit with status: %d\n", status);
     current_proc->state = EXIT;
@@ -125,7 +124,7 @@ void systemYield()
 
 
 //TODO copy siblings and child
-int systemExecvpe(char *file_path, char *argv[], char *envp[])
+uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[])
 {
     struct PCB *exec = read_file(file_path, argv , envp);
     kprintf("%s\n", "Inside Execvpe");
@@ -145,8 +144,8 @@ int systemExecvpe(char *file_path, char *argv[], char *envp[])
 
         // Exit from the current process
         // empty_task_struct(cur_task);
-        current_proc->state = EXIT;
         // schedule_next_process()
+        add_proc_to_front(proc);
         systemExit(0);
  
     }
@@ -158,19 +157,29 @@ int systemExecvpe(char *file_path, char *argv[], char *envp[])
 uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
 {
     // int *status_p = (int*) fstatus;
-    if (current_proc->child_cnt == 0) {
-        //if (status_p) *status_p = -1;
-        return -1;
+    // if (current_proc->child_cnt == 0) {
+    //     //if (status_p) *status_p = -1;
+    //     return -1;
+    // }
+
+    // if (pid > 0) {
+    //     current_proc->wait_on_child_pid = pid;
+    // } else {
+    //     current_proc->wait_on_child_pid = 0;
+    // }
+
+    // current_proc->state = WAIT;
+
+    // // if (status_p) *status_p = 0;
+    // return (uint64_t)current_proc->wait_on_child_pid;
+    struct PCB* proc = task_l;
+    while(proc) {
+        if(proc->pid == pid) {
+            systemYield();
+            return pid;
+        }
+        proc = proc->next;
     }
-
-    if (pid > 0) {
-        current_proc->wait_on_child_pid = pid;
-    } else {
-        current_proc->wait_on_child_pid = 0;
-    }
-
-    current_proc->state = WAIT;
-
-    // if (status_p) *status_p = 0;
-    return (uint64_t)current_proc->wait_on_child_pid;
+    
+    return 0;    
 }
