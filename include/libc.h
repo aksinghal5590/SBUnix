@@ -21,6 +21,8 @@ int fork();
 
 int execve(char* filename, char* argv[], char* envp[]);
 
+int execvpe(char* filename, char* argv[], char* envp[]);
+
 void exit(int status);
 
 void yield();

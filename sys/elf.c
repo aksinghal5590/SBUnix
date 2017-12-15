@@ -15,7 +15,7 @@
 extern struct PCB* current_proc;
 
 
-struct PCB* read_file(char* file_name, uint64_t *argv[], uint64_t *envp[]) {
+struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
 
     struct PCB *userThread = create_new_proc("User Process", 1); 
     uint64_t pml4_add = userThread->pml4;
@@ -79,22 +79,24 @@ void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddr
 	}
 }
 
-uint64_t getArgCount(uint64_t *argv[])
+uint64_t getArgCount(char *argv[])
 {
   uint64_t cnt = 0;
   while(argv[cnt]) {
     cnt += 1;
   }
-  
+
   return cnt;
 }
 
-void copyArgumentsToStack(char* file_name, struct PCB* proc, uint64_t* argv[], uint64_t* envp[], uint64_t *user_stk) 
+void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char* envp[], uint64_t *user_stk) 
 {
     char arg[15][50];
     char arge[15][50];
     uint64_t argc = getArgCount(argv);
     uint64_t envc = getArgCount(envp);
+    uint64_t* argvadd[50];
+    uint64_t* envpadd[50];
 
     if(file_name) {
        argc += 1;
@@ -104,14 +106,14 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, uint64_t* argv[], u
     int idx = 1;
     if (argv != NULL) {
         while (argv[idx-1]) {
-            strcpy(arg[idx], (void*)argv[idx-1]);
+            strcpy(arg[idx], argv[idx-1]);
             idx++;
         } 
     }
 
     if (envp != NULL) {
         while (envp[idx-1]) {
-            strcpy(arge[idx], (void*)envp[idx-1]);
+            strcpy(arge[idx], envp[idx-1]);
             idx++;
         } 
     }
@@ -121,19 +123,19 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, uint64_t* argv[], u
     for (int i = envc-1; i >= 0; i--) {
         user_stk = (uint64_t*)((void*)user_stk - (strlen(arge[i]) + 1));
         memcpy((char*)user_stk, arge[i], strlen(arge[i]) + 1);
-        envp[i] = user_stk;
+        envpadd[i] = user_stk;
     }
 
     for (int i = argc-1; i >= 0; i--) {
         user_stk = (uint64_t*)((void*)user_stk - (strlen(arg[i]) + 1));
         memcpy((char*)user_stk, arg[i], strlen(arg[i]) + 1);
-        argv[i] = user_stk;
+        argvadd[i] = user_stk;
     }
 
 
     for (int i = envc-1; i >= 0; i--) {
         user_stk--;
-        *user_stk = (uint64_t)envp[i];
+        *user_stk = (uint64_t)envpadd[i];
     }
 
     user_stk--;
@@ -141,7 +143,7 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, uint64_t* argv[], u
     
     for (int i = argc-1; i >= 0; i--) {
         user_stk--;
-        *user_stk = (uint64_t)argv[i];
+        *user_stk = (uint64_t)argvadd[i];
     }
 
     // user_stk--;
