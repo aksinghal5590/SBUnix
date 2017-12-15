@@ -66,10 +66,15 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
   initIdleProcess();
 
-  read_file("/bin/sbush");
+  struct PCB* init_proc = read_file("bin/init", NULL, NULL);
+  if(init_proc)
+    ;
+  print_task_list();
+  //performContextSwitch(eEntry);
+  // if(eEntry);
   struct PCB* t = idle;
-  if(t!= NULL)
-      initialSwitch(t->rsp);
+  if(t != NULL)
+    initialSwitch(t->rsp);
 
   print_file();
   while(1);

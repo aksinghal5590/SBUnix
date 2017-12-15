@@ -12,6 +12,7 @@ extern void walkUserPageTables(uint64_t userPml4Table, uint64_t vmaAddress, uint
 extern struct PCB *userThread;
 extern struct PCB* current_proc;
 
+
 void divideByZeroHandler()
 {
     ERROR("Divide by zero error occurs. Terminating the process\n");
@@ -88,6 +89,7 @@ void pageFaultHandler(registers_t regSet)
     {
         struct vm_area_struct* vma = userThread->mm->vma_list;
         uint64_t startAdd, endAdd;
+
         while(vma != NULL)
         {
             startAdd = vma->start;

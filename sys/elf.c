@@ -8,15 +8,17 @@
 #include "sys/thread.h"
 #include "sys/stdarg.h"
 #include "sys/utility.h"
+#include "sys/string.h"
 
 #define S_TOP 0xF0000000
 #define S_SIZE 0x10000
 
-struct PCB *userThread;
+extern struct PCB* current_proc;
 
-uint64_t read_file(char* file_name) {
 
-    userThread = create_new_proc("User Process", 1); 
+struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
+
+    struct PCB *userThread = create_new_proc("User Process", 1); 
     uint64_t pml4_add = userThread->pml4;
 
     Elf64_Ehdr* eh = (Elf64_Ehdr*)read_tarfs(file_name);
@@ -54,11 +56,15 @@ uint64_t read_file(char* file_name) {
     }
     uint64_t endStackVAddress = S_TOP;
     uint64_t startStackVAddress = S_TOP - S_SIZE;
+
     insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress, 1, 0);
-    //mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
+    mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     loadCR3(currentCR3);
-    return eh->e_entry;
+
+    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
+    schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
+    return userThread;
 }
 
 void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddress, uint64_t* offset, uint64_t filesz)
@@ -68,4 +74,91 @@ void mapUserPageTable(uint64_t pml4_add, uint64_t startAddress, uint64_t endAddr
 		walkUserPageTables(pml4_add, i, 0);
 	}
     copyUserData(pml4_add, startAddress, offset, filesz);
+}
+
+uint64_t getArgCount(char *argv[])
+{
+  uint64_t cnt = 0;
+
+  while(argv!=NULL && argv[cnt]) {
+    cnt += 1;
+  }
+
+  return cnt;
+}
+
+void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char* envp[], uint64_t *user_stk) 
+{
+    char arg[15][50];
+    char arge[15][50];
+    uint64_t argc = getArgCount(argv);
+    uint64_t envc = getArgCount(envp);
+    uint64_t* argvadd[50];
+    uint64_t* envpadd[50];
+
+    if(file_name) {
+       argc += 1;
+       strcpy(arg[0], file_name);
+    }
+    
+    int idx = 1;
+    if (argv != NULL) {
+        while (argv[idx-1]) {
+            strcpy(arg[idx], argv[idx-1]);
+            idx++;
+        } 
+    }
+
+    if (envp != NULL) {
+        while (envp[idx-1]) {
+            strcpy(arge[idx], envp[idx-1]);
+            idx++;
+        } 
+    }
+
+    uint64_t currentCR3;
+    
+    __asm__ volatile
+    (
+        "movq %%cr3, %0 \n\t"
+        :"=r" (currentCR3)
+        :
+        :"cc", "memory"
+    );
+    updateUserCR3_Val(proc->pml4);
+
+    for (int i = envc-1; i >= 0; i--) {
+        user_stk = (uint64_t*)((void*)user_stk - (strlen(arge[i]) + 1));
+        memcpy((char*)user_stk, arge[i], strlen(arge[i]) + 1);
+        envpadd[i] = user_stk;
+    }
+
+    for (int i = argc-1; i >= 0; i--) {
+        user_stk = (uint64_t*)((void*)user_stk - (strlen(arg[i]) + 1));
+        memcpy((char*)user_stk, arg[i], strlen(arg[i]) + 1);
+        argvadd[i] = user_stk;
+    }
+
+
+    for (int i = envc-1; i >= 0; i--) {
+        user_stk--;
+        *user_stk = (uint64_t)envpadd[i];
+    }
+
+    user_stk--;
+    *user_stk = 0x0;
+    
+    for (int i = argc-1; i >= 0; i--) {
+        user_stk--;
+        *user_stk = (uint64_t)argvadd[i];
+    }
+
+    // user_stk--;
+    // *user_stk = (uint64_t)envc;
+
+    user_stk--;
+    *user_stk = (uint64_t)argc;
+
+    updateUserCR3_Val(currentCR3);
+
 }

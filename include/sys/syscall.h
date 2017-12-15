@@ -31,5 +31,7 @@ pid_t systemFork();
 pid_t userFork();
 void systemExit(uint64_t status);
 void systemYield();
+uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[]);
+uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options);
 
 #endif

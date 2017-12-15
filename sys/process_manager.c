@@ -18,6 +18,18 @@ extern char kernmem;
 extern void schedule(uint64_t* firstProc, uint64_t* secondProc);
 extern void set_tss_rsp(void* rsp);
 
+extern int check_proc_present();
+void idle_process();
+// void idle_process(){
+// 	while(1);
+// }
+
+void init_idle_process(){
+	idle = create_new_proc("idle_task", 0); 
+	idle->state = IDLE;
+	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
+}
+
 void switch_to_ring3_from_kernel()
 {
     uint64_t s = current_proc->stop;
@@ -32,7 +44,7 @@ void switch_to_ring3_from_kernel()
         "pushq %[e];"
         :
         :[stack]"g"(stack), [e]"g"(e)
-        :"cc", "memory"
+        :"cc", "memory", "rax"
     );
     set_tss_rsp(&current_proc->kstack[KSTACK_SIZE-1]);
     __asm__ volatile("iretq");
@@ -87,7 +99,9 @@ void initializeProc(struct PCB* proc, uint64_t entry, uint64_t stop)
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-17];
     else
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-5];
-
+    // if(proc->pid == 4) {
+    //     proc->rsp = 0xffffffff802f0230;
+    // }
     proc->rip = entry;
     proc->stop = stop;
     addProcToReadyList(proc);
@@ -123,14 +137,19 @@ struct PCB* copyProcess(struct PCB* parent) {
 
         if (parent_vma->type == STK) {
 
-            v_add = vm_end;
+            // v_add = ((vm_end) >> 12 << 12) - 0x1000;
+            v_add = vm_end - 0x1000;
             while (v_add >= vm_start) {
                 updateUserCR3_Val(parent_pml4);
                 if (!user_page_exist(parent_pml4, v_add)) {
                 	break;
                 }
                 uint64_t ker_vadd = (uint64_t)kmalloc(sizeof(struct PCB));
-                p_add = ker_vadd - kernmem;
+
+                p_add = ker_vadd - VIRTUAL_BASE;
+
+                //kprintf("\nStack v:%p p:%p", vaddr, paddr);
+                // Copy parent page in kernel space
                 memcpy((void*)ker_vadd, (void*)v_add, PAGESIZE);
                 updateUserCR3_Val(child_pml4);
                 useExistingPage(child_pml4, v_add, p_add);
