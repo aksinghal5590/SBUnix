@@ -23,7 +23,7 @@
 
 //int execve(char* filename, char* argv[], char* envp[]);
 
-int execvpe(char* filename, char* argv[], char* envp[]);
+int execvpe(const char *file, char *const argv[], char *const envp[]);
 
 void exit(int status);
 

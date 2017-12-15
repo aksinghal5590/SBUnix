@@ -34,11 +34,6 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_chdir] = sys_chdir;
 } 
 
-void* systemCallHandlerTable[7] = {systemRead, 
-	systemWrite, systemExit, systemYield, 
-	systemFork, systemExecvpe, systemWaitPid}; 
-
-
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 {
 	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
@@ -64,18 +59,17 @@ void systemCallHandler()
 		:
 		: "cc", "memory"
 	);
-	if(sysNum >= 0)
-	{
-		function_ptr = systemCallHandlerTable[sysNum];
-		__asm__ volatile
-		(
-			"popq %%rdx;"
-			"callq %0;"
-			:
-			: "r" (function_ptr)
-			: "cc", "rcx", "memory"	
-		);
-	}
+
+	function_ptr = systemCallHandlerTable[sysNum];
+	__asm__ volatile
+	(
+		"popq %%rdx;"
+		"callq %0;"
+		:
+		: "r" (function_ptr)
+		: "cc", "rcx", "memory"	
+	);
+
     __asm__ volatile
     (
         "iretq;"

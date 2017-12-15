@@ -16,7 +16,7 @@ int getcwd(char *buf, size_t size);
 pid_t fork();
 int execvpe(const char *file, char *const argv[], char *const envp[]);
 pid_t wait(int *status);
-int waitpid(int pid, int *status);
+int waitpid(int pid, int *status, int options);
 
 unsigned int sleep(unsigned int seconds);
 

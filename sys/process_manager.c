@@ -24,11 +24,11 @@ void idle_process();
 // 	while(1);
 // }
 
-void init_idle_process(){
-	idle = create_new_proc("idle_task", 0); 
-	idle->state = IDLE;
-	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
-}
+// void init_idle_process(){
+// 	idle = create_new_proc("idle_task", 0); 
+// 	idle->state = IDLE;
+// 	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
+// }
 
 void switch_to_ring3_from_kernel()
 {

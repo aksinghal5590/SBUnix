@@ -63,7 +63,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     loadCR3(currentCR3);
 
     copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
-    schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
+    initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
 
