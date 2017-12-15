@@ -87,7 +87,7 @@ void pageFaultHandler(registers_t regSet)
     }
     else
     {
-        struct vm_area_struct* vma = userThread->mm->vma_list;
+        struct vm_area_struct* vma = current_proc->mm->vma_list;
         uint64_t startAdd, endAdd;
 
         while(vma != NULL)
