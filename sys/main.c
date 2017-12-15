@@ -10,6 +10,7 @@
 #include "sys/vfs.h"
 #include "sys/process_manager.h"
 #include "sys/syscall.h"
+#include "sys/elf64.h"
 
 void print_file();
 
@@ -22,7 +23,6 @@ struct PCB *threadA, *threadB;
 extern char kernmem, physbase;
 extern struct PCB* current_proc;
 extern void initialSwitch(uint64_t rsp);
-uint64_t read_file(char* file_name);
 extern struct PCB* idle;
 extern struct PCB* createThread();
 
