@@ -107,7 +107,7 @@ pid_t systemFork()
     return child->pid;
 }
 
-void systemExit(uint64_t status, )
+void systemExit(uint64_t status)
 {
     kprintf("Process exit with status: %d\n", status);
     current_proc->state = EXIT;
@@ -145,7 +145,7 @@ uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[])
         // Exit from the current process
         // empty_task_struct(cur_task);
         // schedule_next_process()
-        add_proc_to_front(proc);
+        add_proc_to_front(exec);
         systemExit(0);
  
     }

@@ -1,7 +1,9 @@
 #include <stdlib.h>
+#include <libc.h>
 
 int main(int argc, char **argv)
-{	while(1) {
+{	write(1, "dfdfdgfg", 20);
+	while(1) {
 		int pid;
 	    pid = fork();
 	    if (pid == 0) {

@@ -63,7 +63,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     updateUserCR3_Val(currentCR3);
     //TODO Copy argument to stacks
-    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)endStackVAddress-0x8);
+    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
     schedule_proc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
@@ -118,7 +118,16 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char*
             idx++;
         } 
     }
+
+    uint64_t currentCR3;
     
+    __asm__ volatile
+    (
+        "movq %%cr3, %0 \n\t"
+        :"=r" (currentCR3)
+        :
+        :"cc", "memory"
+    );
     updateUserCR3_Val(proc->pml4);
 
     for (int i = envc-1; i >= 0; i--) {
@@ -153,6 +162,6 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char*
     user_stk--;
     *user_stk = (uint64_t)argc;
 
-    updateUserCR3_Val(current_proc->pml4);
+    updateUserCR3_Val(currentCR3);
 
 }
