@@ -54,7 +54,7 @@ void idleProcess(){
     
     while(1)
     { 
-            kprintf("In idle task\n");
+            // kprintf("In idle task\n");
             if(checkReadyProcPresent())
             {
                 struct PCB* t = getNextReadyProc();
@@ -68,7 +68,6 @@ void idleProcess(){
 
 void initializeProc(struct PCB* proc, uint64_t entry, uint64_t stop)
 {
-    kprintf("%s\n", "Initializing a process.");
 
     if(!proc->isUser)
     {
@@ -275,9 +274,9 @@ void printReadyList()
         struct PCB *t = ready_proc_list;
         while(t != NULL)
         {
-                kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
-                kprintf("task name %s\n", t->p_name);
-                kprintf("task state %d \n", t->state);
+                // kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
+                // kprintf("task name %s\n", t->p_name);
+                // kprintf("task state %d \n", t->state);
                 t = t->next;
         }
 }
@@ -308,9 +307,9 @@ void printSleepList()
         struct PCB *t = sleep_proc_list;
         while(t != NULL)
         {
-                kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
-                kprintf("task name %s", t->p_name);
-                kprintf("task state %d \n", t->state);
+                // kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
+                // kprintf("task name %s", t->p_name);
+                // kprintf("task state %d \n", t->state);
                 t = t->next;
         }
 }

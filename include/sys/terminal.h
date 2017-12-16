@@ -5,6 +5,8 @@
 
 void append_buffer(const char *s, int size);
 
+void backspace();
+
 void flush_buffer();
 
 int read_stdin(char *buf, int size);

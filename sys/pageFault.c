@@ -33,7 +33,6 @@ void pageFaultHandler(registers_t regSet)
     int faultPresent = 0;
     uint64_t error_code = regSet.err_number;
 	
-        kprintf("Currently in Page Fault Handler\n");
 	uint64_t cr2_val, cr3_val;
 	__asm__ volatile
 	(
@@ -42,7 +41,7 @@ void pageFaultHandler(registers_t regSet)
 		:
 		:"cc", "memory"
 	);
-	kprintf("Value of CR2 is: %x PID: %d\n", cr2_val, current_proc->pid);
+	// kprintf("Value of CR2 is: %x PID: %d\n", cr2_val, current_proc->pid);
 	__asm__ volatile
 	(
 		"movq %%cr3, %0 \n\t"
@@ -50,7 +49,6 @@ void pageFaultHandler(registers_t regSet)
 		:
 		:"cc", "memory"
 	);
-	kprintf("Value of CR3 is: %x\n", cr3_val);
 
     if(cr2_val >= VIRTUAL_BASE)
     {

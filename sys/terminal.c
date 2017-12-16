@@ -15,6 +15,13 @@ void append_buffer(const char *s, int size) {
 	write_stdout(temp, size);
 }
 
+void backspace() {
+	if(buf_pos) {
+		buf_pos--;
+		backSpace();
+	}
+}
+
 void flush_buffer() {
 	flush = 1;
 }

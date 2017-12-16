@@ -45,6 +45,9 @@ void printDefault(uint8_t c) {
 	if(c >= 0 && c <= 31) {
 		char s[] = {'^', (char)(c+64), '\0'};
 		printkeyboard(s);
+		if(c == 8) {
+			backspace();
+		}
 		if(c == 13) {
 			char null = '\0';
 			append_buffer(&null, 1);
