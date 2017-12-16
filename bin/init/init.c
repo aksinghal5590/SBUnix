@@ -11,6 +11,7 @@ int main(int argc, char **argv)
 	    pid = fork();
 	    printf("%d\n", pid);
 	    if (pid == 0) {
+
 	    	printf("%s\n", "ashyadav");
 	        execvpe("/bin/sbush", NULL, NULL);
 	    } else {
@@ -18,7 +19,7 @@ int main(int argc, char **argv)
 	        	printf("%s\n", "In init");
 	        	yield();
 	        }
-	        // printf("%s\n", "jgkfgfkng");
+	        // printf("%s\n", "jgkfgfkng")
 	    }
 	// }	
     while(1){ printf("%s", "out");};

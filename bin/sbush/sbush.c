@@ -14,15 +14,9 @@ int main() {
  //  }
  //  write(1, "OS by Akshat, Ashish and Vaibhav", 50);
   
- //  char buf[1024];
- //  getcwd(buf, 1024);
- //  write(1, buf, 10);
- //  chdir("bin");
- //  getcwd(buf, 1024);
- //  write(1, buf, 10);
- //  chdir("..");
- //  getcwd(buf, 1024);
- //  write(1, buf, 10);
+  char buf[1024];
+  gets(buf);
+  write(1, buf, 1024);
   
  //  DIR *dirp = opendir("/");
  //  if(dirp != NULL) {
@@ -43,26 +37,27 @@ int main() {
  //  if((size = read(fd, buf, 1040)) > 0)
  //    write(1, buf, size);
 
-  write(1, "OS by Akshat, Ashish and Vaibhav, version1", 20);
+ /* write(1, "OS by Akshat, Ashish and Vaibhav, version1", 50);
   yield();
-  write(1, "OS by Akshat, Ashish and Vaibhav, version2", 20);
+  write(1, "OS by Akshat, Ashish and Vaibhav, version2", 50);
   yield();
-  write(1, "OS by Akshat, Ashish and Vaibhav, version3", 20);
-  int f = fork();
+  write(1, "OS by Akshat, Ashish and Vaibhav, version3", 50);
+  */
+  // int f = fork();
   // yield();
-  if(f > 0 ) {
-     write(1, "Ferdman Bhadwa h", 20);
-     yield();
+  // if(f > 0 ) {
+  //    write(1, "Ferdman Bhadwa h", 20);
+  //    yield();
      // yield();
-  } else if(f ==0 ) {
-     write(1, "OS ki maa ki", 20);
+ // } else if(f ==0 ) {
+ //    write(1, "OS ki maa ki", 20);
      // if (fork() == 0) {
      //    write(1, "OS ki maa ki1", 20);
      // } else {
      //    write(1, "Ferdman Bhadwa h1", 20);
      //    yield();
      // }
-  }
+  //  }
  
   /*char buf[1024];
   read(0, buf, 10);
