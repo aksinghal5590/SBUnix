@@ -21,6 +21,8 @@
 
 #include "sys/defs.h"
 
+int fgetc(int fd);
+
 void exit(int status);
 
 void yield();

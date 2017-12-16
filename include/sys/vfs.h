@@ -48,7 +48,7 @@ int sys_close(int fd);
 
 int sys_chdir(char *path);
 
-void sys_getcwd(char *buf, int size);
+char* sys_getcwd(char *buf, int size);
 
 int sys_read(int fd, char *buf, int count);
 
