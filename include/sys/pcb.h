@@ -6,6 +6,11 @@
 #include "sys/vfs.h"
 #define KSTACK_SIZE 100
 
+struct PCBMemList{
+	struct PCBMemList* next;
+	uint64_t	    baseAddress;
+	uint64_t	    size;
+};
 
 struct PCB {
    uint64_t kstack[KSTACK_SIZE];
@@ -28,6 +33,8 @@ struct PCB {
    struct d_entry *cwd;
    struct vfs_file *fd_table[256];
    int fd_count;
+   struct PCBMemList* usedHeapList;
+   struct PCBMemList* freeHeapList;
 };
 
 struct mm_struct {

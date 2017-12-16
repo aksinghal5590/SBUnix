@@ -14,6 +14,7 @@ int initializePages(uint64_t start, uint64_t end) {
         for(int i = 0; pageCount < PAGE_COUNT && i < count; pageCount++, i++) {
                 page_list[pageCount].next = NULL;
                 page_list[pageCount].physadd = baseAddress + (i * PAGESIZE);
+		//kprintf("PageCount: %d  and  Phys Add: %x\n", pageCount, page_list[pageCount].physadd);
                 page_list[i].use_cnt = 0;
                 if(tail == NULL)
                         tail = page_list;

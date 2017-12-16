@@ -17,6 +17,8 @@
 #define __NR_chdir 80
 #define __NR_pipe 22
 #define __NR_dup2 33
+#define __NR_mmap 9
+#define __NR_munmap 11
 
 void initSyscalls();
 
@@ -32,5 +34,7 @@ void systemExit(uint64_t status);
 void systemYield();
 uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[]);
 uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options);
+void systemMunmap(uint64_t ptr);
+uint64_t systemMMap(uint64_t size);
 
 #endif

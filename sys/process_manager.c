@@ -8,6 +8,8 @@
 #include "sys/utility.h"
 
 #define STK 10
+#define H_BASE 0xF0000000
+#define H_END  0x100000
 
 struct PCB *ready_proc_list = NULL;
 struct PCB *sleep_proc_list = NULL;
@@ -21,15 +23,6 @@ extern void set_tss_rsp(void* rsp);
 
 extern int check_proc_present();
 void idle_process();
-// void idle_process(){
-// 	while(1);
-// }
-
-// void init_idle_process(){
-// 	idle = create_new_proc("idle_task", 0); 
-// 	idle->state = IDLE;
-// 	schedule_proc(idle, (uint64_t)idle_process, (uint64_t)&idle->kstack[KSTACK_SIZE-1]);
-// }
 
 void switch_to_ring3_from_kernel()
 {
@@ -58,11 +51,9 @@ void initIdleProcess(){
 }
 
 void idleProcess(){
-    uint64_t i = 0;
+    
     while(1)
     { 
-        if(i < 10)
-        {
             kprintf("In idle task\n");
             if(checkReadyProcPresent())
             {
@@ -72,8 +63,6 @@ void idleProcess(){
                 current_proc->state = RUNNING;
                 schedule(&idle->rsp, &t->rsp);
             }
-        }
-        i++;
     }
 }
 
@@ -92,19 +81,16 @@ void initializeProc(struct PCB* proc, uint64_t entry, uint64_t stop)
     else
     {
         proc->kstack[KSTACK_SIZE-1] = (uint64_t)&switch_to_ring3_from_kernel;
-        //proc->kstack[KSTACK_SIZE-1] = 0x23;
-        //proc->kstack[KSTACK_SIZE-4] = 0x2b;
     }
     
     if(proc->isUser)
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-17];
     else
         proc->rsp = (uint64_t)&proc->kstack[KSTACK_SIZE-5];
-    // if(proc->pid == 4) {
-    //     proc->rsp = 0xffffffff802f0230;
-    // }
+
     proc->rip = entry;
     proc->stop = stop;
+    proc->usedHeapList = NULL;
     addProcToReadyList(proc);
 }
 
@@ -203,7 +189,6 @@ void loadNextProcess()
     current_proc = next_proc;
     current_proc->state = RUNNING;
     schedule(&temp->rsp, &current_proc->rsp);
-    
 }
 
 void addProcToReadyList(struct PCB* proc)

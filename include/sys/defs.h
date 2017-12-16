@@ -14,6 +14,11 @@
 #define ALL_ZERO 0x0
 #define GET_40_BITS 0xFFFFFFF000
 
+#define S_TOP 0xF00000000
+#define S_SIZE 0x100000
+#define H_BASE 0xF0000000
+#define H_END  0x100000
+
 typedef unsigned long  uint64_t;
 typedef          long   int64_t;
 typedef unsigned int   uint32_t;

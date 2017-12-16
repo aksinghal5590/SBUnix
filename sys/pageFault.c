@@ -33,7 +33,7 @@ void pageFaultHandler(registers_t regSet)
     int faultPresent = 0;
     uint64_t error_code = regSet.err_number;
 	
-    // kprintf("Currently in Page Fault Handler\n");
+        kprintf("Currently in Page Fault Handler\n");
 	uint64_t cr2_val, cr3_val;
 	__asm__ volatile
 	(
@@ -50,7 +50,7 @@ void pageFaultHandler(registers_t regSet)
 		:
 		:"cc", "memory"
 	);
-	// kprintf("Value of CR3 is: %x\n", cr3_val);
+	kprintf("Value of CR3 is: %x\n", cr3_val);
 
     if(cr2_val >= VIRTUAL_BASE)
     {
@@ -58,7 +58,6 @@ void pageFaultHandler(registers_t regSet)
     }
     else if(error_code & 0x1)
     {
-       kprintf("In child\n");
        uint64_t* pt_val = getPTTableEntry(cr3_val, cr2_val);
        if(!((*pt_val) & 0x2) && ((*pt_val) & 0x4000000000000000))
        {
@@ -89,23 +88,24 @@ void pageFaultHandler(registers_t regSet)
     }
     else
     {
-       kprintf("In parent\n");
         struct vm_area_struct* vma = current_proc->mm->vma_list;
         uint64_t startAdd, endAdd;
 
         while(vma != NULL)
         {
-            startAdd = vma->start;
-            endAdd = vma->end;
-	    kprintf("vma start %x  and vma end  %x\n", startAdd, endAdd);
-            if(cr2_val >= startAdd && cr2_val <= endAdd)
-            {
-                for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)
-	            {
+	    if(vma->type != 20)
+	    {
+            	startAdd = vma->start;
+            	endAdd = vma->end;
+            	if(cr2_val >= startAdd && cr2_val <= endAdd)
+            	{
+                	for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)
+	            	{
 		            walkUserPageTables(cr3_val, i, 0);
-	            }
-                break;
-            }
+	            	}
+                	break;
+            	}
+	    }
             vma = vma->next;
         }
         if(vma == NULL)
