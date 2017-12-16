@@ -133,13 +133,14 @@ void systemMunmap(uint64_t ptr)
 	{
 		uint64_t* ptEntry = getPTTableEntry(current_proc->pml4, i);
 		uint64_t ptentry = (uint64_t)(*ptEntry);
-		ptentry = ((ptentry >> 12)<<12);
+		ptentry = ptentry & GET_40_BITS;
 		struct PAGE* p = getPageStruct(ptentry);
 		freePage(p);
 		*ptEntry = 0;
 	}
 	temp2->next = current_proc->freeHeapList;
 	current_proc->freeHeapList = temp2;
+	flushTLB();
 }
 
 uint64_t systemMMap(uint64_t size)
@@ -204,8 +205,8 @@ uint64_t systemMMap(uint64_t size)
 		freeList->next = current_proc->usedHeapList;
 		current_proc->usedHeapList = freeList;
 	}
-	uint64_t check = freeList->baseAddress;
-	kprintf("Value of check is: %x\n", check);
+	//uint64_t check = freeList->baseAddress;
+	//kprintf("Value of check is: %x\n", check);
 	return (freeList->baseAddress);
 } 
 

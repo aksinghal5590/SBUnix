@@ -40,6 +40,21 @@ uint64_t getCR3Val()
     return cr3_val;
 }
 
+void flushTLB()
+{
+    uint64_t cr3_val;
+	__asm__ volatile
+	(
+		"movq %%cr3, %%rax;"
+		"movq %%rax, %%cr3;"
+		"movq %%cr3, %0;"
+		:"=r"(cr3_val)
+		:
+		:"cc", "memory"
+	);
+	kprintf("Value of CR3 is: %x\n", cr3_val);
+}
+
 void ERROR(char* error)
 {
     kprintf("%s. Please Reboot the System.\n", error);
