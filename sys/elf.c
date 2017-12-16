@@ -62,7 +62,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     loadCR3(currentCR3);
 
-    //copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
+    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
     //initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
@@ -126,7 +126,8 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char*
         :"cc", "memory"
     );
     updateUserCR3_Val(proc->pml4);
-
+    user_stk = (uint64_t*)proc->stop;
+    
     for (int i = envc-1; i >= 0; i--) {
         user_stk = (uint64_t*)((void*)user_stk - (strlen(arge[i]) + 1));
         memcpy((char*)user_stk, arge[i], strlen(arge[i]) + 1);
@@ -158,7 +159,15 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char*
 
     user_stk--;
     *user_stk = (uint64_t)argc;
-
+    
+    // __asm__ volatile
+    // (
+    //     "movq %0, %%rsp \n\t"
+    //     :
+    //     :"a" (user_stk)
+    //     :"cc", "memory"
+    // );
+    proc->stop = (uint64_t)user_stk;
     updateUserCR3_Val(currentCR3);
 
 }

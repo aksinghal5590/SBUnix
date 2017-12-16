@@ -16,7 +16,7 @@ extern pid_t forkSyscall(uint64_t sysNum);
 extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
-extern struct PCB* task_l;
+extern struct PCB* ready_proc_list;
 extern struct PCB* current_proc;
 void* systemCallHandlerTable[128];
 // = {systemRead, systemWrite, systemExit, systemYield, systemFork};
@@ -34,6 +34,9 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_getdents] = sys_getdents;
 	systemCallHandlerTable[__NR_getcwd] = sys_getcwd;
 	systemCallHandlerTable[__NR_chdir] = sys_chdir;
+    systemCallHandlerTable[__NR_wait4] = systemWaitPid;
+    systemCallHandlerTable[__NR_execve] = systemExecvpe;
+
 } 
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
@@ -102,8 +105,8 @@ pid_t systemFork()
     struct PCB *parent = current_proc; 
     struct PCB *child = copyProcess(parent); 
 
-    initializeProc(child, parent->kstack[KSTACK_SIZE-6], parent->kstack[KSTACK_SIZE-3]);
-    child->kstack[KSTACK_SIZE-7] = 0UL;
+    initializeProc(child, parent->kstack[KSTACK_SIZE-7], parent->kstack[KSTACK_SIZE-4]);
+    child->kstack[KSTACK_SIZE-2] = 0UL;
 
     kprintf("%d\n", child->pid);
     printReadyList();
@@ -147,8 +150,9 @@ uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[])
         // Exit from the current process
         // empty_task_struct(cur_task);
         // schedule_next_process()
-        add_proc_to_front(exec);
+        addToFrontReady(exec);
         systemExit(0);
+        //switch_to_ring3_from_kernel();
  
     }
     // execvpe failed; so return -1
@@ -174,10 +178,10 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
 
     // // if (status_p) *status_p = 0;
     // return (uint64_t)current_proc->wait_on_child_pid;
-    struct PCB* proc = task_l;
+    struct PCB* proc = ready_proc_list;
     while(proc) {
         if(proc->pid == pid) {
-            systemYield();
+            // systemYield();
             return pid;
         }
         proc = proc->next;
