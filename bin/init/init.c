@@ -4,16 +4,17 @@
 #include <stdio.h>
 
 int main(int argc, char *argv[], char *envp[]) {
-	int pid;
-	pid = fork();
-	printf("%d\n", pid);
-	if (pid == 0) {
-		execvpe("/bin/sbush", NULL, NULL);
-	} else {
-		while(waitpid(pid, NULL, 0)) {
-	        	yield();
-	        }
-	}
-	while(1);
+	do {
+		int pid;
+		pid = fork();
+		printf("%d\n", pid);
+		if (pid == 0) {
+			execvpe("/bin/sbush", NULL, NULL);
+		} else {
+			while(waitpid(pid, NULL, 0)) {
+	        		yield();
+	        	}
+		}
+	} while(1);
 	return 1;
 }

@@ -37,7 +37,6 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     {
         if(ph->p_type == 1)
         {
-	   kprintf("VMA start addr: %x End Addr %x\n", ph->p_vaddr, ph->p_vaddr + ph->p_memsz);
            insert_vma(userThread->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
     	   mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, (uint64_t*)eh+(ph->p_offset), ph->p_filesz);
 	}

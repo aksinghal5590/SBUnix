@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define MAX_LENGTH 512
-#define MAX_BUF_LENGTH 512*10
+#define MAX_LENGTH 1024
+#define MAX_BUF_LENGTH 2014*10
 #define MAX_CMD 10
 
 void performExpansion(char* input);
@@ -50,7 +50,12 @@ int main(int argc, char *argv[], char *envp[]) {
 	}
 	else {
 		while(1) {
-			printf("%s$", argv[0]);
+			char cwd[256];
+			getcwd(cwd, 256);
+			if(strlen(cwd) > 1) {
+				cwd[strlen(cwd) - 1] = '\0';
+			}
+			printf("%s$", cwd);
 			len = 0;
 			gets(input);
 			if(strcmp(exit, input) == 0)
@@ -116,9 +121,7 @@ void performOperation(char* input, char* envp[])
 	//check for built-in[cd, exit] or check binary[ls, cat]
 	if(strcmp(command,"cd") == 0)
 	{
-		char temp[50];
 		performCDOperation(commandArg[0]);
-		printf("New current directory: %s\n", getcwd(temp, 50));
 		return;
 	}
 	/*if(argVal)
@@ -145,8 +148,8 @@ void performOperation(char* input, char* envp[])
         	int status;
                 if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
 			waitpid(pid,&status, 0);
-			yield();
-		}     
+		}
+		yield();     
 	} else if(pid == 0) {
 		printf("In child\n");
 		// int err = execvpe("/bin/ls", envp, envp);

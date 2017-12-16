@@ -47,6 +47,11 @@ void kprintf(const char *fmt, ...) {
      va_end(val);
 }
 
+void backSpace() {
+    memlo -= 2;
+    *(memlo) = 0;
+}
+
 void memshift() {
     register char *temp1, *temp2;
     for(temp1 = (char*)(VIDEO_MEM_VIRTUAL); temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*23; temp1 += 1) {

@@ -35,7 +35,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   while(modulep[0] != 0x9001) modulep += modulep[1]+2;
   for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
     if (smap->type == 1 /* memory */ && smap->length != 0) {
-      kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
+      // kprintf("Available Physical Memory [%p-%p]\n", smap->base, smap->base + smap->length);
 
       if((uint64_t)physbase > smap->base + smap->length) {
 	continue;
@@ -47,22 +47,24 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
     }
   }
   
-  kprintf("physbase %p\n", (uint64_t)physbase);
-  kprintf("physfree %p\n", (uint64_t)physfree);
-  kprintf("Kernmem %p\n", (uint64_t)&kernmem);
-  kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
-  kprintf("Page Count: %d\n", pgCount);
+  // kprintf("physbase %p\n", (uint64_t)physbase);
+  // kprintf("physfree %p\n", (uint64_t)physfree);
+  // kprintf("Kernmem %p\n", (uint64_t)&kernmem);
+  // kprintf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+  // kprintf("Page Count: %d\n", pgCount);
   loadKernel((uint64_t)physbase, (uint64_t)physfree);
   init_tarfs();
   init_vfs();
   initSyscalls();
   initInterrupts();
-  kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
+  // kprintf("Loaded our own kernel!!!!Its working!!!!!\n");
 
   __asm__ __volatile__("movq %0, %%rbp" : :"a"(&initial_stack[0]));
   __asm__ __volatile__("movq %0, %%rsp" : :"a"(&initial_stack[INITIAL_STACK_SIZE]));
 
   initIdleProcess();
+
+  clearScreen();
 
   struct PCB* init_proc = read_file("/bin/sbush", NULL, NULL);
   if(init_proc)
