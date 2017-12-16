@@ -19,5 +19,6 @@ struct PCB* getNextSleepProc();
 int checkReadyProcPresent();
 void printReadyList();
 void printSleepList();
+void addToFrontReady();
 
 #endif

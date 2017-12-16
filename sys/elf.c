@@ -57,13 +57,13 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     uint64_t endStackVAddress = S_TOP;
     uint64_t startStackVAddress = S_TOP - S_SIZE;
 
-    insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress, 1, 0);
+    insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress + 1, 1, 10);
     mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
     initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     loadCR3(currentCR3);
 
-    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
-    initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
+    //copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
+    //initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
 
