@@ -15,8 +15,8 @@ int printf(const char *format, ...) {
 
 	va_start(val, format);
 	parsefmt(print, format, val);
-	int size = strlen(format);
-	write(1, format, size);
+	int size = strlen(print);
+	write(1, print, size);
 	va_end(val);
 	return size;
 }
