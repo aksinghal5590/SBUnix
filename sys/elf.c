@@ -10,9 +10,6 @@
 #include "sys/utility.h"
 #include "sys/string.h"
 
-#define S_TOP 0xF0000000
-#define S_SIZE 0x10000
-
 extern struct PCB* current_proc;
 
 
@@ -36,6 +33,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
 
     kprintf("ph count %d\n", eh->e_phnum);
     loadCR3((uint64_t)pml4_add);
+    
     for (int i = 0; i < eh->e_phnum; ++i)
     {
         kprintf("%d\n",ph->p_type);
@@ -46,14 +44,18 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
            kprintf("%d\n",ph->p_memsz);
            insert_vma(userThread->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
     	   mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, (uint64_t*)eh+(ph->p_offset), ph->p_filesz);
-	    }
+	}
         ph += 1;
     }
-    struct vm_area_struct *temp = userThread->mm->vma_list;
-    while(temp->next != NULL)
-    {
-        temp = temp->next;
-    }
+    uint64_t heapStartVAddress = H_BASE;
+    uint64_t heapEndVAddress = H_END;
+    insert_vma(userThread->mm, heapStartVAddress, heapStartVAddress + heapEndVAddress, heapStartVAddress-heapEndVAddress+1, 1, 20);
+    struct PCBMemList* fp =  (struct PCBMemList*) kmalloc(sizeof(struct PCBMemList));
+    fp->size = H_END;
+    fp->baseAddress = H_BASE;
+    fp->next = NULL;
+    userThread->freeHeapList = fp;
+   
     uint64_t endStackVAddress = S_TOP;
     uint64_t startStackVAddress = S_TOP - S_SIZE;
 
@@ -62,8 +64,8 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     loadCR3(currentCR3);
 
-    //copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
-    //initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
+//    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
+//    initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     return userThread;
 }
 

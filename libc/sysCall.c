@@ -27,7 +27,7 @@ uint64_t syscall1(uint64_t sysNum, void* arg1) {
 	return ret;
 }
 
-uint64_t syscall1_i(uint64_t sysNum, int arg1) {
+uint64_t syscall1_i(uint64_t sysNum, uint64_t arg1) {
 	uint64_t ret;
         __asm__ volatile
         (

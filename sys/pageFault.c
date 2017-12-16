@@ -92,16 +92,19 @@ void pageFaultHandler(registers_t regSet)
 
         while(vma != NULL)
         {
-            startAdd = vma->start;
-            endAdd = vma->end;
-            if(cr2_val >= startAdd && cr2_val <= endAdd)
-            {
-                for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)
-	            {
+	    if(vma->type != 20)
+	    {
+            	startAdd = vma->start;
+            	endAdd = vma->end;
+            	if(cr2_val >= startAdd && cr2_val <= endAdd)
+            	{
+                	for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)
+	            	{
 		            walkUserPageTables(cr3_val, i, 0);
-	            }
-                break;
-            }
+	            	}
+                	break;
+            	}
+	    }
             vma = vma->next;
         }
         if(vma == NULL)

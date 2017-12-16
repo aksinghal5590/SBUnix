@@ -5,7 +5,11 @@
 #include "sys/pcb.h"
 #include "sys/vfs.h"
 #include "sys/elf64.h"
+#include "sys/utility.h"
+#include "sys/userPageTable.h"
+#include "sys/freelist.h"
 
+#define PAGE_SIZE 4096
 
 extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
@@ -34,6 +38,8 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_getdents] = sys_getdents;
 	systemCallHandlerTable[__NR_getcwd] = sys_getcwd;
 	systemCallHandlerTable[__NR_chdir] = sys_chdir;
+	systemCallHandlerTable[__NR_mmap] = systemMMap;
+	systemCallHandlerTable[__NR_munmap] = systemMunmap;
 } 
 
 void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
@@ -41,10 +47,13 @@ void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
 }
 
+pid_t userFork()
+{
+	 return forkSyscall(4);
+}
 
 void systemCallHandler()
 {
-//    systemYield();
     uint64_t sysNum;
 	__asm__ volatile
 	(
@@ -76,6 +85,127 @@ void systemCallHandler()
         :"cc", "memory"
     );
 }
+
+void systemMunmap(uint64_t ptr)
+{
+	if(ptr < H_BASE || ptr > (H_BASE + H_END))	
+	{
+		kprintf("No malloc memory associated with address: %x. Please check.\n", ptr);
+		return;
+	}
+	struct PCBMemList* temp1 = current_proc->usedHeapList;
+	struct PCBMemList* temp2 = NULL;
+	if(temp1 == NULL)
+	{
+		kprintf("No memory associated with address: %x. Please check.\n", ptr);
+		return;
+	}
+	if(ptr == temp1->baseAddress)
+	{
+		temp2 = temp1;
+		current_proc->usedHeapList = temp1->next;
+	}
+	else
+	{
+		while(temp1 && temp1->next != NULL)
+		{
+			temp2 = temp1->next;
+			if(temp2->baseAddress == ptr)
+			{
+				temp1->next = temp2->next;
+				break;
+			}
+			temp1 = temp1->next;
+		}
+		if(temp1->next == NULL)
+			temp2 = NULL;
+	}
+	if(temp2 == NULL)
+	{
+		kprintf("No memory associated with address: %x. Please check.\n", ptr);
+		return;
+	}
+	//for(uint64_t i = temp2->baseAddress; i < (temp2->baseAddress + temp2->size); i += 0x1000)
+	//	i = 0;
+	for(uint64_t i = temp2->baseAddress; i < (temp2->baseAddress + temp2->size); i += 0x1000)
+	{
+		uint64_t* ptEntry = getPTTableEntry(current_proc->pml4, i);
+		uint64_t ptentry = (uint64_t)(*ptEntry);
+		ptentry = ((ptentry >> 12)<<12);
+		struct PAGE* p = getPageStruct(ptentry);
+		freePage(p);
+		*ptEntry = 0;
+	}
+	temp2->next = current_proc->freeHeapList;
+	current_proc->freeHeapList = temp2;
+}
+
+uint64_t systemMMap(uint64_t size)
+{
+	struct PCBMemList* freeList = current_proc->freeHeapList;
+	if(size % (PAGE_SIZE))
+	{
+		int8_t q = size/(PAGE_SIZE);
+		size = (PAGE_SIZE)*(q+1);
+	}
+	while(freeList != NULL)
+	{
+		if(freeList->size >= size)
+		{
+			break;
+		}
+		else
+		{
+			freeList = freeList->next;
+		}
+	}
+	if(freeList == NULL)
+	{
+		ERROR("Process run out of dynamic memory. Terminating the process\n");
+	}
+	if(current_proc->freeHeapList == freeList)
+	{
+		current_proc->freeHeapList = current_proc->freeHeapList->next;
+		freeList->next = NULL;
+	}
+	else
+	{
+		struct PCBMemList* temp = current_proc->freeHeapList;
+		while(temp->next != freeList)
+			temp = temp->next;
+		if(temp)
+		{
+			temp->next = freeList->next;
+			freeList->next = NULL;
+		}
+	}
+	if(freeList->size > size)
+	{
+		struct PCBMemList* t = (struct PCBMemList*) kmalloc(sizeof(struct PCBMemList));
+		t->size = freeList->size - size;
+		t->baseAddress = freeList->baseAddress + size;
+		freeList->size = size;
+		t->next = current_proc->freeHeapList;
+		current_proc->freeHeapList = t;
+	}
+	for(uint64_t i = freeList->baseAddress; i < freeList->baseAddress + freeList->size; i += 0x1000)
+	{
+		walkUserPageTables(current_proc->pml4, i, 0);
+	}
+	if(current_proc->usedHeapList == NULL)
+	{
+		current_proc->usedHeapList = freeList;
+		freeList->next = NULL;
+	}
+	else
+	{
+		freeList->next = current_proc->usedHeapList;
+		current_proc->usedHeapList = freeList;
+	}
+	uint64_t check = freeList->baseAddress;
+	kprintf("Value of check is: %x\n", check);
+	return (freeList->baseAddress);
+} 
 
 void systemWrite(uint64_t fd, uint64_t data, uint64_t len)
 {
