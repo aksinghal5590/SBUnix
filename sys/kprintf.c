@@ -11,14 +11,28 @@ extern uint64_t count, index;
 extern char globalBuf[1024];
 
 static char *memlo = (char *)VIDEO_MEM_VIRTUAL;
-void kprintf(const char *fmt, ...)
-{
+
+void clearScreen() {
+
+     register char *temp1, *temp2;
+     for(temp2 = (char*)VIDEO_COL_VIRTUAL; temp2 < (char*)(VIDEO_MEM_VIRTUAL+160*25); temp2 += 2) {
+           *temp2 = 7;
+     }
+     for(temp1 = (char*)VIDEO_MEM_VIRTUAL; temp1 < (char*)(VIDEO_MEM_VIRTUAL+160*25); temp1 += 2) {
+           *temp1 = ' ';
+     }
+}
+
+
+void kprintf(const char *fmt, ...) {
      va_list val;
      va_start(val, fmt);
      char kstring[MAXBUFLEN];
      parsefmt(kstring, fmt, val);
      register char *temp1, *temp2;
-     for(temp2 = (char*)VIDEO_COL_VIRTUAL; temp2 < (char*)(VIDEO_MEM_VIRTUAL+160*25); temp2 += 2) *temp2 = 7;
+     for(temp2 = (char*)VIDEO_COL_VIRTUAL; temp2 < (char*)(VIDEO_MEM_VIRTUAL+160*25); temp2 += 2) {
+           *temp2 = 7;
+     }
      for(temp1 = kstring;*temp1;temp1 += 1, memlo+=2) 
      { 
       if(memlo >= (char*)(VIDEO_MEM_VIRTUAL+160*24)) {
@@ -89,6 +103,7 @@ void printkeyboard(char *s) {
     for(temp2 = s; *temp2 && temp1 < (char*)(VIDEO_MEM_VIRTUAL)+160*25; temp1 += 2,temp2 += 1) {
          *(temp1) = *(temp2);
     }
+
 }
 
 void parsefmt(char print[], const char *fmt, va_list val)

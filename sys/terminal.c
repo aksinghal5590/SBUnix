@@ -6,12 +6,13 @@ int buf_pos = 0;
 static volatile int flush = 1;
 
 void append_buffer(const char *s, int size) {
+
+	memcpy((void*)(buffer + buf_pos), (void*)s, size);
+	buf_pos += size;
 	char *temp = (char*)s;
 	if(temp[0] == '\0')
 		temp[0] = '\n';
 	write_stdout(temp, size);
-	memcpy((void*)(buffer + buf_pos), (void*)s, size);
-	buf_pos += size;
 }
 
 void flush_buffer() {

@@ -1,9 +1,26 @@
 #include <stdlib.h>
 #include <libc.h>
+#include <stdio.h>
 
 void _start(void) {
-   main();
-   //while(1);
-   //return;
-   exit(0);
+
+	int argc;
+        char** argv = NULL;
+        char** envp = NULL;
+        uint64_t* add = NULL; 
+	
+	__asm__(
+		"movq %%rsp, %0 \n\t"
+		:"=r"(add)
+		:
+		:"cc", "memory"
+	);
+
+        argc = *(add + 1);
+	    argv = (char**)(add + 2);
+        envp = (char**)(argv + argc + 1);
+        
+        int a = main(argc, argv, envp);
+
+	exit(a);
 }

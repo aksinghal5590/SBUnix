@@ -7,15 +7,8 @@
 void executecat(int argc, char* argv[]);
 void readWrite(int fd);
 
-/*int main(int argc, char* argv[], char* envp[]) {
+int main(int argc, char* argv[], char* envp[]) {
         executecat(argc, argv);
-	return 0;
-} */
-
-int main() {
-	int argc = 2;
-	char* argv[] = {NULL, "hello.txt", NULL};
-	executecat(argc, argv);
 	return 0;
 }
 

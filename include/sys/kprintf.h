@@ -10,6 +10,7 @@ void convert(uint64_t a, char* ch, int base);
 void memshift();
 void printtimer(uint64_t a);
 void printkeyboard(char *s);
+void clearScreen();
 
 void* memset(void *ptr, int value, size_t num);
 void* memcpy(void* dest, const void* src, size_t n);

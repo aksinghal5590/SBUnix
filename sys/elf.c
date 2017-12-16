@@ -31,17 +31,13 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
 		:"cc", "memory"
 	);
 
-    kprintf("ph count %d\n", eh->e_phnum);
     loadCR3((uint64_t)pml4_add);
     
     for (int i = 0; i < eh->e_phnum; ++i)
     {
-        kprintf("%d\n",ph->p_type);
         if(ph->p_type == 1)
         {
-           kprintf("%x\n",ph->p_vaddr);
-           kprintf("%x\n",ph->p_paddr);
-           kprintf("%d\n",ph->p_memsz);
+	   kprintf("VMA start addr: %x End Addr %x\n", ph->p_vaddr, ph->p_vaddr + ph->p_memsz);
            insert_vma(userThread->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
     	   mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, (uint64_t*)eh+(ph->p_offset), ph->p_filesz);
 	}
@@ -60,12 +56,11 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     uint64_t startStackVAddress = S_TOP - S_SIZE;
 
     insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress + 1, 1, 10);
-    mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
+    mapUserPageTable((uint64_t)pml4_add, endStackVAddress - 0x1000, endStackVAddress, (uint64_t*)(endStackVAddress - 0x1000), 0x1000);
     initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     loadCR3(currentCR3);
 
-//    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
-//    initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
+    copyArgumentsToStack(file_name, userThread, argv, envp, (uint64_t*)(endStackVAddress-0x8));
     return userThread;
 }
 
@@ -128,7 +123,8 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char*
         :"cc", "memory"
     );
     updateUserCR3_Val(proc->pml4);
-
+    user_stk = (uint64_t*)proc->stop;
+    
     for (int i = envc-1; i >= 0; i--) {
         user_stk = (uint64_t*)((void*)user_stk - (strlen(arge[i]) + 1));
         memcpy((char*)user_stk, arge[i], strlen(arge[i]) + 1);
@@ -160,7 +156,15 @@ void copyArgumentsToStack(char* file_name, struct PCB* proc, char* argv[], char*
 
     user_stk--;
     *user_stk = (uint64_t)argc;
-
+    
+    // __asm__ volatile
+    // (
+    //     "movq %0, %%rsp \n\t"
+    //     :
+    //     :"a" (user_stk)
+    //     :"cc", "memory"
+    // );
+    proc->stop = (uint64_t)user_stk;
     updateUserCR3_Val(currentCR3);
 
 }

@@ -2,7 +2,7 @@
 #include<stdio.h>
 #include<string.h>
 
-/*int main(int argc, char* argv[], char* envp[]) {
+int main(int argc, char* argv[], char* envp[]) {
 	char output[256*BUF_SIZE];
 	for(int k = 1; k < argc; k++) {
 		if(strlen(output)) {
@@ -26,4 +26,4 @@
 		strcpy(output, "");
 	puts(output);
         return 0;
-}*/
+}

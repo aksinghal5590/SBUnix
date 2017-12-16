@@ -15,6 +15,7 @@ struct PCB *ready_proc_list = NULL;
 struct PCB *sleep_proc_list = NULL;
 struct PCB* current_proc;
 extern struct PCB* idle ;
+extern struct PCB* init_proc ;
 
 extern char kernmem;
 extern void schedule(uint64_t* firstProc, uint64_t* secondProc);
