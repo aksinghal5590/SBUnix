@@ -9,7 +9,7 @@ struct d_entry d_entries[256];
 struct PCB *task_l = NULL;
 struct PCB *free_task_l = NULL;
 struct PCB* idle = NULL;
-static uint64_t pid = 0;
+uint64_t pid = 0;
 
 //struct PCB *current_proc = NULL;
 void set_pid(pid_t curr_pid) {

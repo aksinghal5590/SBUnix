@@ -11,7 +11,7 @@
 
 struct PCB *ready_proc_list = NULL;
 struct PCB *sleep_proc_list = NULL;
-struct PCB* current_proc = NULL;
+struct PCB* current_proc;
 extern struct PCB* idle ;
 
 extern char kernmem;
@@ -202,7 +202,7 @@ void loadNextProcess()
     current_proc = next_proc;
     current_proc->state = RUNNING;
     schedule(&temp->rsp, &current_proc->rsp);
-    switch_to_ring3_from_kernel();
+    
 }
 
 void addProcToReadyList(struct PCB* proc)
@@ -290,10 +290,31 @@ void printReadyList()
         while(t != NULL)
         {
                 kprintf("pid: %d     ppid: %d\n",t->pid,t->ppid);
-                kprintf("task name %s", t->p_name);
+                kprintf("task name %s\n", t->p_name);
                 kprintf("task state %d \n", t->state);
                 t = t->next;
         }
+}
+
+void addToFrontReady(struct PCB* proc) {
+    if(proc->state == IDLE)
+        return;
+    else if(proc->state == RUNNING || proc->state == READY)
+    {
+        proc->state = READY;
+    }
+    else
+        return;
+
+    if(ready_proc_list == NULL)
+    {
+        ready_proc_list = proc;
+    }
+    else
+    {
+        proc->next = ready_proc_list;
+        ready_proc_list = proc;
+    }
 }
 
 void printSleepList()
