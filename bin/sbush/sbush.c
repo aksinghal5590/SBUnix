@@ -15,10 +15,7 @@ void performOperation(char* input, char* envp[]);
 void performCDOperation(char* commandArg);
 void addBinaryPath(char* command);
 
-int main() {
-	int argc = 1;
-	char *argv[] = {NULL};
-	char *envp[] = {"PWD=/", "PATH:/bin", NULL};
+int main(int argc, char *argv[], char *envp[]) {
 	printf("Hello: Welcome to our Shell\n");
 	char input[MAX_LENGTH];
 	int len = 0;
@@ -53,6 +50,7 @@ int main() {
 	}
 	else {
 		while(1) {
+			printf("%s$", argv[0]);
 			len = 0;
 			gets(input);
 			if(strcmp(exit, input) == 0)
@@ -80,7 +78,8 @@ void performOperation(char* input, char* envp[])
 {       
 	char command[1024] = "";
 	char commandArg[MAX_CMD][MAX_LENGTH];
-        int argVal = 0, testcount = 0, len = 0, i = 0;
+        int argVal = 0, len = 0, i = 0;
+	// int testcount = 0;
 	int strlength = strlen(input);
 	int backgroundProcess = 0;
 
@@ -122,15 +121,15 @@ void performOperation(char* input, char* envp[])
 		printf("New current directory: %s\n", getcwd(temp, 50));
 		return;
 	}
-	if(argVal)
+	/*if(argVal)
 		testcount = argVal+2;
 	else
 		testcount = 3;
-
+*/
 	//add binary path to command if not already present
 	addBinaryPath(command);
 
-	char* test[testcount];
+	/* char* test[testcount];
 	test[0] = command;
 	if(argVal) {
 		for(int j = 1; j < testcount-1; j++)
@@ -140,18 +139,17 @@ void performOperation(char* input, char* envp[])
 		test[1] = NULL;
 	}
 	test[testcount-1] = (char*) NULL;
-        printf("test 0: %s\n", test[0]);
-
+*/
 	pid_t pid = fork();
 	if(pid > 0) {
         	int status;
                 if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
-			printf("parent: %x\n", &test[0]);
 			waitpid(pid,&status, 0);
 			yield();
 		}     
 	} else if(pid == 0) {
-		// int err = execvpe(test[0], test, envp);
+		printf("In child\n");
+		// int err = execvpe("/bin/ls", envp, envp);
 		// printf("child: test 0 - %s\n", test[0]);
 		int err = execvpe("/bin/ls", NULL, NULL);
 		char errStr[] = "Error in running command\n";
@@ -170,13 +168,8 @@ void addBinaryPath(char* command) {
 	{
 		if(command[0] == '/')
 			return;
-		char bin_path[MAX_LENGTH];
-		getcwd(bin_path, MAX_LENGTH);
+		char *bin_path = "/bin/";
 		strcat(bin_path, command);
 		strcpy(command, bin_path);
-		//puts("BINARY_PATH");
-		//puts(BINARY_PATH);
-		//puts("Command");
-		//puts(command);
 	}
 }

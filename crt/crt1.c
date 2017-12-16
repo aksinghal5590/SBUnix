@@ -4,7 +4,6 @@
 
 void _start(void) {
 
-	printf("%s", "in crt");
 	int argc;
         char** argv = NULL;
         char** envp = NULL;

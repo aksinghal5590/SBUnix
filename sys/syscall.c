@@ -108,7 +108,6 @@ pid_t systemFork()
     initializeProc(child, parent->kstack[KSTACK_SIZE-7], parent->kstack[KSTACK_SIZE-4]);
     child->kstack[KSTACK_SIZE-2] = 0UL;
 
-    kprintf("%d\n", child->pid);
     printReadyList();
     return child->pid;
 }
@@ -122,7 +121,7 @@ void systemExit(uint64_t status)
 
 void systemYield()
 {
-    kprintf("Inside Yield\n");
+    // kprintf("Inside Yield\n");
     current_proc->state = READY;
     loadNextProcess();    
 }
@@ -132,7 +131,7 @@ void systemYield()
 uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[])
 {
     struct PCB *exec = read_file(file_path, argv , envp);
-    kprintf("%s\n", "Inside Execvpe");
+    // kprintf("%s\n", "Inside Execvpe");
 
     if (exec != NULL) {
         // struct PCB *temp = current_proc;

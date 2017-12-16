@@ -33,7 +33,7 @@ void pageFaultHandler(registers_t regSet)
     int faultPresent = 0;
     uint64_t error_code = regSet.err_number;
 	
-    kprintf("Currently in Page Fault Handler\n");
+    // kprintf("Currently in Page Fault Handler\n");
 	uint64_t cr2_val, cr3_val;
 	__asm__ volatile
 	(
@@ -42,7 +42,7 @@ void pageFaultHandler(registers_t regSet)
 		:
 		:"cc", "memory"
 	);
-	kprintf("Value of CR2 is: %x\n", cr2_val);
+	kprintf("Value of CR2 is: %x PID: %d\n", cr2_val, current_proc->pid);
 	__asm__ volatile
 	(
 		"movq %%cr3, %0 \n\t"
@@ -50,7 +50,7 @@ void pageFaultHandler(registers_t regSet)
 		:
 		:"cc", "memory"
 	);
-	kprintf("Value of CR3 is: %x\n", cr3_val);
+	// kprintf("Value of CR3 is: %x\n", cr3_val);
 
     if(cr2_val >= VIRTUAL_BASE)
     {
@@ -58,6 +58,7 @@ void pageFaultHandler(registers_t regSet)
     }
     else if(error_code & 0x1)
     {
+       kprintf("In child\n");
        uint64_t* pt_val = getPTTableEntry(cr3_val, cr2_val);
        if(!((*pt_val) & 0x2) && ((*pt_val) & 0x4000000000000000))
        {
@@ -70,8 +71,9 @@ void pageFaultHandler(registers_t regSet)
                 {
                     *(vAddress + i) = 0x0;
                 }
-                memcpy((void*) vAddress, (void*)cr2_val, 0x1000);
-                useExistingPage(cr3_val, cr2_val, pg);
+		uint64_t cr2_val_aligned = ((cr2_val>>12)<<12);
+                memcpy((void*) vAddress, (void*)cr2_val_aligned, 0x1000);
+                useExistingPage(cr3_val, cr2_val_aligned, pg);
                 p->use_cnt--;
             }
             else
@@ -87,6 +89,7 @@ void pageFaultHandler(registers_t regSet)
     }
     else
     {
+       kprintf("In parent\n");
         struct vm_area_struct* vma = current_proc->mm->vma_list;
         uint64_t startAdd, endAdd;
 
@@ -94,6 +97,7 @@ void pageFaultHandler(registers_t regSet)
         {
             startAdd = vma->start;
             endAdd = vma->end;
+	    kprintf("vma start %x  and vma end  %x\n", startAdd, endAdd);
             if(cr2_val >= startAdd && cr2_val <= endAdd)
             {
                 for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)

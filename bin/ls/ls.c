@@ -8,16 +8,8 @@
 
 int list(char* fileName);
 
-int main() {
-	char fileName[MAX_LEN];
-	chdir("bin");
-	getcwd(fileName, MAX_LEN);
-	list(fileName);
-	return 0;
-}
 
-
-/*int main(int argc, char* argv[], char* envp[]) {
+int main(int argc, char* argv[], char* envp[]) {
 	
 	char fileName[MAX_LEN];
 	getcwd(fileName, MAX_LEN);
@@ -37,7 +29,7 @@ int main() {
 		}
 	}
         return 0;
-}*/
+}
 
 int list(char* fileName) {
 

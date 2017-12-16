@@ -34,16 +34,12 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
 		:"cc", "memory"
 	);
 
-    kprintf("ph count %d\n", eh->e_phnum);
     loadCR3((uint64_t)pml4_add);
     for (int i = 0; i < eh->e_phnum; ++i)
     {
-        kprintf("%d\n",ph->p_type);
         if(ph->p_type == 1)
         {
-           kprintf("%x\n",ph->p_vaddr);
-           kprintf("%x\n",ph->p_paddr);
-           kprintf("%d\n",ph->p_memsz);
+	   kprintf("VMA start addr: %x End Addr %x\n", ph->p_vaddr, ph->p_vaddr + ph->p_memsz);
            insert_vma(userThread->mm, ph->p_vaddr, ph->p_vaddr + ph->p_memsz, ph->p_memsz, ph->p_flags, ph->p_type);
     	   mapUserPageTable((uint64_t)pml4_add, ph->p_vaddr, ph->p_vaddr+ph->p_memsz, (uint64_t*)eh+(ph->p_offset), ph->p_filesz);
 	    }
@@ -58,7 +54,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     uint64_t startStackVAddress = S_TOP - S_SIZE;
 
     insert_vma(userThread->mm, startStackVAddress, endStackVAddress, endStackVAddress-startStackVAddress + 1, 1, 10);
-    mapUserPageTable((uint64_t)pml4_add, endStackVAddress-0x1000, endStackVAddress, (uint64_t*)(endStackVAddress-0x1000), 0x1000);
+    mapUserPageTable((uint64_t)pml4_add, endStackVAddress - 0x1000, endStackVAddress, (uint64_t*)(endStackVAddress - 0x1000), 0x1000);
     initializeProc(userThread, eh->e_entry, endStackVAddress-0x8);
     loadCR3(currentCR3);
 
