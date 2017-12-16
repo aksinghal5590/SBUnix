@@ -203,10 +203,11 @@ int sys_chdir(char *path) {
 	return -1;
 }
 
-void sys_getcwd(char *buf, int size) {
+char* sys_getcwd(char *buf, int size) {
 	size = (size < strlen(get_cwd()->name)) ? size : strlen(get_cwd()->name);
 	memcpy(buf, get_cwd()->name, size);
 	buf[size] = '\0';
+	return buf;
 }
 
 int sys_read(int fd, char *buf, int count) {

@@ -102,8 +102,8 @@ pid_t systemFork()
     struct PCB *parent = current_proc; 
     struct PCB *child = copyProcess(parent); 
 
-    initializeProc(child, parent->kstack[KSTACK_SIZE-6], parent->kstack[KSTACK_SIZE-3]);
-    child->kstack[KSTACK_SIZE-7] = 0UL;
+    initializeProc(child, parent->kstack[KSTACK_SIZE-7], parent->kstack[KSTACK_SIZE-4]);
+    child->kstack[KSTACK_SIZE-2] = 0UL;
 
     kprintf("%d\n", child->pid);
     printReadyList();

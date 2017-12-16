@@ -12,8 +12,6 @@
 #include "sys/syscall.h"
 #include "sys/elf64.h"
 
-void print_file();
-
 #define INITIAL_STACK_SIZE 4096
 
 uint8_t initial_stack[INITIAL_STACK_SIZE]__attribute__((aligned(16)));
@@ -66,7 +64,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
   initIdleProcess();
 
-  struct PCB* init_proc = read_file("/bin/cat", NULL, NULL);
+  struct PCB* init_proc = read_file("/bin/sbush", NULL, NULL);
   if(init_proc)
     ;
   print_task_list();
@@ -76,30 +74,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
   if(t != NULL)
     initialSwitch(t->rsp);
 
-  print_file();
   while(1);
-}
-
-void print_file() {
-	char *buf = (char*)kmalloc(1024*10);
-	int fd = sys_open("/hello.txt", 0);
-	if(fd > 0) {
-		sys_read(fd, buf, 10);
-		kprintf("%s\n", buf);
-		sys_read(fd, buf, 10);
-		kprintf("%s\n", buf);
-		sys_read(fd, buf, 10);
-		kprintf("%s\n", buf);
-	}
-	buf = (char*)kmalloc(100);
-	sys_getcwd(buf, 1024);
-	kprintf("CWD: %s\n", buf);
-
-	buf = (char*)kmalloc(100);
-	sys_chdir("bin");
-	sys_getcwd(buf, 1024);
-    kprintf("CWD: %s\n", buf);
-
 }
 
 void boot(void)
