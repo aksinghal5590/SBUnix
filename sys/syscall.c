@@ -28,7 +28,9 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_close] = sys_close;
 	systemCallHandlerTable[__NR_yield] = systemYield;
 	systemCallHandlerTable[__NR_fork] = systemFork;
+	systemCallHandlerTable[__NR_execve] = systemExecvpe;
 	systemCallHandlerTable[__NR_exit] = systemExit;
+	systemCallHandlerTable[__NR_wait4] = systemWaitPid;
 	systemCallHandlerTable[__NR_getdents] = sys_getdents;
 	systemCallHandlerTable[__NR_getcwd] = sys_getcwd;
 	systemCallHandlerTable[__NR_chdir] = sys_chdir;
@@ -40,13 +42,9 @@ void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
 }
 
 
-pid_t userFork()
-{
-	 return forkSyscall(4);
-}
-
 void systemCallHandler()
 {
+//    systemYield();
     uint64_t sysNum;
 	__asm__ volatile
 	(

@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define O_DIRECTORY 00200000
 DIR dirp;
@@ -15,8 +16,9 @@ DIR* opendir(const char *name) {
 	}
 	if(name[len - 1] != '/') {
 		temp[len] = '/';
-		temp[len + 1] = '\0';
+		len++;
 	}
+	temp[len] = '\0';
 	int fd = open(temp, flags);
 	if(fd > 0) {
 		DIR *dir = &dirp;//TODO (DIR*)malloc(sizeof(DIR));
@@ -25,6 +27,8 @@ DIR* opendir(const char *name) {
 		dir->curr_child = 0;
 		dir->read = 0;
 		return dir;
+	} else {
+		printf("Directory not found!!\n");
 	}
 	return NULL;
 }

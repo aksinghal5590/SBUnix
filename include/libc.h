@@ -21,15 +21,9 @@
 
 #include "sys/defs.h"
 
-//int execve(char* filename, char* argv[], char* envp[]);
-
-int execvpe(const char *file, char *const argv[], char *const envp[]);
-
 void exit(int status);
 
 void yield();
-
-//int dup2(int a, int b);
 
 uint64_t syscall0(uint64_t sysNum);
 

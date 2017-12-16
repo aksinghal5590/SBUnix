@@ -28,7 +28,6 @@ void sysHandler();
 void systemWrite(uint64_t fd, uint64_t data, uint64_t len);
 void systemRead(uint64_t fileDescriptor, uint64_t data, uint64_t len);
 pid_t systemFork();
-pid_t userFork();
 void systemExit(uint64_t status);
 void systemYield();
 uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[]);

@@ -3,32 +3,40 @@
 
 char buffer[4000];
 int buf_pos = 0;
-char temp[100];
+static volatile int flush = 1;
 
 void append_buffer(const char *s, int size) {
-	memcpy((void*)temp, (void*)s, size);
-	temp[size] = '\0';
-	kprintf("%s",temp);
-
+	char *temp = (char*)s;
+	if(temp[0] == '\0')
+		temp[0] = '\n';
+	write_stdout(temp, size);
 	memcpy((void*)(buffer + buf_pos), (void*)s, size);
 	buf_pos += size;
 }
 
 void flush_buffer() {
-	memset((void*)buffer, 0, 4000);
-	buf_pos = 0;
+	flush = 1;
 }
 
 int read_stdin(char *buf, int size) {
+
+	flush = 0;
+	__asm__("sti");
+	while(flush == 0);
+
+	size = size < buf_pos ? size : buf_pos;
 	memcpy((void*)buf, (void*)buffer, size);
-	flush_buffer();
+
+	memset((void*)buffer, 0, 4000);
+	buf_pos = 0;
+
 	return size;	
 }
 
 int write_stdout(char *buf, int size) {
 	if(buf[size] != '\0')
 		buf[size] = '\0';
-	kprintf("%s\n", buf);
+	kprintf("%s", buf);
 	return size;
 }
 

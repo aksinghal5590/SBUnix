@@ -8,8 +8,10 @@ int main(int argc, char **argv)
 		int pid;
 	    pid = fork();
 	    if (pid == 0) {
+		write(1, "In child", 15);
 	        execvpe("bin/sbush", NULL, NULL);
 	    } else {
+		write(1, "In parent", 15);
 	        waitpid(pid, NULL, 0);
 	    }
 	}	

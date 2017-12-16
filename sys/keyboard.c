@@ -45,6 +45,11 @@ void printDefault(uint8_t c) {
 	if(c >= 0 && c <= 31) {
 		char s[] = {'^', (char)(c+64), '\0'};
 		printkeyboard(s);
+		if(c == 13) {
+			char null = '\0';
+			append_buffer(&null, 1);
+			flush_buffer();
+		}
 	} else if(c == 127) {
 		char s[] = {'^', (char)(63), '\0'};
 		printkeyboard(s);
@@ -76,6 +81,7 @@ void keyboardImpl() {
 					c -= 32;
 					char s[] = {(char)c, '\0'};
 					printkeyboard(s);
+					append_buffer(&s[0], 1);
 				}
 				else {
 					uint8_t printChar = 0;
