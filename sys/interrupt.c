@@ -3,9 +3,11 @@
 #include <sys/kprintf.h>
 #include "sys/pcb.h"
 #include "sys/pageFault.h"
+#include "sys/syscall.h"
 
 extern void systemCallHandler();
 extern void pageFault();
+extern struct PCB* current_proc;
 
 extern struct PCB *userThread;
 int t_flag = 0;
@@ -86,6 +88,7 @@ void irq0Handler(struct regs *r) {
 		seconds += 1;
 		printtimer(seconds);
 		ticks = 0;
+		incrementSleepCount();
 	}
 	outIO(0x20, 0x20);
 }
