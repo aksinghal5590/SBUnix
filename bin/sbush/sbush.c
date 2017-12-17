@@ -14,56 +14,19 @@ void performExpansion(char* input);
 void performOperation(char* input, char* envp[]);
 void performCDOperation(char* commandArg);
 void addBinaryPath(char* command);
+void checkScript(char *command, char *envp[]);
 
 int main(int argc, char *argv[], char *envp[]) {
-	printf("Hello: Welcome to our Shell\n");
 	char input[MAX_LENGTH];
-	int len = 0;
 	char exit[5] = "exit";
-	if(argc > 1)
-	{
-		//puts("Entering file mode");
-		for(int i = 1; i < argc; i++)
+	while(1) {
+		printf("sbush$");
+		gets(input);
+		if(strcmp(exit, input) == 0)
 		{
-			char* filename = argv[i];
-			int fd = open(filename, O_RDONLY);
-			int j;
-			do
-			{
-				char fileInput[MAX_LENGTH] = "";
-				len = 0;
-				for(j = fgetc(fd); j != '\n' && j != EOF; j = fgetc(fd))
-				{
-					fileInput[len++] = j;
-				}
-				if(len && fileInput[0] != '#')
-				{
-					fileInput[len] = '\0';
-
-					performOperation(fileInput, envp);
-                                        
-				}
-			}
-			while(j != EOF);
-			close(fd);
+			return 0;
 		}
-	}
-	else {
-		while(1) {
-			char cwd[256];
-			getcwd(cwd, 256);
-			if(strlen(cwd) > 1) {
-				cwd[strlen(cwd) - 1] = '\0';
-			}
-			printf("%s$", cwd);
-			len = 0;
-			gets(input);
-			if(strcmp(exit, input) == 0)
-			{
-				return 0;
-			}
-			performOperation(input, envp);
-		}
+		performOperation(input, envp);
 	}
 	return 0;
 }
@@ -77,9 +40,43 @@ void performCDOperation(char* commandArg)
 		int res = write(1, err, strlen(err));
 		if(res == -1) return;
 	}
+	char pwd[256];
+	printf("PWD changed to: %s\n", getcwd(pwd, 256));
 }
 
-void performOperation(char* input, char* envp[])
+void checkScript(char *command, char *envp[]) {
+	if(strlen(command) < 2) {
+		printf("Please provide valid input!\n");
+		exit(0);
+	}
+	if(command[0] == '.' && command[1] == '/') {
+		command += 2;
+		char cwd[256];
+		getcwd(cwd, 256);
+		strcat(cwd, command);
+		command = cwd;
+		int fd = open(command, O_RDONLY);
+		if(fd > 0) {
+			int i;
+			do {
+				char fileInput[MAX_LENGTH] = "";
+				int len = 0;
+				for(i = fgetc(fd); i != '\n' && i != EOF; i = fgetc(fd)) {
+					fileInput[len++] = i;
+				}
+				if(len && fileInput[0] != '#') {
+					fileInput[len] = '\0';
+					performOperation(fileInput, envp);
+				}
+
+			} while(i != EOF);
+			close(fd);
+		}
+	exit(0);
+	}
+}
+
+void performOperation(char* input, char *envp[])
 {       
 	char command[1024] = "";
 	char commandArg[MAX_CMD][MAX_LENGTH];
@@ -93,6 +90,9 @@ void performOperation(char* input, char* envp[])
 		command[len++] = input[i++];	
 	}
 	command[len] = '\0';
+
+	checkScript(command, envp);
+
 	while(i < strlength)
 	{
 		int length = 0;

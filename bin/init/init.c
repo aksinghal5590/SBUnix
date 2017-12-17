@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 int main(int argc, char *argv[], char *envp[]) {
+	printf("Hello: Welcome to our Shell\n");
 	do {
 		int pid;
 		pid = fork();
