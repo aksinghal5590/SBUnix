@@ -31,6 +31,7 @@ int initializePages(uint64_t start, uint64_t end) {
 
 struct PAGE* getPageStruct(uint64_t pageAdd)
 {
+    pageAdd = pageAdd & GET_40_BITS;
     int i;
     for(i = 0; i < PAGE_COUNT; i++)
     {

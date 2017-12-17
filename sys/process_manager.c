@@ -8,6 +8,7 @@
 #include "sys/utility.h"
 
 #define STK 10
+#define HEAP 20
 #define H_BASE 0xF0000000
 #define H_END  0x100000
 
@@ -148,6 +149,8 @@ struct PCB* copyProcess(struct PCB* parent) {
             v_add = vm_start;
             while (v_add < vm_end) {
                 updateUserCR3_Val(parent_pml4);
+                if(parent_vma->type == HEAP && (!user_page_exist(parent_pml4, v_add)))
+			break;
 
                 uint64_t* page_entry = getPTTableEntry(parent_pml4, v_add);
 
