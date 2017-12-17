@@ -6,6 +6,7 @@
 #define __NR_open 2
 #define __NR_close 3
 #define __NR_yield 24
+#define __NR_sleep 35
 #define __NR_fork 57
 #define __NR_execve 59
 #define __NR_exit 60
