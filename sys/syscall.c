@@ -18,6 +18,7 @@ extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
 extern struct PCB* ready_proc_list;
+extern struct PCB* sleep_proc_list;
 extern struct PCB* current_proc;
 extern struct PCB* proc_table[100];
 void* systemCallHandlerTable[128];
@@ -38,6 +39,19 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_chdir] = sys_chdir;
 	systemCallHandlerTable[__NR_mmap] = systemMMap;
 	systemCallHandlerTable[__NR_munmap] = systemMunmap;
+    systemCallHandlerTable[__NR_wait4] = systemWaitPid;
+    systemCallHandlerTable[__NR_execve] = systemExecvpe;
+    systemCallHandlerTable[__NR_ps] = systemProcList;
+} 
+
+void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
+{
+	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
+}
+
+pid_t userFork()
+{
+	 return forkSyscall(4);
 }
  
 void systemCallHandler()
@@ -331,4 +345,31 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
    // }
 
     return 0;    
+}
+
+
+void systemProcList() {
+	char* states[] = {"RUNNING", "SLEEPING", "ZOMBIE", "READY", "IDLE", "EXIT", "WAIT"};
+    struct PCB* temp = ready_proc_list;
+    int cnt = 0;
+    // while(temp) {
+    kprintf("\n      ====   PROCESS LIST   ===="
+            "\n  # |  PID | PPID |   State   |     Name "
+            "\n ---| ---- | ---- | --------- |  ------------\n");
+    cnt+=1;
+    kprintf("  %d     %d      %d      %s      %s\n", cnt, current_proc->pid, current_proc->ppid, states[current_proc->state], current_proc->p_name); 
+    while(temp) {
+        cnt+=1;
+        kprintf("  %d     %d     %d     %d     %s     %s\n", cnt, temp->pid, temp->ppid, states[temp->state], temp->p_name);
+        temp = temp->next;
+    } 
+
+    temp = sleep_proc_list;
+
+    while(temp) {
+        cnt+=1;
+        kprintf("%d     %d     %d     %s     %s\n", cnt, temp->pid, temp->ppid, states[temp->state], temp->p_name);
+        temp = temp->next;
+    }
+
 }
