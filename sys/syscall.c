@@ -367,7 +367,7 @@ void systemProcList() {
 
     while(temp) {
         cnt+=1;
-        kprintf("%d %d %d %s %s\n", cnt,. temp->pid, temp->ppid, states[temp->state], temp->p_name);
+        kprintf("%d %d %d %s %s\n", cnt, temp->pid, temp->ppid, states[temp->state], temp->p_name);
         temp = temp->next;
     }
 
