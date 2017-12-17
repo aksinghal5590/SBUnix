@@ -230,7 +230,7 @@ pid_t systemFork()
 
 void systemExit(uint64_t status)
 {
-    kprintf("Process exit with status: %d\n", status);
+    //kprintf("Process exit with status: %d\n", status);
     for(int i=0;i<100;i++) {
         if(current_proc->child_list[i] == 1) {
             proc_table[i]->ppid = 1;

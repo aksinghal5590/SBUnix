@@ -66,7 +66,7 @@ void start(uint32_t *modulep, void *physbase, void *physfree)
 
   clearScreen();
 
-  read_file("/bin/init", NULL, NULL);
+  //read_file("/bin/init", NULL, NULL);
   print_task_list();
   //performContextSwitch(eEntry);
   // if(eEntry);

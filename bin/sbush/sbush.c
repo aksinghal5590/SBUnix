@@ -142,23 +142,17 @@ void performOperation(char* input, char *envp[])
 		test[1] = NULL;
 	}
 	test[testcount-1] = (char*) NULL;
-	printf("%s\n", test[0]);
 
 	pid_t pid = fork();
 	if(pid > 0) {
-        	//int status;
-		//int ret = 0;
+        	int status;
                 //if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
-		//	ret = waitpid(pid,&status, 0);
+		waitpid(pid,&status, 0);
 		//}
-		//if(ret) {
-			yield();
-			exit(0);
-		//} 
+		yield();
+		exit(0);
 	} else if(pid == 0) {
-		//printf("%s\n", test[0]);
-		exit(execvpe(test[0], test, NULL));
-		//int err = execvpe("/bin/ls", NULL, NULL);
+		execvpe(test[0], (test+1), NULL);
 	}
 }
 

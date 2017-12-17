@@ -57,7 +57,7 @@ void idleProcess(){
     while(1)
     { 
             // kprintf("In idle task\n");
-	    //read_file("/bin/sbush", NULL, NULL);
+	    read_file("/bin/init", NULL, NULL);
             if(checkReadyProcPresent())
             {
                 struct PCB* t = getNextReadyProc();
