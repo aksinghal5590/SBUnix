@@ -57,7 +57,6 @@ void idleProcess(){
     while(1)
     { 
             // kprintf("In idle task\n");
-        set_pid(1);
 	    read_file("/bin/init", NULL, NULL);
             if(checkReadyProcPresent())
             {
