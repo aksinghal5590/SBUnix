@@ -20,6 +20,7 @@
 #define __NR_dup2 33
 #define __NR_mmap 9
 #define __NR_munmap 11
+#define __NR_kill 62
 
 void initSyscalls();
 
@@ -39,5 +40,5 @@ void systemMunmap(uint64_t ptr);
 uint64_t systemMMap(uint64_t size);
 uint64_t systemSleep(uint64_t seconds);
 void incrementSleepCount();
-
+void systemKill(uint64_t killpid);
 #endif

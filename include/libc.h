@@ -18,6 +18,7 @@
 #define __NR_dup2 33
 #define __NR_mmap 9
 #define __NR_munmap 11
+#define __NR_kill 62
 
 #define BUF_SIZE 1024
 #define O_RDONLY 00000000
@@ -34,6 +35,8 @@ void yield();
 void munmap(uint64_t ptr);
 
 uint64_t mmap(uint64_t size);
+
+void kill(uint64_t killpid);
 
 //int dup2(int a, int b);
 
