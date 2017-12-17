@@ -1,23 +1,39 @@
-* The provided Makefile:
-  1) builds a kernel
-  2) copies it into rootfs/boot/kernel/kernel
-  3) creates an ISO CD image with the rootfs/ contents
+***************************50 Point Project*************************************
 
-* To boot the system in QEMU, run:
-qemu-system-x86_64 -curses -drive id=boot,format=raw,file=$USER.img,if=none -drive id=data,format=raw,file=$USER-data.img,if=none -device ahci,id=ahci -device ide-drive,drive=boot,bus=ahci.0 -device ide-drive,drive=data,bus=ahci.1 -gdb tcp::9999
+***************************System Calls*****************************************
 
-Explanation of parameters:
-  -curses         use a text console (omit this to use default SDL/VNC console)
-  -drive ...      connect a CD-ROM or hard drive with corresponding image
-  -device ...     configure an AHCI controller for the boot and data disks
-  -gdb tcp::9999  listen for "remote" debugging connections on port NNNN
-  -S              wait for GDB to connect at startup
-  -no-reboot      prevent reboot when OS crashes
+All function prototype declared in include/ are implemented.
 
-* When using the -curses mode, switch to the qemu> console with ESC-2.
+***************************Test Cases******************************************
+1. For cd:
+	i. do ls
+	ii. do cd <dir-name>
+	iii. do ls
+	Example: cd bin; ls; cd ..; ls
+cd supports ".." but not nested "..". Example- cd does not support ../..
 
-* To connect a remote debugger to the running qemu VM, from a different window:
-gdb ./kernel
+2. For ls:
+	i. do ls
+	ii. Print out all absolute path-name of all sub-directories and files.
 
-At the (gdb) prompt, connect with:
-target remote localhost:9999
+Default: ls without argument will print current directory structure.
+
+3. For Sleep:
+	i. Sleep system call waits for given number of seconds.
+	ii. Sleep call is used in sbush.c where if user provide any command, then after executing the command, the process will sleep for 2 seconds[Default]
+
+4. For running script:
+	i. Either provide absolute path of script or it will take the relative path from the current directory.
+	Example: For testing purpose, there is a script inside test/test.sh. On the terminal, ./test/test.sh and it will perform the commands inside it. In our example, the contents of test/test.sh is cd bin/ and ls.
+
+5. For kill:
+	i. kill -9 <pid> is supported. If anything apart from "-9" is used, the command is invalid. If the given pid is not present, then error is thrown.
+
+6. Terminal:
+	i. Terminal supports typing of characters at run-time and backspace. However, cursor position is not set properly and it may be misleading.
+
+7. cat:
+	i. cat <filename>. <filename> can be absolute path or relative path from current directory.
+
+8. echo:
+	i. For echo, apart from normal functionality, $PWD is also supported.Otherwise, no environment variable is supported.
