@@ -10,7 +10,7 @@ int list(char* fileName);
 
 
 int main(int argc, char* argv[], char* envp[]) {
-	
+
 	char fileName[MAX_LEN];
 	getcwd(fileName, MAX_LEN);
 	if(argc == 1) {
@@ -34,8 +34,10 @@ int main(int argc, char* argv[], char* envp[]) {
 int list(char* fileName) {
 
 	DIR *dirp = opendir(fileName);
+	printf("A readdir\n");
 	if(dirp != NULL) {
 		struct dirent *entry = NULL;
+		printf("B readdir\n");
 		while((entry = readdir(dirp)) != NULL) {
 			char *relName = &entry->d_name[strlen(fileName)];
 			printf("%s\n", relName);

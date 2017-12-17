@@ -19,7 +19,9 @@ DIR* opendir(const char *name) {
 		len++;
 	}
 	temp[len] = '\0';
+	printf("Open dir1\n");
 	int fd = open(temp, flags);
+	printf("Open dir2\n");
 	if(fd > 0) {
 		DIR *dir = &dirp;//TODO (DIR*)malloc(sizeof(DIR));
 		dir->fd = fd;

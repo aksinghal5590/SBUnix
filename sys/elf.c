@@ -42,7 +42,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
 	}
         ph += 1;
     }
-    uint64_t heapStartVAddress = H_BASE;
+/*    uint64_t heapStartVAddress = H_BASE;
     uint64_t heapEndVAddress = H_END;
     insert_vma(userThread->mm, heapStartVAddress, heapStartVAddress + heapEndVAddress, heapStartVAddress-heapEndVAddress+1, 1, 20);
     struct PCBMemList* fp =  (struct PCBMemList*) kmalloc(sizeof(struct PCBMemList));
@@ -50,7 +50,7 @@ struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
     fp->baseAddress = H_BASE;
     fp->next = NULL;
     userThread->freeHeapList = fp;
-   
+*/ 
     uint64_t endStackVAddress = S_TOP;
     uint64_t startStackVAddress = S_TOP - S_SIZE;
 
@@ -76,7 +76,7 @@ uint64_t getArgCount(char *argv[])
 {
   uint64_t cnt = 0;
 
-  while(argv!=NULL && argv[cnt]) {
+  while(argv != NULL) {
     cnt += 1;
   }
 

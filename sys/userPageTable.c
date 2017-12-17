@@ -253,7 +253,7 @@ uint64_t* getPTTableEntry(uint64_t pml4Address, uint64_t vAddress)
 
 
 void freeEntry(uint64_t val) {
-	struct PAGE* p = getPageStruct(val && GET_40_BITS);
+	struct PAGE* p = getPageStruct(val & GET_40_BITS);
     p->use_cnt -= 1;
     if(p->use_cnt == 0) {
     	freePage(p);
@@ -263,25 +263,25 @@ void freeEntry(uint64_t val) {
 void flushPageTable(uint64_t pml4Address) {
     for (uint64_t pml4 = 0; pml4 < 511; pml4++) {
         
-        uint64_t* pml4_ptr = (uint64_t*) (VIRTUAL_BASE + pml4Address + pml4);
+        uint64_t* pml4_ptr = (uint64_t*) (VIRTUAL_BASE + pml4Address + pml4*sizeof(uint64_t));
         uint64_t pml4_val = (uint64_t)(*pml4_ptr);
         if (pml4_val & 0x01) {
-            for (uint64_t pdpe = 0; pdpe < 512; pdpe++) {
+            for (uint64_t pdpe = 0; pdpe < 511; pdpe++) {
                 
-                uint64_t* pdpe_base = (uint64_t *)(pml4_val & GET_40_BITS);
-                uint64_t* pdpe_val_ptr = (uint64_t*)(pdpe_base + VIRTUAL_BASE + pdpe);
+                uint64_t pdpe_base = (pml4_val & GET_40_BITS);
+                uint64_t* pdpe_val_ptr = (uint64_t*)(pdpe_base + VIRTUAL_BASE + pdpe*sizeof(uint64_t));
                 uint64_t pdpe_val = (uint64_t)(*pdpe_val_ptr);
-                if (pdpe & 0x01) {
+                if (pdpe_val & 0x01) {
                     for (uint64_t pde = 0; pde < 512; pde++) {
                         
-                        uint64_t* pde_base = (uint64_t *)(pdpe_val & GET_40_BITS);
-		                uint64_t* pde_val_ptr = (uint64_t*)(pde_base + VIRTUAL_BASE + pde);
+                        uint64_t pde_base = (pdpe_val & GET_40_BITS);
+		                uint64_t* pde_val_ptr = (uint64_t*)(pde_base + VIRTUAL_BASE + pde*sizeof(uint64_t));
 		                uint64_t pde_val = (uint64_t)(*pde_val_ptr);
                         if (pde_val & 0x01) {
 
                             for (uint64_t pte = 0; pte < 512; pte++) {
-                                uint64_t* pte_base = (uint64_t *)(pde_val & GET_40_BITS);
-				                uint64_t* pte_val_ptr = (uint64_t*)(pte_base + VIRTUAL_BASE + pte);
+                                uint64_t pte_base = (pde_val & GET_40_BITS);
+				                uint64_t* pte_val_ptr = (uint64_t*)(pte_base + VIRTUAL_BASE + pte*sizeof(uint64_t));
 				                uint64_t pte_val = (uint64_t)(*pte_val_ptr);
                                 if (pte_val & 0x01) {
 						        	freeEntry(pte_val);
@@ -300,5 +300,5 @@ void flushPageTable(uint64_t pml4Address) {
             *pml4_ptr = 0UL;
         }
     }
-//flushTLB();
+flushTLB();
 }

@@ -10,8 +10,10 @@ int main(int argc, char *argv[], char *envp[]) {
 		pid = fork();
 		printf("%d\n", pid);
 		if (pid == 0) {
+			printf("C\n");
 			execvpe("/bin/sbush", NULL, NULL);
 		} else {
+			printf("P\n");
 			while(waitpid(pid, NULL, 0)) {
 	        		yield();
 	        	}
