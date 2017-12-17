@@ -11,11 +11,8 @@
 
 #define PAGE_SIZE 4096
 
-extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
 extern void loadNextProcess();    
-
-extern pid_t forkSyscall(uint64_t sysNum);
 
 extern void getCharacters(uint64_t data, uint64_t len);
 
@@ -56,7 +53,7 @@ pid_t userFork()
 {
 	 return forkSyscall(4);
 }
-
+ 
 void systemCallHandler()
 {
     uint64_t sysNum;
@@ -247,7 +244,7 @@ pid_t systemFork()
 
 void systemExit(uint64_t status)
 {
-    kprintf("Process exit with status: %d\n", status);
+    //kprintf("Process exit with status: %d\n", status);
     for(int i=0;i<100;i++) {
         if(current_proc->child_list[i] == 1) {
             proc_table[i]->ppid = 1;
@@ -290,13 +287,13 @@ uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[])
         // Exit from the current process
         // empty_task_struct(cur_task);
         // schedule_next_process()
-        addToFrontReady(exec);
+        // addToFrontReady(exec);
         systemExit(0);
         //switch_to_ring3_from_kernel();
  
     }
     // execvpe failed; so return -1
-    return -1;
+    return 1;
 }
 
 //TODO check if valid pid
@@ -328,11 +325,14 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
     }
     
     return 0;*/
-    if(proc_table[pid]->state == EXIT) {
+    if(pid > 100) {
+        return 0;
+    }
+    /*if(proc_table[pid]->state == EXIT) {
         proc_table[pid] = NULL;
         current_proc->child_list[pid] = 0;
         return 0;
-    } else {
+    } else {*/
         struct PCB* proc = ready_proc_list;
         while(proc) {
             if(proc->pid == pid) {
@@ -341,29 +341,30 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
             }
             proc = proc->next;
         }
-    }
+   // }
 
     return 0;    
 }
 
 
 void systemProcList() {
+	char* states[] = {"RUNNING", "SLEEPING", "ZOMBIE", "READY", "IDLE", "EXIT", "WAIT"};
     struct PCB* temp = ready_proc_list;
     // while(temp) {
-        // kprintf("\n====   LIST OF PROCESSES   ===="
-     //             "\n  #  |  PID  |  PPID  |   State   |  Process Name "
-     //             "\n ----| ----- | ------ | --------- | ---------------");
+        kprintf("\n      ====   PROCESS LIST   ===="
+                 "\n  #  |  PID  |  PPID  |   State   |  Process Name "
+                 "\n ----| ----- | ------ | --------- | ---------------\n");
 
-
+    kprintf("%d %d %s %s\n", current_proc->pid, current_proc->ppid, states[current_proc->state], current_proc->p_name); 
     while(temp) {
-        kprintf("%d %d %s %s\n", temp->pid, temp->ppid, temp->state, temp->p_name);
+        kprintf("%d %d %s %s\n", temp->pid, temp->ppid, states[temp->state], temp->p_name);
         temp = temp->next;
     } 
 
     temp = sleep_proc_list;
 
     while(temp) {
-        kprintf("%d %d %s %s\n", temp->pid, temp->ppid, temp->state, temp->p_name);
+        kprintf("%d %d %s %s\n", temp->pid, temp->ppid, states[temp->state], temp->p_name);
         temp = temp->next;
     }
 

@@ -35,6 +35,8 @@ void munmap(uint64_t ptr);
 
 uint64_t mmap(uint64_t size);
 
+void proc_list();
+
 //int dup2(int a, int b);
 
 uint64_t syscall0(uint64_t sysNum);
