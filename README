@@ -27,7 +27,7 @@ Default: ls without argument will print current directory structure.
 	Example: For testing purpose, there is a script inside test/test.sh. On the terminal, ./test/test.sh and it will perform the commands inside it. In our example, the contents of test/test.sh is cd bin/ and ls.
 
 5. For kill:
-	i. kill -9 <pid> is supported. If anything apart from "-9" is used, the command is invalid. If the given pid is not present, then error is thrown.
+	i. kill -9 <pid> is supported. If anything apart from "-9" is used, the command is invalid. If the given pid is not present, then error is thrown. If sbush is killed, then we are again loading sbush from init without printing any error.
 
 6. Terminal:
 	i. Terminal supports typing of characters at run-time and backspace. However, cursor position is not set properly and it may be misleading.
