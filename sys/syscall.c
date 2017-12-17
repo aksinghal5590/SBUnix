@@ -353,13 +353,13 @@ void systemProcList() {
     int cnt = 0;
     // while(temp) {
     kprintf("\n      ====   PROCESS LIST   ===="
-            "\n  # |  PID | PPID |   State   |  Process Name "
+            "\n  # |  PID | PPID |   State   |     Name "
             "\n ---| ---- | ---- | --------- |  ------------\n");
     cnt+=1;
-    kprintf("%d %d %d %s %s\n", cnt, current_proc->pid, current_proc->ppid, states[current_proc->state], current_proc->p_name); 
+    kprintf("  %d     %d      %d      %s      %s\n", cnt, current_proc->pid, current_proc->ppid, states[current_proc->state], current_proc->p_name); 
     while(temp) {
         cnt+=1;
-        kprintf("%d %d %d %d %s %s\n", cnt, temp->pid, temp->ppid, states[temp->state], temp->p_name);
+        kprintf("  %d     %d     %d     %d     %s     %s\n", cnt, temp->pid, temp->ppid, states[temp->state], temp->p_name);
         temp = temp->next;
     } 
 
@@ -367,7 +367,7 @@ void systemProcList() {
 
     while(temp) {
         cnt+=1;
-        kprintf("%d %d %d %s %s\n", cnt, temp->pid, temp->ppid, states[temp->state], temp->p_name);
+        kprintf("%d     %d     %d     %s     %s\n", cnt, temp->pid, temp->ppid, states[temp->state], temp->p_name);
         temp = temp->next;
     }
 
