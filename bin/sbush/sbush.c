@@ -81,7 +81,7 @@ void performOperation(char* input, char *envp[])
 	char command[1024] = "";
 	char commandArg[MAX_CMD][MAX_LENGTH];
         int argVal = 0, len = 0, i = 0;
-	// int testcount = 0;
+	int testcount = 0;
 	int strlength = strlen(input);
 	int backgroundProcess = 0;
 
@@ -124,15 +124,15 @@ void performOperation(char* input, char *envp[])
 		performCDOperation(commandArg[0]);
 		return;
 	}
-	/*if(argVal)
+	if(argVal)
 		testcount = argVal+2;
 	else
 		testcount = 3;
-*/
+
 	//add binary path to command if not already present
 	addBinaryPath(command);
 
-	/* char* test[testcount];
+	char* test[testcount];
 	test[0] = command;
 	if(argVal) {
 		for(int j = 1; j < testcount-1; j++)
@@ -142,7 +142,8 @@ void performOperation(char* input, char *envp[])
 		test[1] = NULL;
 	}
 	test[testcount-1] = (char*) NULL;
-*/
+	printf("%s\n", test[0]);
+
 	pid_t pid = fork();
 	if(pid > 0) {
         	int status;
@@ -151,10 +152,8 @@ void performOperation(char* input, char *envp[])
 		}
 		yield();     
 	} else if(pid == 0) {
-		printf("In child\n");
-		// int err = execvpe("/bin/ls", envp, envp);
-		// printf("child: test 0 - %s\n", test[0]);
 		int err = execvpe("/bin/ls", NULL, NULL);
+		//int err = execvpe("/bin/ls", NULL, NULL);
 		char errStr[] = "Error in running command\n";
 		if(err == -1)
 	        {

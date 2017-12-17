@@ -1,5 +1,6 @@
 #include <libc.h>
 #include <unistd.h> 
+#include <stdio.h>
 #include "sys/defs.h"
 
 int execvpe(const char* filename, char *const argv[], char *const envp[]) {

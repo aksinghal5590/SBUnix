@@ -35,6 +35,7 @@ struct PCB {
    int fd_count;
    struct PCBMemList* usedHeapList;
    struct PCBMemList* freeHeapList;
+   uint64_t child_list[100];
 };
 
 struct mm_struct {

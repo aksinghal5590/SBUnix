@@ -110,6 +110,7 @@ struct PCB* copyProcess(struct PCB* parent) {
 
     child->ppid  = parent->pid;
     strcpy(child->p_name, parent->p_name);
+    parent->child_list[child->pid] = 1;
     while(parent_vma != NULL) {
     	uint64_t vm_start, vm_end , v_add, p_add;
         vm_start = parent_vma->start;
@@ -152,9 +153,9 @@ struct PCB* copyProcess(struct PCB* parent) {
                 if(parent_vma->type == HEAP && (!user_page_exist(parent_pml4, v_add)))
 			break;
 
-                uint64_t* page_entry = getPTTableEntry(parent_pml4, v_add);
 
                 if (user_page_exist(parent_pml4, v_add)) {
+		    uint64_t* page_entry = getPTTableEntry(parent_pml4, v_add);
                     *page_entry= *page_entry & 0xFFFFFFFFFFFFFFFDUL;
                     *page_entry = *page_entry | 0x4000000000000000UL;
                     updateUserCR3_Val(child_pml4);

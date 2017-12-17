@@ -34,4 +34,8 @@ void useExistingPage(uint64_t pml4Address, uint64_t vAddress, uint64_t oldPhysAd
 
 uint64_t* getPTTableEntry(uint64_t pml4Address, uint64_t vAddress);
 
+void freeEntry(uint64_t val);
+
+void flushPageTable(uint64_t pml4Address);
+
 #endif
