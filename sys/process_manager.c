@@ -130,7 +130,7 @@ struct PCB* copyProcess(struct PCB* parent) {
 
         if (parent_vma->type == STK) {
 
-            // v_add = ((vm_end) >> 12 << 12) - 0x1000;
+
             v_add = vm_end - 0x1000;
             while (v_add >= vm_start) {
                 updateUserCR3_Val(parent_pml4);
@@ -144,21 +144,12 @@ struct PCB* copyProcess(struct PCB* parent) {
                     updateUserCR3_Val(child_pml4);
                     useExistingPage(child_pml4, v_add, *page_entry);
                 }
-               /* uint64_t ker_vadd = (uint64_t)kmalloc(sizeof(struct PCB));
 
-                p_add = ker_vadd - VIRTUAL_BASE;
-
-                //kprintf("\nStack v:%p p:%p", vaddr, paddr);
-                // Copy parent page in kernel space
-                memcpy((void*)ker_vadd, (void*)v_add, PAGESIZE);
-                updateUserCR3_Val(child_pml4);
-                useExistingPage(child_pml4, v_add, p_add);
-                *(getPTTableEntry(child_pml4, ker_vadd)) = 0UL;*/
                 v_add = v_add - PAGESIZE;
             }
         } 
         else {
-        	// v_add = ((vm_start) >> 12 << 12); //align page
+
             v_add = vm_start;
             while (v_add < vm_end) {
                 updateUserCR3_Val(parent_pml4);
