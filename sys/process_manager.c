@@ -109,6 +109,7 @@ struct PCB* copyProcess(struct PCB* parent) {
 
     child->ppid  = parent->pid;
     strcpy(child->p_name, parent->p_name);
+    parent->child_list[child->pid] = 1;
     while(parent_vma != NULL) {
     	uint64_t vm_start, vm_end , v_add, p_add;
         vm_start = parent_vma->start;

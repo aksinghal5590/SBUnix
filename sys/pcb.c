@@ -10,11 +10,12 @@ struct PCB *task_l = NULL;
 struct PCB *free_task_l = NULL;
 struct PCB* idle = NULL;
 uint64_t pid = 0;
-
+struct PCB* proc_table[100];
 //struct PCB *current_proc = NULL;
 void set_pid(pid_t curr_pid) {
 	pid = curr_pid;
 }
+
 
 struct mm_struct* create_mm_struct() {
 	struct mm_struct *mm = (struct mm_struct*) kmalloc(sizeof(struct mm_struct));
@@ -83,11 +84,13 @@ struct PCB *create_new_proc(char *p_name, uint8_t isUser)
 	proc->state = READY;
 	proc->pml4 = (uint64_t)createUserPML4Table();
 	memset((void*)proc->kstack, 0, KSTACK_SIZE);
+	memset(proc->child_list, 0, 100);
 
 	proc->cwd = &d_entries[0];
 	proc->fd_count = 3;
 
 	proc->next = NULL;
+	proc_table[pid] = proc;
 	return proc;
 }
 	// proc = (struct PCB *)kmalloc(sizeof(struct PCB));

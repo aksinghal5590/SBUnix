@@ -22,6 +22,7 @@ extern void getCharacters(uint64_t data, uint64_t len);
 uint64_t* function_ptr = NULL;
 extern struct PCB* ready_proc_list;
 extern struct PCB* current_proc;
+extern struct PCB* proc_table[100];
 void* systemCallHandlerTable[128];
 // = {systemRead, systemWrite, systemExit, systemYield, systemFork};
 
@@ -244,6 +245,13 @@ pid_t systemFork()
 void systemExit(uint64_t status)
 {
     kprintf("Process exit with status: %d\n", status);
+    for(int i=0;i<100;i++) {
+        if(current_proc->child_list[i] == 1) {
+            proc_table[i]->ppid = 1;
+        }
+    }
+
+    flushPageTable(current_proc->pml4);
     current_proc->state = EXIT;
     loadNextProcess();
 }
@@ -306,7 +314,7 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
 
     // // if (status_p) *status_p = 0;
     // return (uint64_t)current_proc->wait_on_child_pid;
-    struct PCB* proc = ready_proc_list;
+    /*struct PCB* proc = ready_proc_list;
     while(proc) {
         if(proc->pid == pid) {
             // systemYield();
@@ -315,5 +323,21 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
         proc = proc->next;
     }
     
+    return 0;*/
+    if(proc_table[pid]->state == EXIT) {
+        proc_table[pid] = NULL;
+        current_proc->child_list[pid] = 0;
+        return 0;
+    } else {
+        struct PCB* proc = ready_proc_list;
+        while(proc) {
+            if(proc->pid == pid) {
+                // systemYield();
+                return pid;
+            }
+            proc = proc->next;
+        }
+    }
+
     return 0;    
 }
