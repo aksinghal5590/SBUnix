@@ -19,7 +19,6 @@
 #define __NR_dup2 33
 #define __NR_mmap 9
 #define __NR_munmap 11
-#define __NR_ps 10
 
 void initSyscalls();
 
@@ -37,6 +36,5 @@ uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[]);
 uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options);
 void systemMunmap(uint64_t ptr);
 uint64_t systemMMap(uint64_t size);
-void systemProcList();
 
 #endif
