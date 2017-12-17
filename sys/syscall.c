@@ -265,6 +265,7 @@ uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[])
         exec->pid  = current_proc->pid;
         exec->ppid = current_proc->ppid;
         exec->parent = current_proc->parent;
+	exec->cwd = current_proc->cwd;
         //memcpy((void*)new_task->file_descp, (void*)cur_task->file_descp, MAXFD*8);
 
         // // Replace current child with new exec process

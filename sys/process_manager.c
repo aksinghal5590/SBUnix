@@ -110,6 +110,7 @@ struct PCB* copyProcess(struct PCB* parent) {
     child->pml4  = child_pml4;
     child->mm->vma_list = NULL; 
 
+    child->cwd = parent->cwd;
     child->ppid  = parent->pid;
     strcpy(child->p_name, parent->p_name);
     parent->child_list[child->pid] = 1;
@@ -177,6 +178,10 @@ struct PCB* copyProcess(struct PCB* parent) {
         updateUserCR3_Val(parent_pml4);
         parent_vma = parent_vma->next;
     }
+    child->fd_count = parent->fd_count;
+    for(int i = 0; i < 256; i++)
+	child->fd_table[i] = parent->fd_table[i];
+
     return child;
 }
 

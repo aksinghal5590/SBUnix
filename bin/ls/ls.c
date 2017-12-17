@@ -23,8 +23,6 @@ int main(int argc, char* argv[], char* envp[]) {
 				puts("Not supported");
 				continue;
 			}
-			if(list(argv[i]) == -1)
-				continue;
 			list(argv[i]);
 		}
 	}
@@ -37,8 +35,7 @@ int list(char* fileName) {
 	if(dirp != NULL) {
 		struct dirent *entry = NULL;
 		while((entry = readdir(dirp)) != NULL) {
-			char *relName = &entry->d_name[strlen(fileName)];
-			printf("%s\n", relName);
+			printf("%s\n", entry->d_name);
 		}
 		closedir(dirp);
 	}

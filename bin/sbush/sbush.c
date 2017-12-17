@@ -43,7 +43,7 @@ void performCDOperation(char* commandArg)
 		if(res == -1) return;
 	}
 	char pwd[256];
-	printf("PWD changed to: %s\n", getcwd(pwd, 256));
+//	printf("PWD changed to: %s\n", getcwd(pwd, 256));
 }
 
 void checkScript(char *command, char *envp[]) {
