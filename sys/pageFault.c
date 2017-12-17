@@ -41,7 +41,7 @@ void pageFaultHandler(registers_t regSet)
 		:
 		:"cc", "memory"
 	);
-	// kprintf("Value of CR2 is: %x PID: %d\n", cr2_val, current_proc->pid);
+	kprintf("Value of CR2 is: %x PID: %d\n", cr2_val, current_proc->pid);
 	__asm__ volatile
 	(
 		"movq %%cr3, %0 \n\t"
@@ -97,11 +97,20 @@ void pageFaultHandler(registers_t regSet)
             	endAdd = vma->end;
             	if(cr2_val >= startAdd && cr2_val <= endAdd)
             	{
-                	for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)
-	            	{
-		            walkUserPageTables(cr3_val, i, 0);
-	            	}
-                	break;
+			if(vma->type == 10) //stack
+			{
+				cr2_val = cr2_val & GET_40_BITS;
+				walkUserPageTables(cr3_val, cr2_val, 0);
+				break;
+			}
+			else
+			{
+                		for(uint64_t i = startAdd; i <= endAdd; i += 0x1000)
+	            		{
+		            		walkUserPageTables(cr3_val, i, 0);
+	            		}
+                		break;
+			}
             	}
 	    }
             vma = vma->next;

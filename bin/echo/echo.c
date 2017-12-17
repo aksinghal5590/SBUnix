@@ -1,6 +1,7 @@
 #include<libc.h>
 #include<stdio.h>
 #include<string.h>
+#include<unistd.h>
 
 int main(int argc, char* argv[], char* envp[]) {
 	char output[256*BUF_SIZE];
@@ -8,16 +9,10 @@ int main(int argc, char* argv[], char* envp[]) {
 		if(strlen(output)) {
 			strcat(output, " ");
 		}
-        	if(argv[k][0] == '$') {
-        		for(int i = 0; *envp[i] != '\0'; i++) {
-				int j = 0;
-                        	for(j = 0; (argv[k][j+1] == envp[i][j]) && (envp[i][j] != '=') && argv[k][j+1] != '\0'; j++);
-                        	if(j > 0) {
-                        		char* envVal = envp[i] + j + 1;
-                                	strcat(output, envVal);
-                                	break;
-                        	}
-                	}
+        	if(!strcmp(argv[k], "$PWD")) {
+			char cwd[256];
+			getcwd(cwd, 256);
+			strcat(output, cwd);
         	} else {
         		strcat(output, argv[k]);
         	}
