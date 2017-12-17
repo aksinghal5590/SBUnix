@@ -55,8 +55,11 @@ uint64_t getPage() {
 }
 
 void freePage(struct PAGE* p) {
-    p->next = free_list;
+    struct PAGE* temp = free_list;
+    while(temp->next != NULL)
+	temp = temp->next;
+    temp->next = p;
     p->use_cnt = 0;
-    free_list = p;
+    p->next = NULL;
     pageCount++;
 }

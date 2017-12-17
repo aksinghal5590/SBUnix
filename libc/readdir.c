@@ -11,7 +11,6 @@ struct dirent *readdir(DIR *dirp) {
 		return NULL;
 	char buf[MAXLEN];
 	if(!dirp->read) {
-		printf("I readdir\n");
 		int bytesread = getdents(dirp->fd, buf, MAXLEN);
 		for(int i = 0; i < bytesread;) {
 			dirp->dir_child[dirp->child_count++] = (struct dirent*)(buf + i);
