@@ -11,8 +11,6 @@
 
 #define PAGE_SIZE 4096
 
-static volatile int sleep_count = 0;
-
 extern void sysCallHandler();
 extern void loadNextProcess();    
 
@@ -31,7 +29,6 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_open] = sys_open;
 	systemCallHandlerTable[__NR_close] = sys_close;
 	systemCallHandlerTable[__NR_yield] = systemYield;
-	systemCallHandlerTable[__NR_sleep] = systemSleep;
 	systemCallHandlerTable[__NR_fork] = systemFork;
 	systemCallHandlerTable[__NR_execve] = systemExecvpe;
 	systemCallHandlerTable[__NR_exit] = systemExit;
@@ -198,23 +195,6 @@ uint64_t systemMMap(uint64_t size)
 	//kprintf("Value of check is: %x\n", check);
 	return (freeList->baseAddress);
 } 
-
-void incrementSleepCount() {
-	sleep_count++;
-	//kprintf("%d\n", sleep_count);
-}
-
-uint64_t systemSleep(uint64_t seconds) {
-	current_proc->state = SLEEPING;
-	systemYield();
-	__asm__("sti");
-	while(sleep_count < seconds) {
-	//	kprintf("in sleep %d\n", sleep_count);
-	}
-	sleep_count = 0;
-	current_proc->state = READY;
-	return 0;
-}
 
 void systemWrite(uint64_t fd, uint64_t data, uint64_t len)
 {

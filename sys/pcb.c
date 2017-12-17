@@ -88,6 +88,7 @@ struct PCB *create_new_proc(char *p_name, uint8_t isUser)
 
 	proc->cwd = &d_entries[0];
 	proc->fd_count = 3;
+
 	proc->next = NULL;
 	proc_table[pid] = proc;
 	return proc;

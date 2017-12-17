@@ -84,7 +84,7 @@ void performOperation(char* input, char *envp[])
         int argVal = 0, len = 0, i = 0;
 	int testcount = 0;
 	int strlength = strlen(input);
-	int backgroundProcess = 0;
+	//int backgroundProcess = 0;
 
 	while((i < strlength) && (input[i] != '\0') && (input[i] != ' '))
 	{
@@ -108,7 +108,7 @@ void performOperation(char* input, char *envp[])
 			if(length == 1 && commandArg[argVal][0] == '&')
 			{
 				commandArg[argVal][0] = '\0'; //making the arg empty
-				backgroundProcess = 1;
+				//backgroundProcess = 1;
 			}
 			else
 			{
@@ -146,11 +146,9 @@ void performOperation(char* input, char *envp[])
 	pid_t pid = fork();
 	if(pid > 0) {
         	int status;
-                if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
-			waitpid(pid,&status, 0);
-			yield();
-			sleep(5);
-		}
+                //if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
+		waitpid(pid,&status, 0);
+		//}
 		yield();
 		exit(0);
 	} else if(pid == 0) {

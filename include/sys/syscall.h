@@ -8,7 +8,6 @@
 #define __NR_open 2
 #define __NR_close 3
 #define __NR_yield 24
-#define __NR_sleep 35
 #define __NR_fork 57
 #define __NR_execve 59
 #define __NR_exit 60
@@ -37,7 +36,5 @@ uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[]);
 uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options);
 void systemMunmap(uint64_t ptr);
 uint64_t systemMMap(uint64_t size);
-uint64_t systemSleep(uint64_t seconds);
-void incrementSleepCount();
 
 #endif
