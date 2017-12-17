@@ -20,6 +20,7 @@ extern void getCharacters(uint64_t data, uint64_t len);
 
 uint64_t* function_ptr = NULL;
 extern struct PCB* ready_proc_list;
+extern struct PCB* sleep_proc_list;
 extern struct PCB* current_proc;
 extern struct PCB* proc_table[100];
 void* systemCallHandlerTable[128];
@@ -41,6 +42,7 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_chdir] = sys_chdir;
 	systemCallHandlerTable[__NR_mmap] = systemMMap;
 	systemCallHandlerTable[__NR_munmap] = systemMunmap;
+	systemCallHandlerTable[__NR_kill] = systemKill;	
 }
  
 void systemCallHandler()
@@ -260,6 +262,90 @@ void systemExit(uint64_t status)
     flushPageTable(current_proc->pml4);
     current_proc->state = EXIT;
     loadNextProcess();
+}
+
+void systemKill(uint64_t killpid)
+{
+	int i;
+	int flag = 0;
+	for(i = 0; i < 100; i++)
+	{
+		if(proc_table[i] != NULL && proc_table[i]->pid == killpid)
+		{
+			struct PCB* temp = proc_table[i];
+			if(current_proc->pid == temp->pid)
+			{
+				flag = 1;
+			}
+			for(int j = 0; j < 100; j++)
+			{
+				if(temp->child_list[j] == 1)
+				{
+					proc_table[j]->ppid = 1;
+				}
+			}
+			struct PCB* currentProcess = current_proc;
+			current_proc = temp;
+		        loadCR3(temp->pml4);
+			flushPageTable(current_proc->pml4);
+			proc_table[i] = NULL; 
+			current_proc->state = EXIT;
+			if(flag)
+			{
+			   loadNextProcess();
+			}
+			else
+			{
+			   struct PCB* iterate = ready_proc_list;
+			   if(iterate != NULL && iterate->pid == killpid)
+			   {
+			       ready_proc_list = iterate->next;
+			       iterate->next = NULL;
+			   }
+			   else
+			   {
+			       while(iterate && iterate->next != NULL && iterate->next->pid != killpid)
+				   iterate = iterate->next;
+			       if(iterate && iterate->next != NULL)
+			       {
+				   struct PCB* t = iterate->next;
+                                   iterate->next = t->next;
+				   t->next = NULL;
+                               }
+			       else
+			       {
+                                   iterate = sleep_proc_list;
+				   if(iterate && iterate->pid == killpid)
+				   {
+					sleep_proc_list = iterate->next;
+				        iterate->next = NULL;
+				   }
+				   else
+				   {
+					while(iterate && iterate->next != NULL && iterate->next->pid != killpid)
+					{
+						iterate = iterate->next;
+					}
+					if(iterate && iterate->next != NULL)
+					{
+						struct PCB* t1 = iterate->next;
+						iterate->next = t1->next;
+						t1->next = NULL;
+					}
+				   }
+                               }
+				
+			   }
+			   current_proc =  currentProcess;
+			   loadCR3(current_proc->pml4);
+			}
+			break;
+		}
+	}
+	if(i==100)
+	{
+		kprintf("Given pid by user not found. Please check.\n");
+	}
 }
 
 void systemYield()

@@ -149,7 +149,7 @@ void performOperation(char* input, char *envp[])
                 if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
 			waitpid(pid,&status, 0);
 			yield();
-			sleep(5);
+			sleep(2);
 		}
 		yield();
 		exit(0);
