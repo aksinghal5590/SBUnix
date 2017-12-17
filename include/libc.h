@@ -17,6 +17,7 @@
 #define __NR_dup2 33
 #define __NR_mmap 9
 #define __NR_munmap 11
+#define __NR_ps 10
 
 #define BUF_SIZE 1024
 #define O_RDONLY 00000000
