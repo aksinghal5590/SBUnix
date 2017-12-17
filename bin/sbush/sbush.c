@@ -6,8 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define MAX_LENGTH 1024
-#define MAX_BUF_LENGTH 2014*10
+#define MAX_LENGTH 256
 #define MAX_CMD 10
 
 void performExpansion(char* input);
@@ -16,13 +15,16 @@ void performCDOperation(char* commandArg);
 void addBinaryPath(char* command);
 void checkScript(char *command, char *envp[]);
 
+char commandArg[MAX_CMD][MAX_LENGTH];
+char input[MAX_LENGTH];
+char _exit[5] = "exit";
+char* test[MAX_CMD];
+
 int main(int argc, char *argv[], char *envp[]) {
-	char input[MAX_LENGTH];
-	char exit[5] = "exit";
 	while(1) {
 		printf("sbush$");
 		gets(input);
-		if(strcmp(exit, input) == 0)
+		if(strcmp(_exit, input) == 0)
 		{
 			return 0;
 		}
@@ -79,11 +81,10 @@ void checkScript(char *command, char *envp[]) {
 void performOperation(char* input, char *envp[])
 {       
 	char command[1024] = "";
-	char commandArg[MAX_CMD][MAX_LENGTH];
         int argVal = 0, len = 0, i = 0;
 	int testcount = 0;
 	int strlength = strlen(input);
-	int backgroundProcess = 0;
+	//int backgroundProcess = 0;
 
 	while((i < strlength) && (input[i] != '\0') && (input[i] != ' '))
 	{
@@ -107,7 +108,7 @@ void performOperation(char* input, char *envp[])
 			if(length == 1 && commandArg[argVal][0] == '&')
 			{
 				commandArg[argVal][0] = '\0'; //making the arg empty
-				backgroundProcess = 1;
+				//backgroundProcess = 1;
 			}
 			else
 			{
@@ -124,15 +125,14 @@ void performOperation(char* input, char *envp[])
 		performCDOperation(commandArg[0]);
 		return;
 	}
+	//add binary path to command if not already present
+	addBinaryPath(command);
+
 	if(argVal)
 		testcount = argVal+2;
 	else
 		testcount = 3;
 
-	//add binary path to command if not already present
-	addBinaryPath(command);
-
-	char* test[testcount];
 	test[0] = command;
 	if(argVal) {
 		for(int j = 1; j < testcount-1; j++)
@@ -146,21 +146,19 @@ void performOperation(char* input, char *envp[])
 
 	pid_t pid = fork();
 	if(pid > 0) {
-        	int status;
-                if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
-			waitpid(pid,&status, 0);
-		}
-		yield();     
+        	//int status;
+		//int ret = 0;
+                //if(!backgroundProcess) { //Parent process will not wait for child process in case of background process 
+		//	ret = waitpid(pid,&status, 0);
+		//}
+		//if(ret) {
+			yield();
+			exit(0);
+		//} 
 	} else if(pid == 0) {
-		int err = execvpe("/bin/ls", NULL, NULL);
+		//printf("%s\n", test[0]);
+		exit(execvpe(test[0], test, NULL));
 		//int err = execvpe("/bin/ls", NULL, NULL);
-		char errStr[] = "Error in running command\n";
-		if(err == -1)
-	        {
-                   err = write(1, errStr,strlen(errStr));
-                   exit(1);
-                }
-                exit(0);
 	}
 }
 

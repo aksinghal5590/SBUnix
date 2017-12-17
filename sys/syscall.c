@@ -11,11 +11,8 @@
 
 #define PAGE_SIZE 4096
 
-extern void writeSyscall(uint64_t fd, uint64_t data, uint64_t len, uint64_t sysNum);
 extern void sysCallHandler();
 extern void loadNextProcess();    
-
-extern pid_t forkSyscall(uint64_t sysNum);
 
 extern void getCharacters(uint64_t data, uint64_t len);
 
@@ -41,20 +38,8 @@ void initSyscalls() {
 	systemCallHandlerTable[__NR_chdir] = sys_chdir;
 	systemCallHandlerTable[__NR_mmap] = systemMMap;
 	systemCallHandlerTable[__NR_munmap] = systemMunmap;
-    	systemCallHandlerTable[__NR_wait4] = systemWaitPid;
-    	systemCallHandlerTable[__NR_execve] = systemExecvpe;
-} 
-
-void userWrite(uint64_t fileDescriptor, char* data, uint64_t len)
-{
-	 writeSyscall(fileDescriptor, (uint64_t)data, len, 1);
 }
-
-pid_t userFork()
-{
-	 return forkSyscall(4);
-}
-
+ 
 void systemCallHandler()
 {
     uint64_t sysNum;
@@ -288,13 +273,13 @@ uint64_t systemExecvpe(char *file_path, char *argv[], char *envp[])
         // Exit from the current process
         // empty_task_struct(cur_task);
         // schedule_next_process()
-        addToFrontReady(exec);
+        // addToFrontReady(exec);
         systemExit(0);
         //switch_to_ring3_from_kernel();
  
     }
     // execvpe failed; so return -1
-    return -1;
+    return 1;
 }
 
 //TODO check if valid pid
@@ -326,11 +311,14 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
     }
     
     return 0;*/
-    if(proc_table[pid]->state == EXIT) {
+    if(pid > 100) {
+        return 0;
+    }
+    /*if(proc_table[pid]->state == EXIT) {
         proc_table[pid] = NULL;
         current_proc->child_list[pid] = 0;
         return 0;
-    } else {
+    } else {*/
         struct PCB* proc = ready_proc_list;
         while(proc) {
             if(proc->pid == pid) {
@@ -339,7 +327,7 @@ uint64_t systemWaitPid(uint64_t pid, uint64_t status, uint64_t options)
             }
             proc = proc->next;
         }
-    }
+   // }
 
     return 0;    
 }

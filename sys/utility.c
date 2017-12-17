@@ -22,7 +22,7 @@ uint64_t getCR2Val()
 		:
 		:"cc", "memory"
 	);
-	kprintf("Value of CR2 is: %x\n", cr2_val);
+//	kprintf("Value of CR2 is: %x\n", cr2_val);
     return cr2_val;
 }
 
@@ -36,7 +36,7 @@ uint64_t getCR3Val()
 		:
 		:"cc", "memory"
 	);
-	kprintf("Value of CR3 is: %x\n", cr3_val);
+//	kprintf("Value of CR3 is: %x\n", cr3_val);
     return cr3_val;
 }
 
@@ -52,7 +52,7 @@ void flushTLB()
 		:
 		:"cc", "memory"
 	);
-	kprintf("Value of CR3 is: %x\n", cr3_val);
+//	kprintf("Value of CR3 is: %x\n", cr3_val);
 }
 
 void ERROR(char* error)

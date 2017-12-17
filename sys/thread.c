@@ -46,7 +46,6 @@ void performContextSwitch()
 void firstUserProcess()
 {
 	kprintf("This is the first user process at: %x\n", &firstUserProcess);
-	userWrite(1, "Vaibhav Rustagi", 5);
 	while(1)
 	{
 		;

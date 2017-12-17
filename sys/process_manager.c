@@ -1,3 +1,4 @@
+#include "sys/elf64.h"
 #include "sys/pcb.h"
 #include "sys/thread.h"
 #include "sys/process_manager.h"
@@ -56,6 +57,7 @@ void idleProcess(){
     while(1)
     { 
             // kprintf("In idle task\n");
+	    //read_file("/bin/sbush", NULL, NULL);
             if(checkReadyProcPresent())
             {
                 struct PCB* t = getNextReadyProc();
@@ -112,7 +114,8 @@ struct PCB* copyProcess(struct PCB* parent) {
     strcpy(child->p_name, parent->p_name);
     parent->child_list[child->pid] = 1;
     while(parent_vma != NULL) {
-    	uint64_t vm_start, vm_end , v_add, p_add;
+    	uint64_t vm_start, vm_end , v_add;
+	//uint64_t p_add;
         vm_start = parent_vma->start;
         vm_end   = parent_vma->end;  
 
@@ -132,7 +135,14 @@ struct PCB* copyProcess(struct PCB* parent) {
                 if (!user_page_exist(parent_pml4, v_add)) {
                 	break;
                 }
-                uint64_t ker_vadd = (uint64_t)kmalloc(sizeof(struct PCB));
+		if (user_page_exist(parent_pml4, v_add)) {
+                    uint64_t* page_entry = getPTTableEntry(parent_pml4, v_add);
+                    *page_entry= *page_entry & 0xFFFFFFFFFFFFFFFDUL;
+                    *page_entry = *page_entry | 0x4000000000000000UL;
+                    updateUserCR3_Val(child_pml4);
+                    useExistingPage(child_pml4, v_add, *page_entry);
+                }
+               /* uint64_t ker_vadd = (uint64_t)kmalloc(sizeof(struct PCB));
 
                 p_add = ker_vadd - VIRTUAL_BASE;
 
@@ -141,7 +151,7 @@ struct PCB* copyProcess(struct PCB* parent) {
                 memcpy((void*)ker_vadd, (void*)v_add, PAGESIZE);
                 updateUserCR3_Val(child_pml4);
                 useExistingPage(child_pml4, v_add, p_add);
-                *(getPTTableEntry(child_pml4, ker_vadd)) = 0UL;
+                *(getPTTableEntry(child_pml4, ker_vadd)) = 0UL;*/
                 v_add = v_add - PAGESIZE;
             }
         } 
@@ -192,6 +202,7 @@ void loadNextProcess()
     current_proc = next_proc;
     current_proc->state = RUNNING;
     schedule(&temp->rsp, &current_proc->rsp);
+    set_tss_rsp(&current_proc->kstack[KSTACK_SIZE-1]);
 }
 
 void addProcToReadyList(struct PCB* proc)

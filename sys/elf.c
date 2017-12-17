@@ -15,7 +15,7 @@ extern struct PCB* current_proc;
 
 struct PCB* read_file(char* file_name, char *argv[], char *envp[]) {
 
-    struct PCB *userThread = create_new_proc("User Process", 1); 
+    struct PCB *userThread = create_new_proc(file_name, 1); 
     uint64_t pml4_add = userThread->pml4;
 
     Elf64_Ehdr* eh = (Elf64_Ehdr*)read_tarfs(file_name);
@@ -76,7 +76,7 @@ uint64_t getArgCount(char *argv[])
 {
   uint64_t cnt = 0;
 
-  while(argv != NULL) {
+  while(argv != NULL && argv[cnt] != NULL) {
     cnt += 1;
   }
 
